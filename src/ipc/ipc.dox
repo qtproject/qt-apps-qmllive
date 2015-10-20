@@ -1,0 +1,14 @@
+/*!
+ \defgroup ipc Ipc Communication
+
+ A set of classes to support ipc client and server.
+*/
+
+/*!
+ @{
+*/
+
+/*!
+ @}
+*/
+

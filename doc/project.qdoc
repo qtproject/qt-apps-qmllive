@@ -1,0 +1,49 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Pelagicore AG
+** Contact: http://www.qt.io/ or http://www.pelagicore.com/
+**
+** This file is part of the QmlLive tool.
+**
+** $QT_BEGIN_LICENSE:GPL3-PELAGICORE$
+** Commercial License Usage
+** Licensees holding valid commercial Pelagicore Application Manager
+** licenses may use this file in accordance with the commercial license
+** agreement provided with the Software or, alternatively, in accordance
+** with the terms contained in a written agreement between you and
+** Pelagicore. For licensing terms and conditions, contact us at:
+** http://www.pelagicore.com.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3 requirements will be
+** met: http://www.gnu.org/licenses/gpl-3.0.html.
+**
+** $QT_END_LICENSE$
+**
+** SPDX-License-Identifier: GPL-3.0
+**
+****************************************************************************/
+/*!
+
+\page qml-live.html
+\keyword QML Live
+\title QML Live
+
+During a typical user interface design phase, designers create many graphics documents
+envisioning the desired user interface. Transferring such graphical visions into
+programmer’s code is difficult. Not only is it a tedious process, it often comes with great
+compromises on both sides.
+
+Many time-consuming iterations are needed to finally reach a compromise that satisfies
+the designer’s vision and is also technically feasible. However, each iteration also brings a
+small change towards the goal. Qt, with the Qt Quick technology, already shortens the
+gap between vision and product by introducing a more design oriented language (QML).
+But there still is room for improvement...
+
+See also \l {usage.html} {Usage} for how to work with the QMLLiveBench
+
+*/

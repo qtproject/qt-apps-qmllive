@@ -60,7 +60,7 @@ public:
     void setPluginPath(const QString& path);
     void setImportPaths(const QStringList& pathList);
     void setStaysOnTop(bool enabled);
-    void readSettings();
+    void init();
 protected:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);

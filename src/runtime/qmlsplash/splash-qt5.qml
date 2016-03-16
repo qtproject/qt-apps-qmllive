@@ -32,16 +32,17 @@ import QtQuick 2.0
 
 Rectangle {
     id: root
-    width: 1024
-    height: 768
+    width: parent.width ? parent.width : 1024
+    height: parent.height ? parent.height : 768
     color: "#FF6600"
 
     Image {
         id: logo
-        source: "pelagicore-symbol-white-rgb.png"
-        x: 50
+        width: 300
+        source: "logo_white.png"
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 100
+        anchors.topMargin: -100
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 250
 
@@ -51,28 +52,26 @@ Rectangle {
     Text {
         id: mantraText
 
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: logo.bottom
+        anchors.topMargin: -150
+
         text: "Open Source Infotainment\n    Enabling Great Design"
 
         font.pixelSize: 60
         color: "white"
         lineHeight: 1.2
-
-        y: logo.y
-        anchors.left: logo.right
-        anchors.leftMargin: 25
-
     }
 
     Text {
         id: qmllivetext
+        anchors.top: mantraText.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+
         text: "QmlLive"
 
         font.pixelSize: 70
         color: "white"
-
-        x: mantraText.x
-        anchors.top: mantraText.bottom
-        anchors.margins: 200
     }
     Text {
         id: pleaseConnectText

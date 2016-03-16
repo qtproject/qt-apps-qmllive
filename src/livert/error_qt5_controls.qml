@@ -34,18 +34,20 @@ Rectangle {
     width: 800
     height: 480
 
+    color: palette.base
+
     SystemPalette {
         id: palette;
         colorGroup: SystemPalette.Active
     }
-    color: palette.base
 
     Image {
         anchors.fill: parent;
         source: "logo.png"
-        fillMode: Image.Tile
+        fillMode: Image.PreserveAspectFit
         opacity: 0.5
     }
+
     Label {
         anchors.fill: parent
         verticalAlignment: Text.AlignVCenter

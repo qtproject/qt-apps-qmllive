@@ -21,7 +21,7 @@ naturallanguage = en_US
 
 outputdir = html
 
-indexes = $QTDIR/doc/html/qt.index
+indexes = $QT_INSTALL_DOCS/html/qt.index
 
 project = qmllive
 description = Pelagicore QML Live Reference Documentation

@@ -9,11 +9,11 @@ SUBDIRS += \
     src \
     # tests
 
-exists($(QTDIR)/bin/qdoc) {
-    exists($(QTDIR)/bin/qhelpgenerator) {
+exists($$[QT_INSTALL_BINS]/qdoc) {
+    exists($$[QT_INSTALL_BINS]/qhelpgenerator) {
         message ("Using qdoc/qhelpgenerator in QTDIR for generating docs")
-        QDOC = $(QTDIR)/bin/qdoc
-        QHELPGENERATOR = $(QTDIR)/bin/qhelpgenerator
+        QDOC = $$[QT_INSTALL_BINS]/qdoc
+        QHELPGENERATOR = $$[QT_INSTALL_BINS]/qhelpgenerator
     } else {
         message ("Trying to use system qdoc/qhelpgenerator for generating docs")
         QDOC = qdoc
@@ -25,9 +25,10 @@ exists($(QTDIR)/bin/qdoc) {
     QHELPGENERATOR = qhelpgenerator
 }
 
+
 html-docs.files = $$PWD/doc/html
 
-html-docs.commands = $$QDOC $$PWD/doc/qmllive.qdocconf
+html-docs.commands = QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS] $$QDOC $$PWD/doc/qmllive.qdocconf
 html-docs.files = $$PWD/doc/html
 
 qch-docs.commands = $$QHELPGENERATOR $$PWD/doc/html/qmllive.qhp -o $$PWD/doc/html/qmllive.qch

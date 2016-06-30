@@ -1,11 +1,16 @@
 TEMPLATE = app
 TARGET = previewGenerator
-DESTDIR = ../../bin
 
-osx: {
-    CONFIG -= app_bundle
-    DESTDIR = ../../bin/qmllivebench.app/Contents/MacOS/
+# install rules
+isEmpty(PREFIX) {
+    target.path = $$[QT_INSTALL_BINS]
+} else {
+    macos: INSTALLSUBDIR=$${TARGET}.app/Contents/MacOS/
+    macos: CONFIG -= app_bundle
+    target.path = $$PREFIX
 }
+
+INSTALLS += target
 
 QT = gui core quick widgets
 

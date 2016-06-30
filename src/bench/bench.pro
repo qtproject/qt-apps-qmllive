@@ -1,6 +1,5 @@
 TEMPLATE = app
 TARGET = qmllivebench
-DESTDIR = ../../bin
 
 QT *= gui core quick widgets core-private
 
@@ -56,6 +55,17 @@ FORMS += \
 # include(../base.pri)
 include(../widgets/widgets.pri)
 include(../src.pri)
+
+# install rules
+isEmpty(PREFIX) {
+    target.path = $$[QT_INSTALL_BINS]
+} else {
+    macos: INSTALLSUBDIR=$${TARGET}.app/Contents/MacOS/
+    macos: CONFIG -= app_bundle
+    target.path = $$PREFIX
+}
+
+INSTALLS += target
 
 win32: RC_FILE = ../../icons/appicon.rc
 osx: ICON = ../../icons/appicon.icns

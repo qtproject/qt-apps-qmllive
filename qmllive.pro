@@ -9,19 +9,19 @@ SUBDIRS += \
     src \
     # tests
 
-exists($(QTDIR)/bin/qdoc3) {
+exists($(QTDIR)/bin/qdoc) {
     exists($(QTDIR)/bin/qhelpgenerator) {
         message ("Using qdoc/qhelpgenerator in QTDIR for generating docs")
-        QDOC = $(QTDIR)/bin/qdoc3
+        QDOC = $(QTDIR)/bin/qdoc
         QHELPGENERATOR = $(QTDIR)/bin/qhelpgenerator
     } else {
         message ("Trying to use system qdoc/qhelpgenerator for generating docs")
-        QDOC = qdoc3
+        QDOC = qdoc
         QHELPGENERATOR = qhelpgenerator
     }
 } else {
     message ("Trying to use system qdoc/qhelpgenerator for generating docs")
-    QDOC = qdoc3
+    QDOC = qdoc
     QHELPGENERATOR = qhelpgenerator
 }
 

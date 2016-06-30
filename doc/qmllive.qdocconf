@@ -31,8 +31,6 @@ description = Pelagicore QML Live Reference Documentation
 # specified relative to the template directory and will be copied into
 # subdirectories of the output directory.
 
-HTML.templatedir = template
-
 HTML.stylesheets = style/offline.css \
 
 # Adding jquery and functions - providing online tools and search features

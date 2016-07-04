@@ -4,14 +4,14 @@ headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
 examples.fileextensions = "*.cpp *.h *.js *.xq *.svg *.xml *.ui *.qhp *.qhcp *.qml"
 examples.imageextensions = "*.png *.jpeg *.jpg *.gif *.mng"
 
-headerdirs = ../src
-sourcedirs = . ../src examples
+headerdirs = ../.
+sourcedirs = ../../. ../. ../../examples
 
-exampledirs = ../examples \
-              examples \
-              ../src
+exampledirs = ../../examples \
+              ../examples \
+              ../.
 
-imagedirs = ../src/images \
+imagedirs = ../images \
             images
 
 

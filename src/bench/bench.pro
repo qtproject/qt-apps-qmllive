@@ -1,5 +1,6 @@
 TEMPLATE = app
 TARGET = qmllivebench
+DESTDIR = $$BUILD_DIR/bin
 
 QT *= gui core quick widgets core-private
 
@@ -52,7 +53,6 @@ FORMS += \
     importpathoptionpage.ui \
     autodiscoveryhostsdialog.ui
 
-# include(../base.pri)
 include(../widgets/widgets.pri)
 include(../src.pri)
 

@@ -38,10 +38,11 @@
 #else
 #define DEBUG if (0) qDebug()
 #endif
+
 /*!
  * \class RemotePublisher
  * \brief Publishes hub changes to a remote node
- * \group qmllive
+ * \inmodule qmllive
  *
  * To see the progress which commands were really sent successfully to to the server
  * you have to connect the signals from the LiveHubEngine yourself and monitor the QUuids you
@@ -71,6 +72,11 @@ RemotePublisher::RemotePublisher(QObject *parent)
             this, SLOT(onSendingError(QUuid,QAbstractSocket::SocketError)));
 }
 
+/*!
+  Return the state of the \l IpcClient
+
+  \sa IpcClient::state()
+ */
 QAbstractSocket::SocketState RemotePublisher::state() const
 {
     return m_ipc->state();
@@ -100,18 +106,24 @@ void RemotePublisher::setWorkspace(const QString &path)
 
 /*!
  * Set Ipc destination to use \a hostName and \a port
- * \sa IpcClient::connectToServer()
+ * \sa IpcClient::connectToServer
  */
 void RemotePublisher::connectToServer(const QString &hostName, int port)
 {
     m_ipc->connectToServer(hostName, port);
 }
 
+/*!
+  Converts the socket error \a error into a string
+ */
 QString RemotePublisher::errorToString(QAbstractSocket::SocketError error)
 {
     return m_ipc->errorToString(error);
 }
 
+/*!
+ * Disconnects this publisher from the IPC
+ */
 void RemotePublisher::disconnectFromServer()
 {
     m_ipc->disconnectFromServer();
@@ -131,8 +143,8 @@ QUuid RemotePublisher::activateDocument(const QString &document)
 }
 
 /*!
- * Send "sendDocument(QString,QByteArray)" to ipc-server on send document.
- * It sends \a document with content \a data
+ * Sends "sendDocument(QString)" using \a document as path to the document to be
+ *send to via IPC.
  */
 QUuid RemotePublisher::sendDocument(const QString& document)
 {
@@ -140,6 +152,9 @@ QUuid RemotePublisher::sendDocument(const QString& document)
     return sendWholeDocument(document);
 }
 
+/*!
+ Send checkPin with \a pin argument and returns the package uuid.
+ */
 QUuid RemotePublisher::checkPin(const QString &pin)
 {
     DEBUG << "RemotePublisher::checkPin" << pin;
@@ -149,6 +164,10 @@ QUuid RemotePublisher::checkPin(const QString &pin)
     return m_ipc->send("checkPin(QString)", bytes);
 }
 
+/*!
+  Sends the \e setXOffset with \a offset as argument via IPC
+ */
+
 QUuid RemotePublisher::setXOffset(int offset)
 {
     QByteArray bytes;
@@ -156,6 +175,10 @@ QUuid RemotePublisher::setXOffset(int offset)
     out << offset;
     return m_ipc->send("setXOffset(int)", bytes);
 }
+
+/*!
+  Sends the \e setYOffset with \a offset as argument via IPC
+ */
 
 QUuid RemotePublisher::setYOffset(int offset)
 {
@@ -165,6 +188,9 @@ QUuid RemotePublisher::setYOffset(int offset)
     return m_ipc->send("setYOffset(int)", bytes);
 }
 
+/*!
+  Sends the \e setRotation with \a rotation as argument via IPC
+ */
 QUuid RemotePublisher::setRotation(int rotation)
 {
     QByteArray bytes;
@@ -173,6 +199,9 @@ QUuid RemotePublisher::setRotation(int rotation)
     return m_ipc->send("setRotation(int)", bytes);
 }
 
+/*!
+  Sends the \e sendWholeDocument with \a document as argument via IPC
+ */
 QUuid RemotePublisher::sendWholeDocument(const QString& document)
 {
     DEBUG << "RemotePublisher::sendWholeDocument" << document;
@@ -242,3 +271,55 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
         emit remoteLog(msgType, description, url, line, column);
     }
 }
+
+/*!
+ * \fn RemotePublisher::connected()
+ *
+ * The signal is emitted when the IPC is connected
+*/
+
+/*!
+ * \fn RemotePublisher::disconnected()
+ *
+ * The signal is emitted when the IPC is disconnected
+*/
+
+/*!
+ * \fn RemotePublisher::pinOk(bool ok)
+ *
+ * The signal is emitted after receiving the pinOk IPC call
+ * with \a ok to indicate a valid pin
+*/
+
+/*!
+ * \fn RemotePublisher::connectionError(QAbstractSocket::SocketError error)
+ *
+ * The signal is emitted when a connection error \a error appears on the IPC
+ * level
+*/
+
+/*!
+ * \fn RemotePublisher::remoteLog(int type, const QString &msg, const QUrl &url = QUrl(), int line = -1, int column = -1)
+ *
+ *  The signal is emmited after receiving a log call from a remote client. With the \a type, \a msg, \a url,
+ * \a line and \a column of the log entry.
+ */
+
+/*!
+ * \fn RemotePublisher::needsPinAuthentication()
+ *
+ * The signal is emitted after receiving the needsPinAuthentication IPC call,
+ * to indicate the client requires a pin authentication to continue.
+ */
+
+/*! \fn RemotePublisher::sentSuccessfully(const QUuid& uuid)
+ *
+ * The signal is emitted after the package identified by \a uuid has been send
+ */
+
+/*!
+ * \fn RemotePublisher::sendingError(const QUuid &uuid, QAbstractSocket::SocketError socketError)
+ *
+ * The signal is emitted when an error occurred while sending a package \a uuid
+ * with the error \a socketError
+ */

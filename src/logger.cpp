@@ -39,7 +39,7 @@ QMutex Logger::m_mutex;
 /*!
  * \class Logger
  * \brief Installs a qt messageHandler and receives all log messages
- * \group qmllive
+ * \inmodule qmllive
  *
  * The intention is to use this class if you want to display the log into widget
  * or you want to preproccess the log messages itself before displaying it
@@ -111,10 +111,10 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
 }
 
 /*!
- * \fn void Logger::message(int type, const QString &msg)
- * Emitted for every incoming log message
- * \a type describes the type of the log message (QtMsgType).
- * \a msg is the debug message
- * This signal will not be emitted when ignoreMessages set to true
- * \sa setIgnoreMessages()
+ * \fn Logger::message(int type, const QString &msg, const QUrl &url = QUrl(), int line, int column);
+ *
+ * Emitted for every incoming log message \a type describes the type of the log
+ * message (QtMsgType), \a msg is the debug message, \a url is the document
+ * location, \a line and \a column is the position in the document. This signal
+ * will not be emitted when ignoreMessages set to true \sa setIgnoreMessages()
  */

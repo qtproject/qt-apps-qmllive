@@ -35,6 +35,7 @@
 #include <QMutex>
 #include <QUrl>
 
+
 class Logger : public QObject
 {
     Q_OBJECT

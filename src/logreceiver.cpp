@@ -37,7 +37,7 @@
 /*!
  * \class LogReceiver
  * \brief Connects to a port and waits for log messages sent via udp
- * \group qmllive
+ * \inmodule qmllive
  *
  * \sa Logger, RemoteLogger
  */
@@ -61,11 +61,17 @@ void LogReceiver::setPort(int port)
     m_port = port;
 }
 
+/*!
+ * Sets the \a address on which we wait for incoming logs
+ */
 void LogReceiver::setAddress(const QString &address)
 {
     m_address = QHostAddress(address);
 }
 
+/*!
+ * Binds the socket to the address and port using UDP
+ */
 void LogReceiver::connectToServer()
 {
     m_socket->disconnectFromHost();
@@ -80,6 +86,9 @@ int LogReceiver::port() const
     return m_port;
 }
 
+/*!
+ * The address on which we wait for incoming logs
+ */
 QString LogReceiver::address() const
 {
     return m_address.toString();
@@ -101,3 +110,14 @@ void LogReceiver::processPendingDatagrams()
         emit message(data.at(0).toInt(), data.at(1), QUrl(data.at(2)) ,data.at(3).toInt(), data.at(4).toInt());
     }
 }
+
+
+/*!
+  \fn LogReceiver::message(int type, const QString &msg, const QUrl &url, int line, int column)
+
+  This signal is emitted whenever a datagram arrives on the socket.
+
+  The \a type is the type of the message. The \a msg is the message content of the log entry. The \a
+  url is the source of the document emitting the log. And \a line and \a column
+  is the position in the source code.
+*/

@@ -50,7 +50,7 @@
 /*!
  * \class LiveNodeEngine
  * \brief The LiveNodeEngine class instruments a qml viewer in cooperation with LiveHubEngine.
- * \group qmllive
+ * \inmodule qmllive
  *
  * LiveNodeEngine provides ways to reload qml documents based incoming requests
  * from a hub. A hub can be connected via a local mode ( LocalPublisher) or
@@ -62,6 +62,19 @@
  *
  * \sa {ContentPlugin Example}
  */
+
+/*!
+    \enum LiveNodeEngine::UpdateMode
+
+    This enum type specifies the update behavior for the view:
+
+    \value ReloadDocument
+           Clears the component cache and reloads the active document
+    \value RecreateView
+           Destroys the view and re-creates the view with the active document
+    \value RecreateProcess
+           Restarts the process with the active document
+*/
 
 /*!
  * Standard constructor using \a parent as parent
@@ -105,6 +118,9 @@ LiveNodeEngine::LiveNodeEngine(QObject *parent)
             this, SLOT(onSizeChanged()));
 }
 
+/*!
+ * Sets the x-offset \a offset of window
+ */
 void LiveNodeEngine::setXOffset(int offset)
 {
     QQuickView* view = 0;
@@ -119,11 +135,17 @@ void LiveNodeEngine::setXOffset(int offset)
     m_xOffset = offset;
 }
 
+/*!
+ * Returns the current x-offset of the window
+ */
 int LiveNodeEngine::xOffset() const
 {
     return m_xOffset;
 }
 
+/*!
+ * Sets the y-offset \a offset of window
+ */
 void LiveNodeEngine::setYOffset(int offset)
 {
     QQuickView* view = 0;
@@ -138,10 +160,17 @@ void LiveNodeEngine::setYOffset(int offset)
     m_yOffset = offset;
 }
 
+/*!
+ * Returns the current y-offset of the window
+ */
 int LiveNodeEngine::yOffset() const
 {
     return m_yOffset;
 }
+
+/*!
+ * Sets the rotation \a rotation of window around the center
+ */
 
 void LiveNodeEngine::setRotation(int rotation)
 {
@@ -160,16 +189,28 @@ void LiveNodeEngine::setRotation(int rotation)
     m_rotation = rotation;
 }
 
+/*!
+ * Return the current rotation angle
+ */
 int LiveNodeEngine::rotation() const
 {
     return m_rotation;
 }
 
+/*!
+ * Sets the update mode for the scene to \a mode.
+ *
+ * Either to reload just the document, or
+ * the view, or the whole process.
+ */
 void LiveNodeEngine::setUpdateMode(LiveNodeEngine::UpdateMode mode)
 {
     m_mode = mode;
 }
 
+ /*!
+  * Returns the current update mode for the scene
+  */
 LiveNodeEngine::UpdateMode LiveNodeEngine::updateMode() const
 {
     return m_mode;
@@ -188,6 +229,12 @@ void LiveNodeEngine::loadDocument(const QUrl& url)
         reloadDocument();
 }
 
+/*!
+ * Starts a timer to reload the view with a delay.
+ *
+ * A delay reload is important to avoid constant reloads, while many changes
+ * appear.
+ */
 void LiveNodeEngine::delayReload()
 {
     m_delayReload->start();
@@ -235,6 +282,9 @@ void LiveNodeEngine::recreateView()
             this, SLOT(onSizeChanged()));
 }
 
+/*!
+ * Checks if the QtQuick Controls module exists for the content adapters
+ */
 void LiveNodeEngine::checkQmlFeatures(QQuickView *view)
 {
     foreach (QString importPath, view->engine()->importPathList()) {
@@ -354,6 +404,9 @@ void LiveNodeEngine::setWorkspace(const QString &path)
     m_workspace = QDir(path);
 }
 
+/*!
+ * Sets the import paths \a paths on the scene
+ */
 void LiveNodeEngine::setImportPaths(const QStringList &paths)
 {
     m_importPaths = paths;
@@ -362,6 +415,9 @@ void LiveNodeEngine::setImportPaths(const QStringList &paths)
         m_view->engine()->setImportPathList(paths);
 }
 
+/*!
+ * Returns the current import paths of the scene
+ */
 QStringList LiveNodeEngine::importPaths() const
 {
     return m_importPaths;
@@ -394,16 +450,26 @@ QUrl LiveNodeEngine::activeDocument() const
     return m_activeFile;
 }
 
+/*!
+ * Returns the active content adapter plugin
+ */
 ContentAdapterInterface *LiveNodeEngine::activePlugin() const
 {
     return m_activePlugin;
 }
 
+/*!
+ * Enables the reloading of native plugins when \a enabled set to true. Use
+ * with care as native plugins tend to crash on reload.
+ */
 void LiveNodeEngine::setReloadPluginsEnabled(bool enabled)
 {
     m_reloadPlugins = enabled;
 }
 
+/*!
+ * Returns true when the active plugins reloading is enabled, otherwise false
+ */
 bool LiveNodeEngine::isReloadPluginsEnabled() const
 {
     return m_reloadPlugins;
@@ -422,6 +488,9 @@ void LiveNodeEngine::initPlugins()
     }
 }
 
+/*!
+ * Handle \a status changes and emit the document loaded signal.
+ */
 void LiveNodeEngine::onStatusChanged(QQuickView::Status status)
 {
     if (status == QQuickView::Ready ||
@@ -430,6 +499,9 @@ void LiveNodeEngine::onStatusChanged(QQuickView::Status status)
     }
 }
 
+/*!
+ * Initializes a new view
+ */
 QQuickView *LiveNodeEngine::initView()
 {
     QQuickView* view = new QQuickView();
@@ -437,6 +509,9 @@ QQuickView *LiveNodeEngine::initView()
     return view;
 }
 
+/*!
+ * Handles size changes and updates the view according
+ */
 void LiveNodeEngine::onSizeChanged()
 {
     int width = -1, height = -1;
@@ -458,21 +533,37 @@ void LiveNodeEngine::onSizeChanged()
 }
 
 /*!
- * \fn void LiveNodeEngine::activateDocument(const QString& document);
+ * \fn void LiveNodeEngine::activateDocument(const QString& document)
+ *
  * The document \a document was activated
  */
 
 /*!
- * \fn void LiveNodeEngine::logClear();
+ * \fn void LiveNodeEngine::logClear()
+ *
  * Requested to clear the log
  */
 
 /*!
- * \fn void LiveNodeEngine::logIgnoreMessages(bool);
+ * \fn void LiveNodeEngine::logIgnoreMessages(bool)
+ *
  * Requsted to ignore the Messages when \a on is true
  */
 
 /*!
- * \fn void LiveNodeEngine::logErrors(const QList<QQmlError> &errors);
+ * \fn void LiveNodeEngine::documentLoaded()
+ *
+ * The signal is emitted when the document has finished loading.
+ */
+
+/*!
+ * \fn void LiveNodeEngine::viewChanged(QQuickView *view)
+ *
+ * The signal is emitted when the view pointer \a view has changed (e.g by initializing a new view)
+ */
+
+/*!
+ * \fn void LiveNodeEngine::logErrors(const QList<QQmlError> &errors)
+ *
  * Log the Errors \a errors
  */

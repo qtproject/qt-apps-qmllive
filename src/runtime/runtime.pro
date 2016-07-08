@@ -1,5 +1,5 @@
 TARGET = qmlliveruntime
-DESTDIR = ../../bin
+DESTDIR = $$BUILD_DIR/bin
 
 QT *= widgets quick
 osx: CONFIG -= app_bundle

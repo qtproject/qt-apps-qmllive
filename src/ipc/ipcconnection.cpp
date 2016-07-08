@@ -39,8 +39,8 @@
 
 /**
  * \class IpcConnection
- * \brief Handles a single connection from the IpcServer
- * \group ipc
+ * \brief Handles a single connection from the IpcServer or IpcClient
+ * \inmodule ipc
  */
 
 /**

@@ -28,14 +28,14 @@
 ** SPDX-License-Identifier: GPL-3.0
 **
 ****************************************************************************/
+
+
 /*!
-   \group qmllive-examples
-   \ingroup all-examples
-   \title QmlLive Examples
-   \brief Examples how to extend the functionality of QmlLive.
+    \module qmllive
 
-   \list
-   \o \l{contentplugin}{Content Plugin}
-   \endlist
+    \title Live Module
+    \brief Classes to watch a workspace and to local and remote reload QtQuick user interfaces
 
-*/
+    The live module allows a developer to quickly create its own instance of a workbench or a live runtime.
+
+ */

@@ -51,14 +51,14 @@ public:
 /*!
  * \class IpcClient
  * \brief Client to send remote calls to an IpcServer
- * \group ipc
+ * \inmodule ipc
  *
  * The IPC system uses the normalized signal/slot signature to
  * identify a message call. The arguments are passed as a QByteArray to the
  * send function.
  *
  * Here is a simple example:
- * \code{.cpp}
+ * \code
  *  IpcClient *client = new IpcClient(this);
  *  client->connectToServer("127.0.0.1", 10234);
  *  QString text = "Hello";
@@ -106,6 +106,9 @@ IpcClient::IpcClient(QTcpSocket *socket, QObject *parent)
     connect(m_socket, SIGNAL(bytesWritten(qint64)), this , SLOT(onBytesWritten(qint64)));
 }
 
+/*!
+ * Returns the socket state
+ */
 QAbstractSocket::SocketState IpcClient::state() const
 {
     return m_socket->state();
@@ -172,7 +175,7 @@ bool IpcClient::waitForDisconnected(int msecs)
 
 /*!
  * Waits until the Package identified by \a uuid is sent
- * \arg msecs specfies the time how long to wait
+ * \a msecs specfies the time how long to wait
  * Returns true when the Package is sent successfully
  *
  * This call blocks your eventloop()
@@ -211,6 +214,9 @@ bool IpcClient::waitForSent(const QUuid uuid, int msecs)
     return false;
 }
 
+/*!
+ * Converts the socket error \a error to a printable string
+ */
 QString IpcClient::errorToString(QAbstractSocket::SocketError error)
 {
     switch (error) {
@@ -383,3 +389,8 @@ qint64 IpcClient::sendPackage(const QString &method, const QByteArray &data)
  * \a socketError describes what error happened
  */
 
+/*!
+ * \fn void IpcClient::received(const QString& method, const QByteArray& content)
+ *
+ * Called when a RPC call was received. Provides the \a method and \a content
+ */

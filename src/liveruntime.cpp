@@ -37,11 +37,12 @@
 /*!
  * \class LiveRuntime
  * \brief Collects properties to be used for an enhanced live runtime.
- * \group qmllive
+ * \inmodule qmllive
  *
  * This runtime is used in an live enhanced qml project to be able to access more
  * advanced features. Currently it does nothing
  */
+
 
 /*!
  * Standard constructor using \a parent as parent
@@ -51,6 +52,20 @@ LiveRuntime::LiveRuntime(QObject *parent) :
 {
 }
 
+/*!
+ * Sets the screen width value \a arg
+ */
+void LiveRuntime::setScreenWidth(qreal arg)
+{
+    if (m_screenWidth != arg) {
+        m_screenWidth = arg;
+        emit screenWidthChanged(arg);
+    }
+}
+
+/*!
+ * Sets the screen height value \a arg
+ */
 void LiveRuntime::setScreenHeight(qreal arg)
 {
     if (m_screenHeight != arg) {
@@ -59,20 +74,30 @@ void LiveRuntime::setScreenHeight(qreal arg)
     }
 }
 
+/*!
+ * Return the screen width
+ */
 qreal LiveRuntime::screenWidth() const
 {
     return m_screenWidth;
 }
 
+/*!
+ * Return the screen height
+ */
 qreal LiveRuntime::screenHeight() const
 {
     return m_screenHeight;
 }
 
-void LiveRuntime::setScreenWidth(qreal arg)
-{
-    if (m_screenWidth != arg) {
-        m_screenWidth = arg;
-        emit screenWidthChanged(arg);
-    }
-}
+/*!
+ * \property LiveRuntime::screenWidth
+ * This propety defines the screen width
+ */
+
+/*!
+ * \property LiveRuntime::screenHeight
+ * This propety defines the screen height
+ */
+
+

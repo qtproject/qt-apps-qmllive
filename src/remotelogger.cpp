@@ -35,7 +35,7 @@
 /*!
  * \class RemoteLogger
  * \brief Installs a qt messageHandler and sends the logs over udp
- * \group qmllive
+ * \inmodule qmllive
  *
  * \sa Logger, LogReceiver
  */
@@ -69,6 +69,12 @@ void RemoteLogger::setPort(int port)
     m_port = port;
 }
 
+/*!
+ * Broadcasts the data using UDP.
+ *
+ * With \a type as debug type, \a msg as message content, \a url as document
+ * location and \a line and \a column as location inside the document.
+ */
 void RemoteLogger::broadcast(int type, const QString &msg, const QUrl &url, int line, int column)
 {
     QByteArray datagram;
@@ -80,6 +86,9 @@ void RemoteLogger::broadcast(int type, const QString &msg, const QUrl &url, int 
                             m_host, m_port);
 }
 
+/*!
+ * Broadcasts each error from the \a errors
+ */
 void RemoteLogger::appendToLog(const QList<QQmlError> &errors)
 {
     foreach (const QQmlError &err, errors) {

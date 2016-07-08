@@ -42,6 +42,19 @@
 #define DEBUG if (0) qDebug()
 #endif
 
+
+/*!
+ * \class RemoteReceiver
+ * \brief Receives commands form the remote publisher
+ * \inmodule qmllive
+ *
+ * Receives commands from a remote publisher to publish workspace files and to
+ * setup the active document.
+ */
+
+/*!
+ * Standard Constructor using \a parent as parent
+ */
 RemoteReceiver::RemoteReceiver(QObject *parent)
     : QObject(parent)
     , m_server(new IpcServer(this))
@@ -56,6 +69,9 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
     connect(m_server, SIGNAL(clientDisconnected(QHostAddress)), this, SIGNAL(clientDisconnected(QHostAddress)));
 }
 
+/*!
+ * Listens on remote publisher connections on \a port
+ */
 void RemoteReceiver::listen(int port)
 {
     m_server->listen(port);
@@ -70,21 +86,33 @@ void RemoteReceiver::setWorkspace(const QString &path)
     m_workspace = QDir(path);
 }
 
+/*!
+ * Return the current workspace absolute path
+ */
 QString RemoteReceiver::workspace() const
 {
     return m_workspace.absolutePath();
 }
 
+/*!
+ * Sets the \a pin to access this live node
+ */
 void RemoteReceiver::setPin(const QString &pin)
 {
     m_pin = pin;
 }
 
+/*!
+ * Returns the current pin
+ */
 QString RemoteReceiver::pin() const
 {
     return m_pin;
 }
 
+/*!
+ * Set maximum allowed client connection to \a max
+ */
 void RemoteReceiver::setMaxConnections(int max)
 {
     m_server->setMaxConnections(max);
@@ -98,7 +126,9 @@ void RemoteReceiver::setWorkspaceWriteable(bool on)
     m_workspaceWriteable = on;
 }
 
-
+/*!
+ * Handle RPC calls with \a method and data as \a content
+ */
 void RemoteReceiver::handleCall(const QString &method, const QByteArray &content)
 {
     DEBUG << "RemoteReceiver::handleIpcCall: " << method;
@@ -156,7 +186,9 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
     }
 }
 
-
+/*!
+ * Register the \a node to be notified about changes
+ */
 void RemoteReceiver::registerNode(LiveNodeEngine *node)
 {
     if (m_node) { disconnect(m_node); }
@@ -164,6 +196,9 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
     connect(this, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
 }
 
+/*!
+ * Handles RPC call "writeDocument" to write the transferred document to file system
+ */
 void RemoteReceiver::writeDocument(const QString &document, const QByteArray &content)
 {
     if (!m_workspaceWriteable) { return; }
@@ -182,6 +217,9 @@ void RemoteReceiver::writeDocument(const QString &document, const QByteArray &co
         m_node->delayReload();
 }
 
+/*!
+ * Handles client connection and if required requests pin authentication
+ */
 void RemoteReceiver::onClientConnected(QTcpSocket *socket)
 {
     if (m_client)
@@ -199,6 +237,9 @@ void RemoteReceiver::onClientConnected(QTcpSocket *socket)
     }
 }
 
+/*!
+ * Called to send \a errors to remote for remote logging
+ */
 void RemoteReceiver::appendToLog(const QList<QQmlError> &errors)
 {
     foreach (const QQmlError &err, errors) {
@@ -225,3 +266,52 @@ void RemoteReceiver::appendToLog(const QList<QQmlError> &errors)
         m_client->send("qmlLog(QtMsgType, QString, QUrl, int, int)", bytes);
     }
 }
+
+/*!
+ * \fn void RemoteReceiver::activateDocument(const QString& document)
+ *
+ * This signal is emitted when the remote active document \a document has changed
+ */
+
+/*!
+ * \fn void RemoteReceiver::reload()
+ *
+ * This signal is emitted to notify that a relaod is requested by the remote client
+ */
+
+/*!
+ * \fn void RemoteReceiver::clientConnected(const QHostAddress& address)
+ *
+ * This signal is emitted when a new client with address \a address has been connected
+ */
+
+/*!
+ * \fn void RemoteReceiver::clientDisconnected(const QHostAddress& address)
+ *
+ * This signal is emitted when a client with address \a address has been disconnected
+ */
+
+/*!
+ * \fn void RemoteReceiver::pinOk(bool ok)
+ *
+ * This signal is emitted to notiify that the pin entered on the remote side is valid, if \a ok equals true
+ */
+
+/*!
+ * \fn void RemoteReceiver::xOffsetChanged(int offset)
+ *
+ * This signal is emitted to notify the view to apply the x-offset \a offset
+ */
+
+/*!
+ * \fn void RemoteReceiver::yOffsetChanged(int offset)
+ *
+ * This signal is emitted to notify the view to apply the y-offset \a offset
+ */
+
+/*!
+ * \fn void RemoteReceiver::rotationChanged(int rotation)
+ *
+ * This signal is emitted to notify the view to apply the rotation with the angle \a rotation
+ */
+

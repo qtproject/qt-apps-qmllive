@@ -41,7 +41,7 @@
 /*!
  * \class LiveHubEngine
  * \brief The LiveHubEngine class watches over a workspace and notifies a node on changes
- * \group qmllive
+ * \inmodule qmllive
  *
  * The live hub watches over a workspace and notifies a live node about changed files. A
  * node can run on the same device or even on a remote device using a RemotePublisher.
@@ -77,7 +77,7 @@ QString LiveHubEngine::workspace() const
 }
 
 /*!
- * Sets the active document path to path.
+ * Sets the active document path to \a path.
  * Emits activateDocument() with the workspace relative path.
  */
 void LiveHubEngine::setActivePath(const QString &path)
@@ -146,16 +146,26 @@ void LiveHubEngine::setFilePublishingActive(bool on)
 }
 
 /*!
- * \fn void LiveHubEngine::workspaceChanged()
- * Emits that the workspace changed
+ * \fn void LiveHubEngine::publishFile(const QString& document)
+ *
+ * This signal is emitted during publishing the directory to inform a connected
+ * node to publish the \a document to the remote device form the hub
+ */
+
+/*!
+ * \fn void LiveHubEngine::fileChanged(const QString& document)
+ *
+ * This signal is emitted during publishing a directory to inform a connected
+ * node that \a document has changed on the hub.
  */
 
 /*!
  * \fn void LiveHubEngine::activateDocument(const QString& document)
- * The document \a document is now active
+ * The signal is emitted when the document identified by \a document has been activated
  */
 
 /*!
- * \fn void LiveHubEngine::sendDocument(const QString& document, const QByteArray& data)
- * The Document \a document with the content \a data was sent
+ * \fn void LiveHubEngine::workspaceChanged(const QString& workspace)
+ * The signal is emitted when the workspace identified by \a workspace has changed
  */
+

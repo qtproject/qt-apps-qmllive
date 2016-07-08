@@ -42,7 +42,7 @@
  * \class IpcServer
  * \brief The IpcServer listens on a port and creates an IpcConnection for an incoming
  * connection.
- * \group ipc
+ * \inmodule ipc
  *
  * The IPC server receives a method call from the client an notifies the user through
  * the IpcServer::received signal.
@@ -103,13 +103,6 @@ void IpcServer::newConnection()
     }
 }
 
-/*!
- * \fn void IpcServer::received(const QString& method, const QByteArray& content);
- * \brief signals a ipc call has arrived
- *
- * A ipc call requesting \a method and using \a content a the parameters for the method
- */
-
 
 void IpcServer::onConnectionClosed()
 {
@@ -122,7 +115,42 @@ void IpcServer::onConnectionClosed()
         delete connection;
 }
 
+/*!
+ * Sets the maximal nuber of pending connections to \a num
+ */
 void IpcServer::setMaxConnections(int num)
 {
     m_server->setMaxPendingConnections(num);
 }
+
+
+/*!
+ * \fn void IpcServer::received(const QString& method, const QByteArray& content)
+ * \brief signals a ipc call has arrived
+ *
+ * A ipc call requesting \a method and using \a content a the parameters for the method
+ */
+
+/*!
+ * \fn void IpcServer::clientConnected(const QHostAddress& address)
+ *
+ * Called when a new client connection is established, providing the \a address
+ */
+
+/*!
+ * \fn void IpcServer::clientConnected(QTcpSocket* socket)
+ *
+ * * Called when a new client connection is established, providing the \a socket
+ */
+
+/*!
+ * \fn void IpcServer::clientDisconnected(QTcpSocket* socket)
+ *
+ * * Called when an existing client connection is dropped, providing the \a socket
+ */
+
+/*!
+ * \fn void IpcServer::clientDisconnected(const QHostAddress& address)
+ *
+ * Called when an existing client connection is dropped, providing the \a address
+ */

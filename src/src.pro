@@ -4,7 +4,7 @@ CONFIG += ordered
 SUBDIRS += \
   bench \
   previewGenerator \
-  runtime \
-  doc \
+  runtime
+
 
 include(src.pri)

@@ -1,0 +1,89 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 Pelagicore AG
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the QmlLive tool.
+**
+** $QT_BEGIN_LICENSE:GPL-QTAS$
+** Commercial License Usage
+** Licensees holding valid commercial Qt Automotive Suite licenses may use
+** this file in accordance with the commercial license agreement provided
+** with the Software or, alternatively, in accordance with the terms
+** contained in a written agreement between you and The Qt Company.  For
+** licensing terms and conditions see https://www.qt.io/terms-conditions.
+** For further information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+** $QT_END_LICENSE$
+**
+** SPDX-License-Identifier: GPL-3.0
+**
+****************************************************************************/
+
+/*!
+
+\page index.html
+\keyword Pelagicore QML Live Reference Documentation
+\indexpage
+\title Qt QML Live
+
+\chapter Overview
+
+QmlLive is a local and remote QtQuick live reloading system. It allows you to
+change your QML user interface source code and view the result in almost
+realtime.
+
+\image workbench.png
+
+Often in user interface development you need to edit the placement or
+animations of the user interface to provide the exact user experience
+envisioned by the design team. This process of \e{try-and-error} is tedious with a
+classical \e{edit-save-run-exit} cycle. With QmlLive this cycle is way more
+effective. The scene is automatically reloaded when a document change is
+detected.
+
+\quotation
+
+A live reloading system opens a complete new world of possibilities and makes
+your work so much more delightful.
+
+\endquotation
+
+\chapter Contents
+
+The content of the documentation:
+
+\list
+    \li \l{Installation} - How to install QmlLive from the source code
+    \li \l{Usage} - How to use the different parts
+    \li \l{Concepts} - General overview of the system
+    \li \l{qmllive-reference}{Reference} - The API reference to build your custom render scene
+    \list
+      \li \l{qmllive}{QmlLive} - The QmlLIve library API
+      \li \l{ipc}{IPC} - The internal IPC API
+    \endlist
+
+    \li \l{qmllive-examples}{Examples} - Try out QmlLive
+\endlist
+
+*/
+
+/*!
+ * \page qmllive-reference
+ * \title Reference
+ *
+ *
+ * \list
+ *   \li \l{qmllive}{QmlLive}
+ *   \li \l{ipc}{IPC}
+ * \endlist
+ */

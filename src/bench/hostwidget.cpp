@@ -79,7 +79,7 @@ HostWidget::HostWidget(QWidget *parent) :
     m_sendProgress->setMaximum(1);
     m_sendProgress->setValue(1);
     m_menuButton = new QToolButton(m_groupBox);
-    m_menuButton->setText("...");
+    m_menuButton->setText("Menu");
     m_menuButton->setMinimumWidth(35);
     m_menuButton->setPopupMode(QToolButton::InstantPopup);
     m_menuButton->setCheckable(true);

@@ -31,55 +31,44 @@
 
 #include "allhostswidget.h"
 
-#include <QGroupBox>
-#include <QPushButton>
-#include <QLabel>
-#include <QMenu>
-#include <QGridLayout>
-#include <QDragEnterEvent>
-#include <QDropEvent>
-#include <QMimeData>
-#include <QUrl>
-#include <QMessageBox>
 
 AllHostsWidget::AllHostsWidget(QWidget *parent) :
     QWidget(parent)
 {
+    m_publishAction = new QAction("Publish All", this);
+    m_publishAction->setIcon(QIcon(":images/publish.svg"));
+    connect(m_publishAction, SIGNAL(triggered(bool)), this, SLOT(onPublishTriggered()));
+
+    m_refreshAction = new QAction("Refresh All", this);
+    m_refreshAction->setIcon(QIcon(":images/refresh.svg"));
+    connect(m_refreshAction, SIGNAL(triggered(bool)), this, SIGNAL(refreshAll()));
+
+
     setAcceptDrops(true);
-
     setFixedHeight(155);
+    QHBoxLayout* contentLayout = new QHBoxLayout(this);
+    QGroupBox *groupBox = new QGroupBox("All Hosts");
+    contentLayout->addWidget(groupBox);
 
-    QGridLayout* layout = new QGridLayout(this);
-    m_groupBox = new QGroupBox("All Hosts");
-    layout->addWidget(m_groupBox);
+    QVBoxLayout* verticalLayout = new QVBoxLayout(groupBox);
 
-    m_menuButton = new QPushButton("...", m_groupBox);
-    m_menuButton->setMaximumWidth(30);
-    m_menuButton->setCheckable(true);
-    connect(m_menuButton, SIGNAL(clicked()), this, SLOT(showMenu()));
+    QLabel* dropFileLabel = new QLabel("Drop File", groupBox);
+    dropFileLabel->setAlignment(Qt::AlignCenter);
+    dropFileLabel->setFrameShape(QFrame::Box);
+    verticalLayout->addWidget(dropFileLabel, 1);
 
-    QVBoxLayout* hbox = new QVBoxLayout(m_groupBox);
-    hbox->addWidget(new QLabel("Drop File"));
-    hbox->addWidget(m_menuButton);
+    QToolBar* toolBar = new QToolBar(groupBox);
+    toolBar->setIconSize(QSize(16,16));
 
-    m_menu = new QMenu(this);
-    m_publishAction = m_menu->addAction("Publish All", this, SLOT(onPublishTriggered()));
-    connect(m_menu, SIGNAL(aboutToHide()), m_menuButton, SLOT(toggle()));
+    toolBar->addAction(m_publishAction);
+    toolBar->addAction(m_refreshAction);
+    verticalLayout->addWidget(toolBar, 1);
 
-    m_refreshAction = m_menu->addAction("Refresh All", this, SIGNAL(refreshAll()));
 }
 
 void AllHostsWidget::setWorkspace(const QString &workspace)
 {
     m_workspace.setPath(workspace);
-}
-
-void AllHostsWidget::showMenu()
-{
-    QPoint p = mapToGlobal(m_menuButton->pos());
-    p.ry() += m_menuButton->height() + 5;
-    p.rx() += 5;
-    m_menu->exec(p);
 }
 
 void AllHostsWidget::onPublishTriggered()

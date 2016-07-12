@@ -14,5 +14,10 @@
         <file>images/icon_online.png</file>
         <file>images/icon_offline.png</file>
         <file>images/icon_failover.png</file>
+        <file>images/connected_not.svg</file>
+        <file>images/connected.svg</file>
+        <file>images/menu.svg</file>
+        <file>images/publish.svg</file>
+        <file>images/refresh.svg</file>
     </qresource>
 </RCC>

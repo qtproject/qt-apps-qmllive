@@ -31,12 +31,8 @@
 
 #pragma once
 
-#include <QWidget>
-#include <QDir>
+#include <QtWidgets>
 
-class QGroupBox;
-class QPushButton;
-class QMenu;
 class AllHostsWidget : public QWidget
 {
     Q_OBJECT
@@ -54,13 +50,9 @@ protected:
     void dropEvent(QDropEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
 private slots:
-    void showMenu();
     void onPublishTriggered();
 private:
     QDir m_workspace;
-    QGroupBox* m_groupBox;
-    QPushButton* m_menuButton;
-    QMenu* m_menu;
     QAction* m_publishAction;
     QAction* m_refreshAction;
 };

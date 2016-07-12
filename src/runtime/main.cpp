@@ -64,55 +64,56 @@ struct Options
 
 static Options options;
 
-static void usage()
+static void parseArguments(const QStringList &arguments)
 {
-    qWarning("Usage qmlliveruntime [options] <workspace>");
-    qWarning(" ");
-    qWarning(" options:");
-    qWarning("  -ipcport <port> ....................the port the ipc shall listen on");
-    qWarning("  -no-file-updates ...................do not write to files on changes");
-    qWarning("  -pluginpath ........................path to qmllive plugins");
-    qWarning("  -importpath ........................path to the qml import path");
-    qWarning("  -fullscreen ........................shows in fullscreen mode");
-    qWarning("  -transparent .......................Make the window transparent");
-    qWarning("  -frameless .........................run with no window frame");
-    qWarning("  -stayontop .........................keep viewer window on top");
-    qWarning(" ");
-    exit(1);
+    QCommandLineParser parser;
+    parser.setApplicationDescription("QmlLive reloading runtime");
+
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    parser.addPositionalArgument("workspace", "workspace folder to watch");
+
+    QCommandLineOption ipcPortOption("ipcport", "the port the ipc shall listen on, default is 10234", "ipcport");
+    parser.addOption(ipcPortOption);
+
+    QCommandLineOption pluginPathOption("pluginpath", "path to qmllive plugins", "pluginpath");
+    parser.addOption(pluginPathOption);
+
+    QCommandLineOption importPathOption("importpath", "path to qml import path. Can appear multiple times", "importpath");
+    parser.addOption(importPathOption);
+
+    QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");
+    parser.addOption(stayOnTopOption);
+
+    QCommandLineOption noFileUpdatesOption("no-file-updates", "do not write to files on changes");
+    parser.addOption(noFileUpdatesOption);
+
+    QCommandLineOption fullScreenOption("fullscreen", "shows in fullscreen mode");
+    parser.addOption(fullScreenOption);
+
+    QCommandLineOption transparentOption("transparent", "Make the window transparent");
+    parser.addOption(transparentOption);
+
+    QCommandLineOption framelessOption("frameless", "run with no window frame");
+    parser.addOption(framelessOption);
+
+    parser.process(arguments);
+
+    options.ipcPort = parser.value(ipcPortOption).toInt();
+    options.pluginPath = parser.value(pluginPathOption);
+    options.importPaths = parser.values(importPathOption);
+    options.stayontop = parser.isSet(stayOnTopOption);
+    options.allowUpdates = !parser.isSet(noFileUpdatesOption);
+    options.fullscreen = parser.isSet(fullScreenOption);
+    options.transparent = parser.isSet(transparentOption);
+    options.frameless = parser.isSet(framelessOption);
+
+    QStringList positionalArguments = parser.positionalArguments();
+    if (positionalArguments.count() == 1)
+        options.workspace = positionalArguments.value(0);
 }
 
-static void parseArguments(const QStringList& arguments)
-{
-    for (int i = 1; i < arguments.count(); ++i) {
-        bool lastArg = (i == arguments.count() - 1);
-        QString arg = arguments.at(i);
-        if (arg == QLatin1String("-ipcport")) {
-            if (lastArg || arguments.at(++i).startsWith(QLatin1Char('-'))) usage();
-            options.ipcPort = arguments.at(i).toInt();
-        } else if (arg == QLatin1String("-pluginpath")) {
-            if (lastArg || arguments.at(++i).startsWith(QLatin1Char('-'))) usage();
-            options.pluginPath = arguments.at(i);
-        } else if (arg == QLatin1String("-importpath")) {
-            if (lastArg || arguments.at(++i).startsWith(QLatin1Char('-'))) usage();
-            options.importPaths.append(QDir(arguments.at(i)).absolutePath());
-            continue;
-        } else if (arg == QLatin1String("-no-file-updates")) {
-            options.allowUpdates = false;
-        } else if (arg == QLatin1String("-fullscreen")) {
-            options.fullscreen = true;
-        } else if (arg == QLatin1String("-transparent")) {
-            options.transparent = true;
-        } else if (arg == QLatin1String("-frameless")) {
-            options.frameless = true;
-        } else if (arg == QLatin1String("-stayontop")) {
-            options.stayontop = true;
-        } else if (!arg.startsWith(QLatin1Char('-'))) {
-            options.workspace = arg;
-        } else if (true || arg == QLatin1String("-help")) {
-            usage();
-        }
-    }
-}
 
 class RuntimeLiveNodeEngine : public LiveNodeEngine {
 
@@ -132,11 +133,13 @@ class RuntimeLiveNodeEngine : public LiveNodeEngine {
             view->setFlags(view->flags() | Qt::WindowStaysOnTopHint);
         }
 
-        if (options.frameless)
+        if (options.frameless) {
             view->setFlags(view->flags() | Qt::FramelessWindowHint);
+        }
 
-        if (options.fullscreen)
+        if (options.fullscreen) {
             view->setWindowState(Qt::WindowFullScreen);
+        }
 
         return view;
     }
@@ -148,6 +151,7 @@ int main(int argc, char** argv)
     app.setApplicationName("QmlLiveRuntime");
     app.setOrganizationDomain("pelagicore.com");
     app.setOrganizationName("Pelagicore");
+
     parseArguments(app.arguments());
 
     QQuickView view;
@@ -171,9 +175,6 @@ int main(int argc, char** argv)
     receiver.connect(&receiver, SIGNAL(xOffsetChanged(int)), &engine, SLOT(setXOffset(int)));
     receiver.connect(&receiver, SIGNAL(yOffsetChanged(int)), &engine, SLOT(setYOffset(int)));
     receiver.connect(&receiver, SIGNAL(rotationChanged(int)), &engine, SLOT(setRotation(int)));
-
-    QMap<QString, QString> extraSyslog;
-    extraSyslog.insert("LOCATION", QString("qmllive://${HOST}:%1").arg(options.ipcPort));
 
     int ret = app.exec();
 

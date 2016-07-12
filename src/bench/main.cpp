@@ -32,7 +32,69 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "options.h"
 #include "mainwindow.h"
+
+
+static void parseArguments(const QStringList& arguments, Options *options)
+{
+    QCommandLineParser parser;
+    parser.setApplicationDescription("QmlLive reloading workbench");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument("workspace", "workspace folder to watch. If this points to a QML document, than the directory is asssumed to be the workspace and the file the active document.");
+    parser.addPositionalArgument("document", "main QML document to load initially.");
+
+    QCommandLineOption pluginPathOption("pluginpath", "path to qmllive plugins", "pluginpath");
+    parser.addOption(pluginPathOption);
+    QCommandLineOption importPathOption("importpath", "path to qml import path. Can appear multiple times", "importpath");
+    parser.addOption(importPathOption);
+    QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");
+    parser.addOption(stayOnTopOption);
+
+    parser.process(arguments);
+
+    options->setPluginPath(parser.value(pluginPathOption));
+    options->setImportPaths(parser.values(importPathOption));
+    options->setStayOnTop(parser.isSet(stayOnTopOption));
+
+    const QStringList positionalArguments = parser.positionalArguments();
+    if (positionalArguments.count() >= 1) {
+        QString argument = positionalArguments.value(0);
+        QFileInfo fi(argument);
+        if (argument.endsWith(".qml")) {
+            qDebug() << "First argument ends with \".qml\". Assuming it is a file.";
+            if (!fi.exists() || !fi.isFile()) {
+                qWarning() << "Document does not exist or is not a file: " << fi.absoluteFilePath();
+                parser.showHelp(-1);
+            }
+            options->setWorkspace(fi.absolutePath());
+            options->setActiveDocument(fi.absoluteFilePath());
+        } else {
+            qDebug() << "First argument does not ending with \".qml\". Assuming it is a workspace.";
+            if (!fi.exists() || !fi.isDir()) {
+                qWarning() << "Workspace does not exist or is not a directory: " << fi.absoluteFilePath();
+                parser.showHelp(-1);
+            }
+            options->setWorkspace(fi.absoluteFilePath());
+        }
+    }
+    if (positionalArguments.count() == 2) {
+        QString argument = positionalArguments.value(1);
+        QFileInfo fi(argument);
+        if (argument.endsWith(".qml")) {
+            qDebug() << "Second argument ends with \".qml\". Assuming it is a file.";
+            if (!fi.exists() || !fi.isFile()) {
+                qWarning() << "Document does not exist or is not a file: " << fi.absoluteFilePath();
+                parser.showHelp(-1);
+            }
+            options->setActiveDocument(fi.absoluteFilePath());
+        } else {
+            qWarning() << "If second argument is present it needs to be a QML document: " << fi.absoluteFilePath();
+            parser.showHelp(-1);
+        }
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -43,8 +105,12 @@ int main(int argc, char** argv)
     app.setAttribute(Qt::AA_NativeWindows, true);
     app.setAttribute(Qt::AA_ImmediateWidgetCreation, true);
 
+    Options *options = Options::instance();
+
+    parseArguments(app.arguments(), options);
+
     MainWindow win;
-    win.init(); // Parse and apply command line and settings file options
+    win.init(options); // Parse and apply command line and settings file options
     win.show();
 
     return app.exec();

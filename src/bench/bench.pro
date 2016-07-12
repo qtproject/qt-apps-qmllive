@@ -23,7 +23,8 @@ SOURCES += \
     httpproxyoptionpage.cpp \
     importpathoptionpage.cpp \
     hostdiscoverymanager.cpp \
-    autodiscoveryhostsdialog.cpp
+    autodiscoveryhostsdialog.cpp \
+    options.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS += \
     importpathoptionpage.h \
     httpproxyoptionpage.h \
     hostdiscoverymanager.h \
-    autodiscoveryhostsdialog.h
+    autodiscoveryhostsdialog.h \
+    options.h
 
 
 FORMS += \

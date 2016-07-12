@@ -47,85 +47,7 @@
 #include "hostmanager.h"
 #include "allhostswidget.h"
 #include "hostdiscoverymanager.h"
-
-struct Options
-{
-    Options()
-        : stayontop(false)
-    {}
-
-    QString activeDocument;
-    QString workspace;
-    QString pluginPath;
-    QStringList importPaths;
-    bool stayontop;
-};
-
-static Options options;
-
-static void usage()
-{
-    qWarning("Usage qmllivebench [options] <workspace> <file.qml>");
-    qWarning("Usage qmllivebench [options] <workspace/file.qml>");
-    qWarning(" ");
-    qWarning(" options:");
-    qWarning("  -pluginpath ........................path to qmllive plugins");
-    qWarning("  -importpath ........................path to the qml import path");
-    qWarning("  -stayontop .........................keep viewer window on top");
-    qWarning(" ");
-    exit(1);
-}
-
-static void parseArguments(const QStringList& arguments)
-{
-    for (int i = 1; i < arguments.count(); ++i) {
-        bool lastArg = (i == arguments.count() - 1);
-        QString arg = arguments.at(i);
-
-        if (arg == QLatin1String("-pluginpath")) {
-            if (lastArg || arguments.at(++i).startsWith(QLatin1Char('-'))) usage();
-            options.pluginPath = arguments.at(i);;
-            continue;
-        } else if (arg == QLatin1String("-importpath")) {
-            if (lastArg || arguments.at(++i).startsWith(QLatin1Char('-'))) usage();
-            options.importPaths.append(QDir(arguments.at(i)).absolutePath());
-            continue;
-        } else if (arg == QLatin1String("-stayontop")) {
-            options.stayontop = true;
-            continue;
-        } else if (arg.startsWith(QLatin1Char('-'))) {
-            usage();
-            return;
-        }
-
-        if (arg.endsWith(".qml")) {
-            qDebug() << "Found argument ending with \".qml\". Assuming it's a file.";
-            if (options.workspace.isEmpty()) {
-                qDebug() << "No workspace is set yet, assuming it's the whole path";
-                QFileInfo fi(arg);
-
-                options.workspace = fi.path();
-
-                if (!fi.exists()) {
-                    qWarning() << "File does not exist: " << arg << " trying to set workspace anyway...";
-                }
-                else {
-                    options.activeDocument = fi.absoluteFilePath();
-                }
-            }
-            else {
-                QFileInfo fi(arg);
-                if (!fi.exists())
-                    qWarning() << "File does not exist: " << arg << "ignoring it.";
-                else
-                    options.activeDocument = fi.absoluteFilePath();
-            }
-        }
-        else {
-            options.workspace = arg;
-        }
-    }
-}
+#include "options.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -289,31 +211,32 @@ void MainWindow::setupMenuBar()
     m_logDockMenu->addAction(m_logDock->toggleViewAction());
 }
 
-void MainWindow::init()
+void MainWindow::init(Options* options)
 {
-    parseArguments(QCoreApplication::arguments());
+    Q_ASSERT(options);
+    if (!options->workspace().isEmpty()) {
+        setWorkspace(QDir(options->workspace()).absolutePath());
+    }
+    if (!options->pluginPath().isEmpty()) {
+        setPluginPath(QDir(options->pluginPath()).absolutePath());
+    }
+    if (!options->importPaths().isEmpty()) {
+        setImportPaths(options->importPaths());
+    }
+    if (!options->activeDocument().isEmpty()) {
+        activateDocument(options->activeDocument());
+    }
 
-    if (!options.workspace.isEmpty()) {
-        setWorkspace(QDir(options.workspace).absolutePath());
-    }
-    if (!options.pluginPath.isEmpty()) {
-        setPluginPath(QDir(options.pluginPath).absolutePath());
-    }
-    if (!options.importPaths.isEmpty()) {
-        setImportPaths(options.importPaths);
-    }
-    if (!options.activeDocument.isEmpty()) {
-        activateDocument(options.activeDocument);
-    }
-
-    if (options.stayontop)
+    if (options->stayOnTop()) {
         setStaysOnTop(true);
+    }
 
     QSettings s;
     restoreGeometry(s.value("geometry").toByteArray());
     //Only set the workspace if we didn't already set it by command line
-    if (options.workspace.isNull())
+    if (options->workspace().isNull()) {
         setWorkspace(s.value("workspace").toString());
+    }
 
     if (s.value("http_proxy/enabled").toBool()) {
         QNetworkProxy proxy;
@@ -337,11 +260,12 @@ void MainWindow::init()
     updateRecentFolder();
 
     //Only set the workspace if we didn't already set it by command line
-    if (options.activeDocument.isNull()) {
-        if (s.contains("activeDocument"))
+    if (options->activeDocument().isNull()) {
+        if (s.contains("activeDocument")) {
             activateDocument(s.value("activeDocument").toString());
-        else
+        } else {
             m_workspace->activateRootPath();
+        }
     }
 
     resetImportPaths();

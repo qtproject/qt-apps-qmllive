@@ -49,6 +49,7 @@ class HostManager;
 class AllHostsWidget;
 class Host;
 class HostDiscoveryManager;
+class Options;
 
 class MainWindow : public QMainWindow
 {
@@ -61,7 +62,7 @@ public:
     void setPluginPath(const QString& path);
     void setImportPaths(const QStringList& pathList);
     void setStaysOnTop(bool enabled);
-    void init();
+    void init(Options *options);
 protected:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);

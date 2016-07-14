@@ -31,75 +31,69 @@
 
 #include "hostwidget.h"
 
-#include <QGroupBox>
-#include <QLabel>
-#include <QFormLayout>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QDropEvent>
-#include <QDragEnterEvent>
-#include <QMimeData>
-#include <QProgressBar>
-#include <QMenu>
-#include <QMessageBox>
-#include <QInputDialog>
-#include <QToolButton>
-#include <QDebug>
-
 #include "host.h"
 #include "livehubengine.h"
 
 HostWidget::HostWidget(QWidget *parent) :
     QWidget(parent)
 {
+    setContentsMargins(0,0,0,0);
     setAcceptDrops(true);
 
-    setFixedHeight(155);
+    m_connectDisconnectAction = new QAction("Offline", this);
+    m_connectDisconnectAction->setIcon(QIcon(":images/error_ball.svg"));
+    connect(m_connectDisconnectAction, SIGNAL(triggered(bool)), this, SLOT(connectAndSendFile()));
+
+    m_refreshAction = new QAction("Refresh", this);
+    m_refreshAction->setIcon(QIcon(":images/refresh.svg"));
+    connect(m_refreshAction, SIGNAL(triggered(bool)), this, SLOT(refresh()));
+
+    m_publishAction = new QAction("Publish", this);
+    m_publishAction->setIcon(QIcon(":/images/publish.svg"));
+    connect(m_publishAction, SIGNAL(triggered(bool)), this, SLOT(publishAll()));
+
+    m_followTreeSelectionAction = new QAction("Follow", this);
+    m_followTreeSelectionAction->setIcon(QIcon(":images/linked.svg"));
+    m_followTreeSelectionAction->setCheckable(true);
+
+    m_editHostAction = new QAction("Setup", this);
+    m_editHostAction->setIcon(QIcon(":images/edit.svg"));
+    connect(m_editHostAction, SIGNAL(triggered(bool)), this, SLOT(onEditHost()));
 
     QGridLayout* layout = new QGridLayout(this);
-    m_groupBox = new QGroupBox();
+    layout->setContentsMargins(0,0,0,0);
+    m_groupBox = new QGroupBox("NONAME", this);
     layout->addWidget(m_groupBox);
 
     QVBoxLayout* vbox = new QVBoxLayout(m_groupBox);
-    QFormLayout* formLayout = new QFormLayout();
-    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    m_ipLabel = new QLabel(m_groupBox);
-    m_fileLabel = new QLabel(m_groupBox);
-    m_statusLabel = new QLabel(m_groupBox);
+    vbox->setContentsMargins(0,0,0,0);
 
-    formLayout->addRow("IP:", m_ipLabel);
-    formLayout->addRow("File:", m_fileLabel);
-    formLayout->addRow("Status:",m_statusLabel);
+    m_stackedLayout = new QStackedLayout(m_groupBox);
+    m_documentLabel = new QLabel(m_groupBox);
+    m_documentLabel->setAlignment(Qt::AlignCenter);
+    m_documentLabel->setContentsMargins(4,4,4,4);
+    m_documentLabel->setFrameShape(QFrame::StyledPanel);
+    m_stackedLayout->insertWidget(0, m_documentLabel);
+    vbox->addLayout(m_stackedLayout, 1);
+
 
     m_groupBox->installEventFilter(this);
 
-    vbox->addLayout(formLayout);
+    QToolBar *toolBar = new QToolBar(m_groupBox);
+    toolBar->setIconSize(QSize(16,16));
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    toolBar->addAction(m_connectDisconnectAction);
+    toolBar->addAction(m_refreshAction);
+    toolBar->addAction(m_publishAction);
+    toolBar->addAction(m_followTreeSelectionAction);
+    toolBar->addAction(m_editHostAction);
 
     m_sendProgress = new QProgressBar(m_groupBox);
     m_sendProgress->setMaximum(1);
     m_sendProgress->setValue(1);
-    m_menuButton = new QToolButton(m_groupBox);
-    m_menuButton->setText("Menu");
-    m_menuButton->setMinimumWidth(35);
-    m_menuButton->setPopupMode(QToolButton::InstantPopup);
-    m_menuButton->setCheckable(true);
+    m_stackedLayout->insertWidget(1, m_sendProgress);
 
-    QHBoxLayout* hbox = new QHBoxLayout();
-    hbox->addWidget(m_sendProgress);
-    hbox->addWidget(m_menuButton);
-
-    vbox->addLayout(hbox);
-
-
-    m_menu = new QMenu(this);
-    m_connectDisconnectAction = m_menu->addAction("Connect", this, SLOT(connectAndSendFile()));
-    m_refreshAction = m_menu->addAction("Refresh", this, SLOT(refresh()));
-    m_publishAction = m_menu->addAction("Publish All", this, SLOT(publishAll()));
-    m_followTreeSelectionAction = m_menu->addAction("Follow Tree Selection");
-    m_followTreeSelectionAction->setCheckable(true);
-    m_editHostAction = m_menu->addAction("Edit Host", this, SLOT(onEditHost()));
-
-    m_menuButton->setMenu(m_menu);
+    vbox->addWidget(toolBar);;
 
     connect(&m_publisher, SIGNAL(connected()), this, SIGNAL(connected()));
     connect(&m_publisher, SIGNAL(connected()), this, SLOT(onConnected()));
@@ -164,19 +158,28 @@ bool HostWidget::followTreeSelection() const
 
 void HostWidget::updateName(const QString &name)
 {
-    m_groupBox->setTitle(name);
+    Q_UNUSED(name)
+    if(m_host) {
+        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
+    }
 }
 
 void HostWidget::updateIp(const QString &ip)
 {
-    m_ipLabel->setText(QString("%1:%2").arg(ip).arg(m_host->port()));
+    Q_UNUSED(ip)
+    if(m_host) {
+        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
+    }
 
     QTimer::singleShot(0, this, SLOT(connectToServer()));
 }
 
 void HostWidget::updatePort(int port)
 {
-    m_ipLabel->setText(QString("%1:%2").arg(m_host->address()).arg(port));
+    Q_UNUSED(port)
+    if(m_host) {
+        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
+    }
 
     QTimer::singleShot(0, this, SLOT(connectToServer()));
 }
@@ -185,7 +188,7 @@ void HostWidget::updateFile(const QString &file)
 {
     QString relFile = QDir(m_engine->workspace()).relativeFilePath(file);
     setUpdateFile(relFile);
-    m_fileLabel->setToolTip(relFile);
+    m_documentLabel->setToolTip(relFile);
 
     connectAndSendFile();
 }
@@ -193,7 +196,7 @@ void HostWidget::updateFile(const QString &file)
 void HostWidget::setUpdateFile(const QString &file)
 {
     QFontMetrics metrics(font());
-    m_fileLabel->setText(metrics.elidedText(file, Qt::ElideLeft, m_fileLabel->width()));
+    m_documentLabel->setText(metrics.elidedText(file, Qt::ElideLeft, m_documentLabel->width()));
 }
 
 void HostWidget::updateOnlineState(bool online)
@@ -234,32 +237,33 @@ void HostWidget::connectAndSendFile()
 
 void HostWidget::onConnected()
 {
-    m_statusLabel->setPixmap(QPixmap(":/images/icon_online.png"));
-    m_statusLabel->setToolTip("Host online");
+    m_connectDisconnectAction->setIcon(QIcon(":images/okay_ball.svg"));
+    m_connectDisconnectAction->setToolTip("Host online");
+    m_connectDisconnectAction->setText("Online");
 
     sendXOffset(m_host->xOffset());
     sendYOffset(m_host->yOffset());
     sendRotation(m_host->rotation());
 
-    m_connectDisconnectAction->setText("Disconnect");
     disconnect(m_connectDisconnectAction, SIGNAL(triggered()), 0, 0);
     connect(m_connectDisconnectAction, SIGNAL(triggered()), &m_publisher, SLOT(disconnectFromServer()));
 }
 
 void HostWidget::onDisconnected()
 {
-    m_statusLabel->setPixmap(QPixmap(":/images/icon_offline.png"));
-    m_statusLabel->setToolTip("Host offline");
+    m_connectDisconnectAction->setIcon(QIcon(":images/error_ball.svg"));
+    m_connectDisconnectAction->setToolTip("Host Offline");
+    m_connectDisconnectAction->setText("Offline");
+    resetProgressBar();
 
-    m_connectDisconnectAction->setText("Connect");
     disconnect(m_connectDisconnectAction, SIGNAL(triggered()), 0, 0);
     connect(m_connectDisconnectAction, SIGNAL(triggered()), this, SLOT(connectToServer()));
 }
 
 void HostWidget::onConnectionError(QAbstractSocket::SocketError error)
 {
-    m_statusLabel->setPixmap(QPixmap(":/images/icon_failover.png"));
-    m_statusLabel->setToolTip(m_publisher.errorToString(error));
+    m_connectDisconnectAction->setToolTip(m_publisher.errorToString(error));
+    m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
 
     if (error == QAbstractSocket::RemoteHostClosedError)
         m_host->setOnline(false);
@@ -286,6 +290,7 @@ void HostWidget::sendDocument(const QString& document)
     if (m_publisher.state() != QAbstractSocket::ConnectedState)
         return;
 
+    m_stackedLayout->setCurrentIndex(1);
     m_changeIds.append(m_publisher.sendDocument(document));
     m_sendProgress->setMaximum(m_sendProgress->maximum() + 1);
 }
@@ -308,24 +313,24 @@ void HostWidget::sendRotation(int rotation)
 void HostWidget::onSendingError(const QUuid &uuid, QAbstractSocket::SocketError socketError)
 {
     if (uuid == m_activateId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_failover.png"));
-        m_statusLabel->setToolTip(QString("Activating file failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setToolTip(QString("Activating file failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
         m_activateId = QUuid();
     } else if (uuid == m_xOffsetId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_failover.png"));
-        m_statusLabel->setToolTip(QString("Setting the X Offset failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setToolTip(QString("Setting the X Offset failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
         m_xOffsetId = QUuid();
     } else if (uuid == m_yOffsetId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_failover.png"));
-        m_statusLabel->setToolTip(QString("Setting the Y Offset failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setToolTip(QString("Setting the Y Offset failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
         m_yOffsetId = QUuid();
     } else if (uuid == m_rotationId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_failover.png"));
-        m_statusLabel->setToolTip(QString("Setting the Rotation failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setToolTip(QString("Setting the Rotation failed: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
         m_rotationId = QUuid();
-    }else if (m_changeIds.contains(uuid)) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_failover.png"));
-        m_statusLabel->setToolTip(QString("Not all files were synced successfully: %1").arg(m_publisher.errorToString(socketError)));
+    } else if (m_changeIds.contains(uuid)) {
+        m_connectDisconnectAction->setToolTip(QString("Not all files were synced successfully: %1").arg(m_publisher.errorToString(socketError)));
+        m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
         m_changeIds.removeAll(uuid);
         resetProgressBar();
     }
@@ -334,22 +339,22 @@ void HostWidget::onSendingError(const QUuid &uuid, QAbstractSocket::SocketError 
 void HostWidget::onSentSuccessfully(const QUuid &uuid)
 {
     if (uuid == m_activateId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_online.png"));
+        m_connectDisconnectAction->setIcon(QIcon(":images/okay_ball.svg"));
         m_activateId = QUuid();
     } else if (uuid == m_xOffsetId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_online.png"));
+        m_connectDisconnectAction->setIcon(QIcon(":images/okay_ball.svg"));
         m_xOffsetId = QUuid();
     } else if (uuid == m_yOffsetId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_online.png"));
+        m_connectDisconnectAction->setIcon(QIcon(":images/okay_ball.svg"));
         m_yOffsetId = QUuid();
     } else if (uuid == m_rotationId) {
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_online.png"));
+        m_connectDisconnectAction->setIcon(QIcon(":images/okay_ball.svg"));
         m_rotationId = QUuid();
     } else if (m_changeIds.contains(uuid)) {
         m_changeIds.removeAll(uuid);
         m_sendProgress->setValue(m_sendProgress->value() + 1);
         if (m_changeIds.isEmpty()) {
-            m_statusLabel->setPixmap(QPixmap(":/images/icon_online.png"));
+            m_connectDisconnectAction->setIcon(QIcon(":images/okay_ball.svg"));
             resetProgressBar();
         }
     }
@@ -359,14 +364,15 @@ void HostWidget::resetProgressBar()
 {
     m_sendProgress->setValue(1);
     m_sendProgress->setMaximum(1);
+    m_stackedLayout->setCurrentIndex(0);
 }
 
 void HostWidget::onPinOk(bool ok)
 {
     if (!ok) {
         m_publisher.disconnectFromServer();
-        m_statusLabel->setPixmap(QPixmap(":/images/icon_failover.png"));
-        m_statusLabel->setToolTip("The Host didn't accept your pin");
+        m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
+        m_connectDisconnectAction->setToolTip("The Host didn't accept your pin");
         QMessageBox::warning(this, "Pin not accepted", "The Host didn't accept your pin");
     }
 }
@@ -388,7 +394,7 @@ void HostWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    setUpdateFile(m_fileLabel->toolTip());
+    setUpdateFile(m_documentLabel->toolTip());
 }
 
 void HostWidget::showPinDialog()

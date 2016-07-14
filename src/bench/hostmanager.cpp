@@ -43,13 +43,15 @@
 HostManager::HostManager(QWidget *parent) :
     QListView(parent)
 {
+    setFrameStyle(QFrame::StyledPanel);
+    setAlternatingRowColors(false);
     setItemDelegate(new DummyDelegate(this));
     setFlow(QListView::LeftToRight);
     setUniformItemSizes(true);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     setSelectionMode(QAbstractItemView::SingleSelection);
-    setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setDragEnabled(true);
     setDefaultDropAction(Qt::MoveAction);
     setDragDropMode(QAbstractItemView::InternalMove);

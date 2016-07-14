@@ -150,12 +150,13 @@ void MainWindow::setupHostView()
     QFrame* hostContainer = new QFrame();
     hostContainer->setFrameStyle(QFrame::StyledPanel);
     QHBoxLayout* layout = new QHBoxLayout(hostContainer);
+    layout->setSpacing(0);
     QVBoxLayout* vbox = new QVBoxLayout();
-    vbox->addWidget(m_allHosts);
-    vbox->addStretch(1);
+    vbox->setContentsMargins(0,0,0,0);
+    vbox->setSpacing(0);
+    vbox->addWidget(m_allHosts, 1);
     layout->addLayout(vbox);
     layout->addWidget(m_hostManager);
-    layout->setContentsMargins(0,0,0,0);
 
     m_hostDock->setWidget(hostContainer);
     addDockWidget(Qt::TopDockWidgetArea, m_hostDock);

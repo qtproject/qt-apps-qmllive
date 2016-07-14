@@ -31,17 +31,11 @@
 
 #pragma once
 
-#include <QWidget>
-#include <QPointer>
+#include <QtWidgets>
 #include <remotepublisher.h>
 
-class QLabel;
-class QGroupBox;
-class QProgressBar;
-class QPushButton;
-class QToolButton;
-class QMenu;
 class Host;
+
 class HostWidget : public QWidget
 {
     Q_OBJECT
@@ -101,11 +95,12 @@ private slots:
 
     void resizeEvent( QResizeEvent * event );
 private:
+    QStackedLayout *m_stackedLayout;
 
     QGroupBox* m_groupBox;
-    QLabel* m_ipLabel;
-    QLabel* m_fileLabel;
-    QLabel* m_statusLabel;
+//    QLabel* m_ipLabel;
+    QLabel* m_documentLabel;
+//    QLabel* m_statusLabel;
     QProgressBar* m_sendProgress;
     QToolButton* m_menuButton;
     QMenu* m_menu;

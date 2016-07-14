@@ -35,29 +35,33 @@
 AllHostsWidget::AllHostsWidget(QWidget *parent) :
     QWidget(parent)
 {
-    m_publishAction = new QAction("Publish All", this);
+    setContentsMargins(0,0,0,0);
+    m_publishAction = new QAction("Publish", this);
     m_publishAction->setIcon(QIcon(":images/publish.svg"));
     connect(m_publishAction, SIGNAL(triggered(bool)), this, SLOT(onPublishTriggered()));
 
-    m_refreshAction = new QAction("Refresh All", this);
+    m_refreshAction = new QAction("Refresh", this);
     m_refreshAction->setIcon(QIcon(":images/refresh.svg"));
     connect(m_refreshAction, SIGNAL(triggered(bool)), this, SIGNAL(refreshAll()));
 
 
     setAcceptDrops(true);
-    setFixedHeight(155);
     QHBoxLayout* contentLayout = new QHBoxLayout(this);
+    contentLayout->setContentsMargins(0,0,0,0);
     QGroupBox *groupBox = new QGroupBox("All Hosts");
     contentLayout->addWidget(groupBox);
 
     QVBoxLayout* verticalLayout = new QVBoxLayout(groupBox);
+    verticalLayout->setContentsMargins(0,0,0,0);
 
-    QLabel* dropFileLabel = new QLabel("Drop File", groupBox);
+    QLabel* dropFileLabel = new QLabel("Drop\nDocument", groupBox);
     dropFileLabel->setAlignment(Qt::AlignCenter);
-    dropFileLabel->setFrameShape(QFrame::Box);
+    dropFileLabel->setContentsMargins(4,4,4,4);
+    dropFileLabel->setFrameStyle(QFrame::StyledPanel);
     verticalLayout->addWidget(dropFileLabel, 1);
 
     QToolBar* toolBar = new QToolBar(groupBox);
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->setIconSize(QSize(16,16));
 
     toolBar->addAction(m_publishAction);

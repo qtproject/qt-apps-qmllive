@@ -60,12 +60,12 @@ HostWidget::HostWidget(QWidget *parent) :
     m_editHostAction->setIcon(QIcon(":images/edit.svg"));
     connect(m_editHostAction, SIGNAL(triggered(bool)), this, SLOT(onEditHost()));
 
-    QGridLayout* layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout(this);
     layout->setContentsMargins(0,0,0,0);
     m_groupBox = new QGroupBox("NONAME", this);
     layout->addWidget(m_groupBox);
 
-    QVBoxLayout* vbox = new QVBoxLayout(m_groupBox);
+    QVBoxLayout *vbox = new QVBoxLayout(m_groupBox);
     vbox->setContentsMargins(0,0,0,0);
 
     m_stackedLayout = new QStackedLayout(m_groupBox);

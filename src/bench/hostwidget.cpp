@@ -34,6 +34,10 @@
 #include "host.h"
 #include "livehubengine.h"
 
+
+const int LABEL_STACK_INDEX=0;
+const int PROGRESS_STACK_INDEX=1;
+
 HostWidget::HostWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -68,12 +72,12 @@ HostWidget::HostWidget(QWidget *parent) :
     QVBoxLayout *vbox = new QVBoxLayout(m_groupBox);
     vbox->setContentsMargins(0,0,0,0);
 
-    m_stackedLayout = new QStackedLayout(m_groupBox);
+    m_stackedLayout = new QStackedLayout();
     m_documentLabel = new QLabel(m_groupBox);
     m_documentLabel->setAlignment(Qt::AlignCenter);
     m_documentLabel->setContentsMargins(4,4,4,4);
     m_documentLabel->setFrameShape(QFrame::StyledPanel);
-    m_stackedLayout->insertWidget(0, m_documentLabel);
+    m_stackedLayout->insertWidget(LABEL_STACK_INDEX, m_documentLabel);
     vbox->addLayout(m_stackedLayout, 1);
 
 
@@ -91,7 +95,7 @@ HostWidget::HostWidget(QWidget *parent) :
     m_sendProgress = new QProgressBar(m_groupBox);
     m_sendProgress->setMaximum(1);
     m_sendProgress->setValue(1);
-    m_stackedLayout->insertWidget(1, m_sendProgress);
+    m_stackedLayout->insertWidget(PROGRESS_STACK_INDEX, m_sendProgress);
 
     vbox->addWidget(toolBar);;
 
@@ -290,7 +294,7 @@ void HostWidget::sendDocument(const QString& document)
     if (m_publisher.state() != QAbstractSocket::ConnectedState)
         return;
 
-    m_stackedLayout->setCurrentIndex(1);
+    m_stackedLayout->setCurrentIndex(PROGRESS_STACK_INDEX);
     m_changeIds.append(m_publisher.sendDocument(document));
     m_sendProgress->setMaximum(m_sendProgress->maximum() + 1);
 }
@@ -364,7 +368,7 @@ void HostWidget::resetProgressBar()
 {
     m_sendProgress->setValue(1);
     m_sendProgress->setMaximum(1);
-    m_stackedLayout->setCurrentIndex(0);
+    m_stackedLayout->setCurrentIndex(LABEL_STACK_INDEX);
 }
 
 void HostWidget::onPinOk(bool ok)

@@ -117,9 +117,9 @@ static void parseArguments(const QStringList &arguments)
 
 class RuntimeLiveNodeEngine : public LiveNodeEngine {
 
-    virtual QQuickView* initView()
+    virtual QQuickView *initView()
     {
-        QQuickView* view = new QQuickView();
+        QQuickView *view = new QQuickView();
         if (options.transparent) {
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setAlphaBufferSize(8);

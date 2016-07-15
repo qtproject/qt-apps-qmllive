@@ -46,21 +46,21 @@ AllHostsWidget::AllHostsWidget(QWidget *parent) :
 
 
     setAcceptDrops(true);
-    QHBoxLayout* contentLayout = new QHBoxLayout(this);
+    QHBoxLayout *contentLayout = new QHBoxLayout(this);
     contentLayout->setContentsMargins(0,0,0,0);
     QGroupBox *groupBox = new QGroupBox("All Hosts");
     contentLayout->addWidget(groupBox);
 
-    QVBoxLayout* verticalLayout = new QVBoxLayout(groupBox);
+    QVBoxLayout *verticalLayout = new QVBoxLayout(groupBox);
     verticalLayout->setContentsMargins(0,0,0,0);
 
-    QLabel* dropFileLabel = new QLabel("Drop\nDocument", groupBox);
+    QLabel *dropFileLabel = new QLabel("Drop\nDocument", groupBox);
     dropFileLabel->setAlignment(Qt::AlignCenter);
     dropFileLabel->setContentsMargins(4,4,4,4);
     dropFileLabel->setFrameStyle(QFrame::StyledPanel);
     verticalLayout->addWidget(dropFileLabel, 1);
 
-    QToolBar* toolBar = new QToolBar(groupBox);
+    QToolBar *toolBar = new QToolBar(groupBox);
     toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->setIconSize(QSize(16,16));
 

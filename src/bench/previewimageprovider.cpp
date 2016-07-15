@@ -77,7 +77,7 @@ QImage PreviewImageProvider::requestImage(const QString &id, QSize *size, const 
         plugins = m_plugins;
     }
 
-    foreach (ContentAdapterInterface* plugin, plugins) {
+    foreach (ContentAdapterInterface *plugin, plugins) {
         if (plugin->canPreview(id)) {
             QImage img = plugin->preview(id, requestedSize);
             *size = img.size();

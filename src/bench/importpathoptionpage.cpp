@@ -39,7 +39,7 @@ ImportPathOptionPage::ImportPathOptionPage(QWidget *parent) :
     ui->setupUi(this);
     QSettings s;
     int count = s.beginReadArray("imports");
-    QListWidgetItem* item;
+    QListWidgetItem *item;
     for (int i=0; i<count; i++) {
         s.setArrayIndex(i);
         item = new QListWidgetItem(s.value("path").toString());
@@ -78,7 +78,7 @@ void ImportPathOptionPage::addItem()
     if (path.isEmpty()) {
         return;
     }
-    QListWidgetItem* item = new QListWidgetItem(path);
+    QListWidgetItem *item = new QListWidgetItem(path);
     item->setFlags(item->flags () | Qt::ItemIsEditable);
     ui->importList->addItem(item);
 }

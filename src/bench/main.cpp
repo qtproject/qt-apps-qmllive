@@ -36,7 +36,7 @@
 #include "mainwindow.h"
 
 
-static void setDarkStyle(QApplication* app)
+static void setDarkStyle(QApplication *app)
 {
     QStyle *style = QStyleFactory::create("fusion");
     if (!style) {
@@ -60,7 +60,7 @@ static void setDarkStyle(QApplication* app)
     app->setPalette(palette);
 }
 
-static void parseArguments(const QStringList& arguments, Options* options)
+static void parseArguments(const QStringList& arguments, Options *options)
 {
     QCommandLineParser parser;
     parser.setApplicationDescription("QmlLive reloading workbench");

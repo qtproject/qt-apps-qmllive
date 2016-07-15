@@ -31,7 +31,7 @@
 
 #include "workspacedelegate.h"
 
-WorkspaceDelegate::WorkspaceDelegate(FileSystemModel* model, QObject *parent) :
+WorkspaceDelegate::WorkspaceDelegate(FileSystemModel *model, QObject *parent) :
     QStyledItemDelegate(parent),
     m_model(model)
 {

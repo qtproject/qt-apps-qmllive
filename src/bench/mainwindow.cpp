@@ -147,11 +147,11 @@ void MainWindow::setupHostView()
     m_hostDock->setObjectName("hosts");
     m_hostDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
 
-    QFrame* hostContainer = new QFrame();
+    QFrame *hostContainer = new QFrame();
     hostContainer->setFrameStyle(QFrame::StyledPanel);
-    QHBoxLayout* layout = new QHBoxLayout(hostContainer);
+    QHBoxLayout *layout = new QHBoxLayout(hostContainer);
     layout->setSpacing(0);
-    QVBoxLayout* vbox = new QVBoxLayout();
+    QVBoxLayout *vbox = new QVBoxLayout();
     vbox->setContentsMargins(0,0,0,0);
     vbox->setSpacing(0);
     vbox->addWidget(m_allHosts, 1);
@@ -212,7 +212,7 @@ void MainWindow::setupMenuBar()
     m_logDockMenu->addAction(m_logDock->toggleViewAction());
 }
 
-void MainWindow::init(Options* options)
+void MainWindow::init(Options *options)
 {
     Q_ASSERT(options);
     if (!options->workspace().isEmpty()) {
@@ -418,7 +418,7 @@ void MainWindow::updateWindowTitle()
     }
 }
 
-void MainWindow::openPreferences(Host* host)
+void MainWindow::openPreferences(Host *host)
 {
     OptionsDialog dialog;
     dialog.setHostModel(m_hostModel);
@@ -441,7 +441,7 @@ void MainWindow::clearRecentFolder()
 
 void MainWindow::openRecentFolder()
 {
-    if (QAction* action = qobject_cast<QAction*>(sender())) {
+    if (QAction *action = qobject_cast<QAction*>(sender())) {
         setWorkspace(action->text());
     }
 }

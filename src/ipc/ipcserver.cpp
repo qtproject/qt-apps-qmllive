@@ -94,10 +94,10 @@ void IpcServer::newConnection()
 {
     DEBUG << "IpcServer::newConnection";
     if (m_server->hasPendingConnections()) {
-        QTcpSocket* socket = m_server->nextPendingConnection();
+        QTcpSocket *socket = m_server->nextPendingConnection();
         emit clientConnected(socket->peerAddress());
         emit clientConnected(socket);
-        IpcConnection* connection = new IpcConnection(socket, this);
+        IpcConnection *connection = new IpcConnection(socket, this);
         connect(connection, SIGNAL(connectionClosed()), this, SLOT(onConnectionClosed()));
         connect(connection, SIGNAL(received(QString,QByteArray)), this, SIGNAL(received(QString,QByteArray)));
     }
@@ -106,7 +106,7 @@ void IpcServer::newConnection()
 
 void IpcServer::onConnectionClosed()
 {
-    IpcConnection* connection = qobject_cast<IpcConnection*>(sender());
+    IpcConnection *connection = qobject_cast<IpcConnection*>(sender());
 
     emit clientDisconnected(connection->socket()->peerAddress());
     emit clientDisconnected(connection->socket());
@@ -138,13 +138,13 @@ void IpcServer::setMaxConnections(int num)
  */
 
 /*!
- * \fn void IpcServer::clientConnected(QTcpSocket* socket)
+ * \fn void IpcServer::clientConnected(QTcpSocket *socket)
  *
  * * Called when a new client connection is established, providing the \a socket
  */
 
 /*!
- * \fn void IpcServer::clientDisconnected(QTcpSocket* socket)
+ * \fn void IpcServer::clientDisconnected(QTcpSocket *socket)
  *
  * * Called when an existing client connection is dropped, providing the \a socket
  */

@@ -59,7 +59,7 @@ QVariant HostModel::data(const QModelIndex &index, int role) const
     if (index.row() < 0 || index.row() >= m_hosts.count())
         return QVariant();
 
-    Host* host = m_hosts.at(index.row());
+    Host *host = m_hosts.at(index.row());
 
     switch (index.column()) {
     case 0: {
@@ -152,8 +152,8 @@ void HostModel::clear()
 
 QList<Host *> HostModel::findByAutoDiscoveryId(QUuid id) const
 {
-    QList<Host* > hosts;
-    foreach (Host* host, m_hosts) {
+    QList<Host *> hosts;
+    foreach (Host *host, m_hosts) {
         if (host->autoDiscoveryId() == id)
             hosts.append(host);
     }
@@ -171,7 +171,7 @@ Host *HostModel::hostAt(int index) const
 
 void HostModel::onHostChanged()
 {
-    Host* host = qobject_cast<Host*>(sender());
+    Host *host = qobject_cast<Host*>(sender());
 
     if (host) {
         int idx = m_hosts.indexOf(host);
@@ -194,7 +194,7 @@ void HostModel::restoreFromSettings(QSettings *s)
 
     for (int i=0; i < size; i++) {
         s->setArrayIndex(i);
-        Host* host = new Host(Host::AutoDiscovery, this);
+        Host *host = new Host(Host::AutoDiscovery, this);
         host->restoreFromSettings(s);
         m_hosts.append(host);
     }
@@ -213,7 +213,7 @@ void HostModel::saveToSettings(QSettings *s)
     s->beginWriteArray("host", m_hosts.size());
 
     int i=0;
-    foreach (Host* host, m_hosts) {
+    foreach (Host *host, m_hosts) {
         s->setArrayIndex(i++);
         host->saveToSettings(s);
     }

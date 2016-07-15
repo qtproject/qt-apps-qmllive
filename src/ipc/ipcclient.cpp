@@ -132,7 +132,7 @@ void IpcClient::connectToServer(const QString &hostName, int port)
  */
 QUuid IpcClient::send(const QString &method, const QByteArray &data)
 {
-    Package* pkg = new Package;
+    Package *pkg = new Package;
     pkg->m_method = method;
     pkg->m_data = data;
     pkg->m_uuid = QUuid::createUuid();
@@ -188,7 +188,7 @@ bool IpcClient::waitForSent(const QUuid uuid, int msecs)
     if (m_current && m_current->m_uuid == uuid) {
         waitForPackage = m_current;
     } else {
-        foreach (Package* pkg, m_queue) {
+        foreach (Package *pkg, m_queue) {
             if (pkg->m_uuid == uuid) {
                 waitForPackage = pkg;
                 break;

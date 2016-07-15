@@ -103,7 +103,7 @@ void HostDiscoveryManager::serviceRemoved(const QUuid &uuid, const QString &type
     Q_UNUSED(version);
     Q_UNUSED(domain);}
 
-void HostDiscoveryManager::updateHostFromExtraValues(Host* host, QMap<QString, QStringList> extraValues)
+void HostDiscoveryManager::updateHostFromExtraValues(Host *host, QMap<QString, QStringList> extraValues)
 {
     Q_UNUSED(host);
     Q_UNUSED(extraValues);

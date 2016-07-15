@@ -45,7 +45,7 @@ WindowWidget::WindowWidget(QWidget *parent) :
 
 void WindowWidget::setHostedWindow(QQuickView *hostedWindow)
 {
-    QQuickView* oldView = 0;
+    QQuickView *oldView = 0;
     if (m_hostedWindow) {
         m_hostedWindow->removeEventFilter(this);
         oldView = m_hostedWindow;
@@ -173,7 +173,7 @@ bool WindowWidget::event(QEvent *e)
             break;
         }
         case QEvent::Resize: {
-            QResizeEvent* re = static_cast<QResizeEvent*>(e);
+            QResizeEvent *re = static_cast<QResizeEvent*>(e);
             if (m_hostedWindow && m_hostedWindow->resizeMode() == QQuickView::SizeRootObjectToView) {
                 m_hostedWindow->resize(re->size());
             }

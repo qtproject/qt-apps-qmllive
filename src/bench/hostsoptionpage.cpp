@@ -56,7 +56,7 @@ HostsOptionsPage::HostsOptionsPage(QWidget *parent) :
     connect(ui->yField, SIGNAL(valueChanged(int)), this, SLOT(updateYOffset(int)));
     connect(ui->rotationField, SIGNAL(valueChanged(int)), this, SLOT(updateRotation(int)));
 
-    QMenu* menu = new QMenu(ui->addHostButton);
+    QMenu *menu = new QMenu(ui->addHostButton);
     menu->addAction("Auto Discovery...", this, SLOT(showAutoDiscoveryDialog()));
     menu->addAction("Manual", this, SLOT(addHost()));
     ui->addHostButton->setMenu(menu);
@@ -78,7 +78,7 @@ void HostsOptionsPage::setHostModel(HostModel *model)
             this, SLOT(onCurrentRowChanged(QModelIndex,QModelIndex)));
 
     for (int i=0; i< m_model->rowCount(); i++) {
-        Host* host = m_model->hostAt(i);
+        Host *host = m_model->hostAt(i);
         addHost(host);
     }
 }
@@ -91,8 +91,8 @@ void HostsOptionsPage::setDiscoveredHostsModel(HostModel *model)
 void HostsOptionsPage::apply()
 {
     for (int i=0; i < ui->hostsWidget->rowCount(); i++) {
-        QTableWidgetItem* item = ui->hostsWidget->item(i, 0);
-        Host* host = item->data(Qt::UserRole).value<Host*>();
+        QTableWidgetItem *item = ui->hostsWidget->item(i, 0);
+        Host *host = item->data(Qt::UserRole).value<Host*>();
         if (ui->hostsWidget->isRowHidden(i)) {
             if (host)
                 m_model->removeHost(host);
@@ -132,12 +132,12 @@ void HostsOptionsPage::onCurrentRowChanged ( const QModelIndex & current, const 
 
     m_currentIndex = current.row();
 
-    QTableWidgetItem* typeItem = ui->hostsWidget->item(m_currentIndex, 1);
+    QTableWidgetItem *typeItem = ui->hostsWidget->item(m_currentIndex, 1);
 
     QString type = typeItem->text();
     bool autoDiscovery = (type == "Auto");
 
-    QTableWidgetItem* item = ui->hostsWidget->item(m_currentIndex, 0);
+    QTableWidgetItem *item = ui->hostsWidget->item(m_currentIndex, 0);
 
     ui->nameField->setText(item->text());
     ui->typeField->setText(type);
@@ -169,7 +169,7 @@ void HostsOptionsPage::updateAddress(const QString &address)
 {
     Q_ASSERT(m_currentIndex != -1);
 
-    QTableWidgetItem* item = ui->hostsWidget->item(m_currentIndex, 0);
+    QTableWidgetItem *item = ui->hostsWidget->item(m_currentIndex, 0);
 
     ui->hostsWidget->item(m_currentIndex, 2)->setText(QString("%1:%2").arg(address).arg(item->data(Qt::UserRole + 2).toInt()));
 
@@ -180,7 +180,7 @@ void HostsOptionsPage::updatePort(int port)
 {
     Q_ASSERT(m_currentIndex != -1);
 
-    QTableWidgetItem* item = ui->hostsWidget->item(m_currentIndex, 0);
+    QTableWidgetItem *item = ui->hostsWidget->item(m_currentIndex, 0);
 
     ui->hostsWidget->item(m_currentIndex, 2)->setText(QString("%1:%2").arg(item->data(Qt::UserRole + 1).toString()).arg(port));
 
@@ -191,7 +191,7 @@ void HostsOptionsPage::updateFollowTreeSelection(bool enabled)
 {
     Q_ASSERT(m_currentIndex != -1);
 
-    QTableWidgetItem* item = ui->hostsWidget->item(m_currentIndex, 0);
+    QTableWidgetItem *item = ui->hostsWidget->item(m_currentIndex, 0);
 
     item->setData(Qt::UserRole + 4, enabled);
 }
@@ -200,7 +200,7 @@ void HostsOptionsPage::updateXOffset(int offset)
 {
     Q_ASSERT(m_currentIndex != -1);
 
-    QTableWidgetItem* item = ui->hostsWidget->item(m_currentIndex, 0);
+    QTableWidgetItem *item = ui->hostsWidget->item(m_currentIndex, 0);
 
     item->setData(Qt::UserRole + 5, offset);
 }
@@ -209,7 +209,7 @@ void HostsOptionsPage::updateYOffset(int offset)
 {
     Q_ASSERT(m_currentIndex != -1);
 
-    QTableWidgetItem* item = ui->hostsWidget->item(m_currentIndex, 0);
+    QTableWidgetItem *item = ui->hostsWidget->item(m_currentIndex, 0);
 
     item->setData(Qt::UserRole + 6, offset);
 }
@@ -218,7 +218,7 @@ void HostsOptionsPage::updateRotation(int rotation)
 {
     Q_ASSERT(m_currentIndex != -1);
 
-    QTableWidgetItem* item = ui->hostsWidget->item(m_currentIndex, 0);
+    QTableWidgetItem *item = ui->hostsWidget->item(m_currentIndex, 0);
 
     item->setData(Qt::UserRole + 7, rotation);
 }
@@ -231,7 +231,7 @@ void HostsOptionsPage::addHost(Host *host)
     int count = ui->hostsWidget->rowCount();
     ui->hostsWidget->setRowCount(count + 1);
 
-    QTableWidgetItem* item = new QTableWidgetItem(host->name());
+    QTableWidgetItem *item = new QTableWidgetItem(host->name());
     ui->hostsWidget->setItem(count, 0, item);
 
     item->setData(Qt::UserRole, QVariant::fromValue(host));

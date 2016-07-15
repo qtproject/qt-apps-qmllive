@@ -75,7 +75,7 @@ void HostManager::setLiveHubEngine(LiveHubEngine *engine)
     m_engine = engine;
 
     for (int i=0; i < m_model->rowCount(); i++) {
-        HostWidget* widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
+        HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget)
             widget->setLiveHubEngine(engine);
     }
@@ -84,7 +84,7 @@ void HostManager::setLiveHubEngine(LiveHubEngine *engine)
 void HostManager::followTreeSelection(const QString &currentFile)
 {
     for (int i=0; i < m_model->rowCount(); i++) {
-        HostWidget* widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
+        HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget && widget->followTreeSelection())
             widget->setCurrentFile(currentFile);
     }
@@ -93,7 +93,7 @@ void HostManager::followTreeSelection(const QString &currentFile)
 void HostManager::setCurrentFile(const QString &currentFile)
 {
     for (int i=0; i < m_model->rowCount(); i++) {
-        HostWidget* widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
+        HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget)
             widget->setCurrentFile(currentFile);
     }
@@ -102,7 +102,7 @@ void HostManager::setCurrentFile(const QString &currentFile)
 void HostManager::publishAll()
 {
     for (int i=0; i < m_model->rowCount(); i++) {
-        HostWidget* widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
+        HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget)
             widget->publishWorkspace();
     }
@@ -111,7 +111,7 @@ void HostManager::publishAll()
 void HostManager::refreshAll()
 {
     for (int i=0; i < m_model->rowCount(); i++) {
-        HostWidget* widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
+        HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget)
             widget->refresh();
     }
@@ -129,17 +129,17 @@ void HostManager::rowsInserted(const QModelIndex &parent, int start, int end)
 
 void HostManager::addHost(int index)
 {
-    HostWidget* widget = new HostWidget();
-    Host* host = m_model->hostAt(index);
+    HostWidget *widget = new HostWidget();
+    Host *host = m_model->hostAt(index);
     widget->setLiveHubEngine(m_engine.data());
     widget->setHost(host);
     setIndexWidget(m_model->index(index,0), widget);
     connect(widget, SIGNAL(openHostConfig(Host*)), this, SIGNAL(openHostConfig(Host*)));
 
-    QDockWidget* dock = new QDockWidget(host->name());
+    QDockWidget *dock = new QDockWidget(host->name());
     dock->setObjectName(host->name() + "LogDock");
     connect(host, SIGNAL(nameChanged(QString)), dock, SLOT(setWindowTitle(QString)));
-    LogView* view = new LogView(false, dock);
+    LogView *view = new LogView(false, dock);
     connect(widget, SIGNAL(remoteLog(int,QString,QUrl,int,int)), view, SLOT(appendToLog(int,QString,QUrl,int,int)));
     dock->setWidget(view);
     m_logList.append(dock);
@@ -152,7 +152,7 @@ void HostManager::rowsAboutToBeRemoved(const QModelIndex & parent, int start, in
         return;
 
     for (int i=start; i<= end; i++) {
-        QDockWidget* dock = m_logList.takeAt(i);
+        QDockWidget *dock = m_logList.takeAt(i);
         delete dock;
     }
 }

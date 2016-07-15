@@ -52,12 +52,12 @@ BenchLiveNodeEngine::BenchLiveNodeEngine(QObject *parent)
     setUpdateMode(LiveNodeEngine::RecreateView);
 }
 
-void BenchLiveNodeEngine::setWindowWidget(WindowWidget* widget)
+void BenchLiveNodeEngine::setWindowWidget(WindowWidget *widget)
 {
     m_ww = widget;
 }
 
-QQuickView* BenchLiveNodeEngine::initView()
+QQuickView *BenchLiveNodeEngine::initView()
 {
     m_view = new BenchQuickView();
     connect(m_view, SIGNAL(sizeChanged(QSize)), this, SLOT(onSizeChanged(QSize)));
@@ -133,13 +133,13 @@ void BenchLiveNodeEngine::initPlugins()
 {
     LiveNodeEngine::initPlugins();
 
-    DirectoryPreviewAdapter* adapter = new DirectoryPreviewAdapter(this);
+    DirectoryPreviewAdapter *adapter = new DirectoryPreviewAdapter(this);
     if (m_workspaceView) {
         //This needs to be QueuedConnection because Qt5 doesn't like it to destruct it's object while it is in a signalHandler
         connect(adapter, SIGNAL(loadDocument(QString)), m_workspaceView, SLOT(activateDocument(QString)), Qt::QueuedConnection);
     }
 
-    QmlPreviewAdapter* previewAdapter = new QmlPreviewAdapter(this);
+    QmlPreviewAdapter *previewAdapter = new QmlPreviewAdapter(this);
 
     previewAdapter->setImportPaths(importPaths());
 
@@ -154,7 +154,7 @@ void BenchLiveNodeEngine::reloadHelper()
 {
     LiveNodeEngine::reloadDocument();
 
-    QAbstractScrollArea* scroller = m_ww;
+    QAbstractScrollArea *scroller = m_ww;
 
     ContentAdapterInterface *adapter = activePlugin();
     if (adapter && adapter->isFullScreen()) {

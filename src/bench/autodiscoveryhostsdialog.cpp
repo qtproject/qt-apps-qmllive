@@ -52,7 +52,7 @@ QList<QPointer<Host> > AutoDiscoveryHostsDialog::selectedHosts() const
 
     QModelIndexList selectedRows = ui->hostView->selectionModel()->selectedRows();
     foreach (QModelIndex index, selectedRows) {
-        Host* host = m_model->hostAt(index.row());
+        Host *host = m_model->hostAt(index.row());
         hostList.append(QPointer<Host>(host));
     }
 

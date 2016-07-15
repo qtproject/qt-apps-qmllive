@@ -58,7 +58,7 @@ void QmlHelper::loadDummyData(QQuickView *view, const QString &workspace)
     foreach (QString entry, dir.entryList()) {
 
         QQmlComponent comp(view->engine(), dir.filePath(entry));
-        QObject* obj = comp.create();
+        QObject *obj = comp.create();
 
         if (comp.isError()) {
             foreach (const QQmlError error, comp.errors()) {

@@ -44,7 +44,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QListWidgetItem* item = new QListWidgetItem("HTTP Proxy");
+    QListWidgetItem *item = new QListWidgetItem("HTTP Proxy");
     int index = ui->optionsStack->addWidget(m_httpProxyForm);
     item->setSelected(true);
     item->setData(Qt::UserRole, index);

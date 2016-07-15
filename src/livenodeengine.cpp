@@ -123,7 +123,7 @@ LiveNodeEngine::LiveNodeEngine(QObject *parent)
  */
 void LiveNodeEngine::setXOffset(int offset)
 {
-    QQuickView* view = 0;
+    QQuickView *view = 0;
 
     if (m_view)
         view = m_view;
@@ -148,7 +148,7 @@ int LiveNodeEngine::xOffset() const
  */
 void LiveNodeEngine::setYOffset(int offset)
 {
-    QQuickView* view = 0;
+    QQuickView *view = 0;
 
     if (m_view)
         view = m_view;
@@ -174,7 +174,7 @@ int LiveNodeEngine::yOffset() const
 
 void LiveNodeEngine::setRotation(int rotation)
 {
-    QQuickView* view = 0;
+    QQuickView *view = 0;
 
     if (m_view)
         view = m_view;
@@ -319,7 +319,7 @@ void LiveNodeEngine::reloadDocument()
     //emit logIgnoreMessages(true);
 
     QUrl url = queryDocumentViewer(m_activeFile);
-    QQmlEngine* engine = view->engine();
+    QQmlEngine *engine = view->engine();
     m_windowComponent = new QQmlComponent(engine);
 
     m_windowComponent->loadUrl(url);
@@ -361,7 +361,7 @@ QUrl LiveNodeEngine::queryDocumentViewer(const QUrl& url)
 {
     initPlugins();
 
-    foreach (ContentAdapterInterface* adapter, m_plugins) {
+    foreach (ContentAdapterInterface *adapter, m_plugins) {
         if (adapter->canAdapt(url)) {
             adapter->cleanUp();
             adapter->setAvailableFeatures(m_quickFeatures);
@@ -504,7 +504,7 @@ void LiveNodeEngine::onStatusChanged(QQuickView::Status status)
  */
 QQuickView *LiveNodeEngine::initView()
 {
-    QQuickView* view = new QQuickView();
+    QQuickView *view = new QQuickView();
     emit viewChanged(view);
     return view;
 }

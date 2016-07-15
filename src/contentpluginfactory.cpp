@@ -79,7 +79,7 @@ void ContentPluginFactory::load()
 
         QPluginLoader loader(path);
 
-        ContentAdapterInterface* plugin = qobject_cast<ContentAdapterInterface*>(loader.instance());
+        ContentAdapterInterface *plugin = qobject_cast<ContentAdapterInterface*>(loader.instance());
         if (plugin)
             m_plugins.append(plugin);
 

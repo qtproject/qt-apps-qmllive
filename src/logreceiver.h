@@ -35,7 +35,8 @@
 #include <QUrl>
 #include <QHostAddress>
 
-class QUdpSocket;
+QT_FORWARD_DECLARE_CLASS(QUdpSocket);
+
 class LogReceiver : public QObject
 {
     Q_OBJECT

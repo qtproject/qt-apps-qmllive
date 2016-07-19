@@ -34,9 +34,11 @@
 #include <QDialog>
 #include <QPointer>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
 class AutoDiscoveryHostsDialog;
 }
+QT_END_NAMESPACE
 
 class HostModel;
 class Host;

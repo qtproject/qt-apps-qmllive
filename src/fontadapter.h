@@ -35,7 +35,7 @@
 #include <QStringList>
 #include <QFontDatabase>
 
-class QDeclarativeContext;
+QT_FORWARD_DECLARE_CLASS(QDeclarativeContext);
 class FontAdapter : public QObject, public ContentAdapterInterface
 {
     Q_OBJECT

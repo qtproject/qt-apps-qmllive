@@ -34,9 +34,11 @@
 #include <QtGui>
 #include <QtWidgets>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
     class OptionsDialog;
 }
+QT_END_NAMESPACE
 
 class HttpProxyOptionPage;
 class ImportPathOptionPage;

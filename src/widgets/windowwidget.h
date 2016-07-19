@@ -34,7 +34,7 @@
 #include <QAbstractScrollArea>
 #include <QPointer>
 
-class QQuickView;
+QT_FORWARD_DECLARE_CLASS(QQuickView);
 
 class WindowWidget : public QAbstractScrollArea
 {

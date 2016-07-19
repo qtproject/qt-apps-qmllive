@@ -35,7 +35,8 @@
 #include <QUuid>
 #include <QMetaType>
 
-class QSettings;
+QT_FORWARD_DECLARE_CLASS(QSettings);
+
 class Host : public QObject
 {
     Q_OBJECT

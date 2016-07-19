@@ -1,9 +1,12 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
+!android:!ios {
+  SUBDIRS += bench \
+             previewGenerator
+}
+
 SUBDIRS += \
-  bench \
-  previewGenerator \
   runtime
 
 

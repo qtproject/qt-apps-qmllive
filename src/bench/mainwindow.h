@@ -43,13 +43,13 @@ class LiveRuntime;
 class LiveHubEngine;
 class BenchLiveNodeEngine;
 class WindowWidget;
-class QToolBar;
 class HostModel;
 class HostManager;
 class AllHostsWidget;
 class Host;
 class HostDiscoveryManager;
 class Options;
+QT_FORWARD_DECLARE_CLASS(QToolBar);
 
 class MainWindow : public QMainWindow
 {

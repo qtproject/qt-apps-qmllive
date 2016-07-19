@@ -35,8 +35,9 @@
 #include <QUrl>
 #include <QImage>
 
-class QDeclarativeContext;
-class QQmlContext;
+QT_FORWARD_DECLARE_CLASS(QDeclarativeContext);
+QT_FORWARD_DECLARE_CLASS(QQmlContext);
+
 //! [0]
 class ContentAdapterInterface
 {
@@ -68,5 +69,8 @@ private:
 //! [0]
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ContentAdapterInterface::Features)
+
+QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(ContentAdapterInterface, "com.pelagicore.qmllive.ContentAdapterInterface/1.0")
+QT_END_NAMESPACE
 

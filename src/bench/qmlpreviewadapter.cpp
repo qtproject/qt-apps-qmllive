@@ -35,6 +35,8 @@
 #include <QCoreApplication>
 #include <QLocalSocket>
 #include <QDebug>
+#include <QProcess>
+
 
 Q_GLOBAL_STATIC(QProcess, proc)
 Q_GLOBAL_STATIC(QString, serverName)

@@ -34,13 +34,17 @@
 #include <QWidget>
 #include <QModelIndex>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
 class HostsOptionPage;
 }
+QT_END_NAMESPACE
 
 class Host;
 class HostModel;
-class QMenu;
+
+QT_FORWARD_DECLARE_CLASS(QMenu);
+
 class AutoDiscoveryHostsDialog;
 
 class HostsOptionsPage : public QWidget

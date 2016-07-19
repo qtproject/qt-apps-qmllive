@@ -34,7 +34,7 @@
 #include <QAbstractListModel>
 #include "host.h"
 
-class QSettings;
+QT_FORWARD_DECLARE_CLASS(QSettings);
 class HostModel : public QAbstractListModel
 {
     Q_OBJECT

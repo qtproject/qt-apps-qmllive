@@ -1,3 +1,7 @@
+requires(qtHaveModule(widgets))
+requires(!winrt)
+
+
 load(configure)
 load(config-output)
 include(qmllive.pri)
@@ -6,10 +10,9 @@ include(qmllive.pri)
 
 TEMPLATE = subdirs
 
-
 SUBDIRS += \
     src \
-    # tests
+    tests
 
 OTHER_FILES += \
     README.md \

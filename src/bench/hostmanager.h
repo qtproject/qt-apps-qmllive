@@ -36,9 +36,10 @@
 
 class LiveHubEngine;
 class HostModel;
-
-class QDockWidget;
 class Host;
+
+QT_FORWARD_DECLARE_CLASS(QDockWidget);
+
 class HostManager : public QListView
 {
     Q_OBJECT

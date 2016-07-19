@@ -36,8 +36,8 @@
 #include <QStringList>
 #include <QProcess>
 
-class QmlContext;
-class QDeclarativeContext;
+QT_FORWARD_DECLARE_CLASS(QmlContext);
+QT_FORWARD_DECLARE_CLASS(QDeclarativeContext);
 class QmlPreviewAdapter : public QObject, public ContentAdapterInterface
 {
     Q_OBJECT

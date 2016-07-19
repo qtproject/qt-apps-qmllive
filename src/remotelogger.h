@@ -35,7 +35,8 @@
 #include <QHostAddress>
 #include <QtQuick>
 
-class QUdpSocket;
+QT_FORWARD_DECLARE_CLASS(QUdpSocket);
+
 class RemoteLogger : public Logger
 {
     Q_OBJECT

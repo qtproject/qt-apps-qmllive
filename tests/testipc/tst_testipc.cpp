@@ -65,7 +65,7 @@ private Q_SLOTS:
         peer1.listen(10234);
         connect(&peer1, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
         IpcClient peer2;
-        peer2.setDestination("127.0.0.1", 10234);
+        peer2.connectToServer("127.0.0.1", 10234);
         QByteArray bytes;
         QDataStream stream(&bytes, QIODevice::ReadWrite);
         stream << QString("Hello IPC!");
@@ -80,7 +80,7 @@ private Q_SLOTS:
         peer1.listen(10234);
         connect(&peer1, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
         IpcClient peer2;
-        peer2.setDestination("127.0.0.1", 10234);
+        peer2.connectToServer("127.0.0.1", 10234);
         QByteArray bytes;
         QDataStream stream(&bytes, QIODevice::ReadWrite);
         QString filePath("tst_testipc.cpp");

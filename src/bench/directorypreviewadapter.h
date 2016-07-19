@@ -33,7 +33,7 @@
 
 #include "contentadapterinterface.h"
 
-class QDeclarativeContext;
+QT_FORWARD_DECLARE_CLASS(QDeclarativeContext);
 class DirectoryPreviewAdapter : public QObject, public ContentAdapterInterface
 {
     Q_OBJECT

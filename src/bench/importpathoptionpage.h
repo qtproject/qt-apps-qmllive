@@ -35,9 +35,11 @@
 #include <QtGui>
 #include <QtWidgets>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
 class ImportPathOptionPage;
 }
+QT_END_NAMESPACE
 
 class ImportPathOptionPage : public QWidget
 {

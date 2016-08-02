@@ -1,5 +1,5 @@
 include($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)
-include(config/qmllive-project.qdocconf)
+include(qmllive-project.qdocconf)
 
 HTML.footer = \
     "        </div>\n" \

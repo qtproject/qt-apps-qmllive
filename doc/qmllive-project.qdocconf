@@ -23,7 +23,7 @@ imagedirs = images
 outputdir = $OUTDIR
 
 qhp.projects                               = QmlLive
-qhp.QmlLive.file                = QmlLive.qhp
+qhp.QmlLive.file                = qmllive.qhp
 qhp.QmlLive.namespace           = io.qt.QmlLive.$QMLLIVE_VERSION_TAG
 qhp.QmlLive.virtualFolder       = QmlLive
 qhp.QmlLive.indexTitle          = Pelagicore QML Live Reference Documentation

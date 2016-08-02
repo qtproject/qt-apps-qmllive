@@ -40,7 +40,7 @@ During a typical user interface design phase, designers create many graphical
 documents describing the desired user interface. Transferring such graphical
 visions into a running source code is difficult and time consuming.
 
-\image workbench
+\image workbench.png
 
 Not only is it a tedious process, it often comes with great compromises on both
 sides. The designer's vision is often not fully replicable with the underlying
@@ -61,7 +61,7 @@ simultaneously display it on one or several local and/or remote clients. The
 clients can run on any desktop or networked embedded device that
 supports Qt5 and QmlLive.
 
-\image concept
+\image concept.png
 
 \section1 Local Sessions
 
@@ -77,7 +77,7 @@ developing a whole scene, you can can break apart the scene into smaller parts
 or components. You can work on these small components and see how they look
 standalone or embedded into a larger scene.
 
-\image client
+\image client.png
 
 
 \section1 Remote Sessions - \e{putting delight on your devices}
@@ -92,7 +92,7 @@ QmlLive and the QmlLive Runtime you simply connect to the device, propagate your
 workspace and from then on all changes are reflected on the device display. Of course,
 you can also connect more devices, or devices with different sizes.
 
-\image runtime
+\image runtime.png
 
 \chapter Display, Screens, Panels, Components, Fragments
 

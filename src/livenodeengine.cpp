@@ -106,7 +106,8 @@ LiveNodeEngine::LiveNodeEngine(QObject *parent)
     m_view = view;
     m_view->rootContext()->setContextProperty("livert", m_runtime);
     m_view->engine()->setOutputWarningsToStandardError(false); // log
-    m_view->engine()->setImportPathList(m_importPaths);
+    if (!m_importPaths.isEmpty())
+        m_view->engine()->setImportPathList(m_importPaths);
 
     connect(m_view->engine(), SIGNAL(warnings(QList<QQmlError>)),
             this, SIGNAL(logErrors(QList<QQmlError>)));

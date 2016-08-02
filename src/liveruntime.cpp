@@ -48,7 +48,9 @@
  * Standard constructor using \a parent as parent
  */
 LiveRuntime::LiveRuntime(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_screenWidth(0),
+    m_screenHeight(0)
 {
 }
 

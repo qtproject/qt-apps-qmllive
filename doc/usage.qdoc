@@ -141,33 +141,6 @@ For this you need to add \tt{$(QMLLIVEPROJECT)/src/src.pri} to your project fold
 
 Here is a short example of a minimal custom runtime:
 
-\code
-#include <QtGui>
-#include <QtQuick>
-
-// use live node header
-#include "livenodeengine.h"
-
-int main(int argc, char** argv)
-{
-    QApplication app(argc, argv);
-    QQuickView view;
-
-    LiveNodeEngine node;
-    // let qml live instrument your view
-    node.setView(&view);
-    // where file updates should be stored relative to
-    node.setWorkspace(".");
-    // for local usage use the LocalPublisher
-    RemoteReceiver receiver;
-    receiver.registerNode(node);
-    // listen to ipc call from remote
-    receiver.listen(10234);
-
-    view.setResizeMode(QQuickView::SizeViewToRootObject);
-    view.show();
-    return app.exec();
-}
-\endcode
+\snippet ../examples/customruntime/main.cpp 0
 
 */

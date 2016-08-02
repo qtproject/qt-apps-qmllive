@@ -14,6 +14,8 @@ SUBDIRS += \
     src \
     tests
 
+!CONFIG(skip-examples): SUBDIRS += examples
+
 OTHER_FILES += \
     README.md \
     INSTALL.md \

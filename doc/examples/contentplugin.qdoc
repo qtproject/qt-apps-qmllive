@@ -32,20 +32,19 @@
     \example contentplugin
     \title ContentPlugin Example
 
-    \brief The ContentPlugin example demonstrates how to write a
-    Content Plugin for QmlLive
+    \brief Demonstrates how to write a Content Plugin for QmlLive
 
     \image contentplugin-example.png Screenshot of the Plugin in Action
 
-    The Plugin written in this example displays Images like the
-    builtin Imageviewer in QmlLive, but it shows the content rotated
+    The plugin written in this example displays images like the
+    built-in Imageviewer in QmlLive, but it shows the content rotated
     only works on *.png files.
 
     We will start by reviewing the interface defined in \c
     contentadapterinterface.h in the QmlLive source code. This
     interface can be used to add a new ContentAdapter to QmlLive.
-    The ContentAdapter will be used to display any content you want
-    to be handled not directly by the LiveRuntime like displaying a image.
+    The ContentAdapter will be used to display any content that shouldn't be
+    handled by the LiveRuntime, like displaying an image.
 
     \snippet contentadapterinterface.h 0
 
@@ -55,37 +54,35 @@
 
     The second function \c adapt(const QUrl& url, QDeclarativeContext* context)
     returns a custom QUrl which will be used by QmlLive to display the given QUrl.
-    The returned QUrl always has to point to a qml file used to display the content.
-    To be able to control the returned qml File \c context can be used to set custom
-    Properties which will be exported to the qml File.
+    The returned QUrl always has to point to a QML file used to display the content.
+    To be able to control the returned QML file, \c context can be used to set custom
+    properties which will be exported to the QML file.
 
     canPreview() and preview() are used for generating preview thumbnails.
-    We use the easiest implementation for this two methods.
+    We use the easiest implementation for these two methods.
 
    \section1 MyContentAdapterPlugin
 
    \snippet contentplugin/mycontentadapterplugin.h 0
 
    The MyContentAdapterPlugin implements the interface to QmlLive. It subclasses
-   QObject and the needed \c ContentAdapterInterface.
+   QObject and the required \c ContentAdapterInterface.
 
    \snippet contentplugin/mycontentadapterplugin.h 1
 
-   The \c Q_INTERFACES macro will be used to register the Plugin to Qt's Plugin
-   System.
+   The \c Q_INTERFACES macro will be used to register the plugin to Qt's plugin
+   system.
 
-
-   To be called only for the right file type we have to overload the
-   \c canAdapt(const QUrl&) function. We only want to be loaded for *.png files.
-   That's why we check the file ending on the given url and return true when it's
-   an png file.
+   We have to overload the \c canAdapt(const QUrl&) function if we want it to be
+   called for the right file type: \e *.png." That's why we check the file
+   ending on the given url and return true when it's a png file.
 
    \snippet contentplugin/mycontentadapterplugin.cpp 0
 
-   If the plugin accepts the file \c adapt(const QUrl& url, QDeclarativeContext* context)
-   will be called. Here we export the path to the image to a special property in the
-   context to be able to access the fileName from within our qml File.
-   Afterwards we return a QUrl pointing to our qml File which is inside a ResourceFile.
+   If the plugin accepts the file, \c adapt(const QUrl& url, QDeclarativeContext* context)
+   will be called. Here we export the path to the image as a special property in the
+   context to be able to access the fileName from within our QML file.
+   Afterwards we return a QUrl pointing to our QML file which is inside a ResourceFile.
 
    \snippet contentplugin/mycontentadapterplugin.cpp 1
 
@@ -96,16 +93,16 @@
 
    \section1 plugin.qml
 
-   The plugin.qml file is our ImageViewer. In it we create a \c Image Element and
-   set the source to our exported Property \c imageSource. The rotation Property
-   will be set to 180 to rotate the Image 180 degrees.
+   The plugin.qml file is our ImageViewer. In it we create an \c {Image Element} and
+   set the source to our exported property \c imageSource. The rotation property
+   will be set to 180.
 
    \snippet contentplugin/plugin.qml 0
 
    \section1 The Resource File
 
-   Because we don't want to fiddle around with paths we include our qml File into
-   a Resource File. The most important thing in the Resource File is to use an
-   unused Prefix. Otherwise our file can't be found because QmlLive also uses
-   Resource Files. The best approach is to use the plugin name as prefix.
+   Because we don't want to fiddle around with paths, we include our QML file into
+   a resource file. It is important to use a unique prefix in the resource file in
+   order to avoid conflicts with QmlLive, which also uses resource files. The best
+   approach is to use the plugin name as a prefix.
 */

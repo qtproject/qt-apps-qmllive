@@ -71,6 +71,6 @@ target.
     $ make docs
 \endcode
 
-The documentation will be avilable at \tt{doc/html/index.html}.
+The documentation will be available at \tt{doc/html/index.html}.
 
 */

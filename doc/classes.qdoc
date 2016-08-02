@@ -77,7 +77,7 @@
     \ingroup funclists
 
     \brief All documented Qt functions listed alphabetically with a
-    link to where each one is declared.
+    link to their declarations.
 
     This is the list of all documented member functions and global
     functions in the Qt API.  Each function has a link to the class or

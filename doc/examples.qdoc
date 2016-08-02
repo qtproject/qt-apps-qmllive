@@ -32,7 +32,7 @@
 /*!
    \group qmllive-examples
    \title QmlLive Examples
-   \brief Examples how to extend the functionality of QmlLive.
+   \brief Examples showing how to extend the functionality of QmlLive.
 
    \list
     \li \l{contentplugin}{Content Plugin}

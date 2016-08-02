@@ -37,7 +37,7 @@
 \chapter Introduction
 
 The QmlLive system was designed from the ground up to support your needs. It is
-structured in a modular fashion to be able to support various usage
+structured in a modular fashion to be able to meet various usage
 requirements.
 
 In the early phase of a project you normally want to use the \b QmlLiveBench,
@@ -48,9 +48,9 @@ have designed the \b{QmlLiveBench} in combination with the
 \b{QmlLiveRuntime}. This combi pack offers you a default qml renderer to be run
 on the device and a small remote application on the desktop to control it.
 
-For the C++ developers we also offer the ability to just integrate the QmlLive
+For C++ developers, we also offer the ability to integrate the QmlLive
 system into your own custom runtime using our \l LiveNodeEngine class with a few
-lines of code and then use the \b{QmlLiveRuntime} to instrument it.
+lines of code and then use the \b{QmlLiveRuntime} to implement it.
 
 \chapter Workbench
 
@@ -81,7 +81,7 @@ options:
 
 \chapter Creator Integration
 
-You can integrate the QmlLiveBench into creator as an external tool. For this
+You can integrate the QmlLiveBench into Qt Creator as an external tool. For this
 you need to open the Settings/Options dialog from QtCreator and open the
 \b{Environment} group. There you will find the \tt{External Tools} tab.
 
@@ -135,9 +135,9 @@ Usage qmlliveruntime [options] <workspace>
 
 \chapter Custom Runtime
 
-You can create your own custom runtime with the QmlLive features. This allows you to use your qml view setup with your additional c++ code together with the QmlLive system.
+You can create your own custom runtime with the QmlLive features. This allows you to use your QML view setup with your additional C++ code together with the QmlLive system.
 
-For this you need to add \tt{$(QMLLIVEPROJECT)/src/src.pri} to your project folder and use the \b{LiveNodeEngine} class to be able to receive workspace changes and active document updates. By default the IPC will listen on the port 10234.
+For this you need to add \tt{$(QMLLIVEPROJECT)/src/src.pri} to your project folder and use the \b{LiveNodeEngine} class to be able to receive workspace changes and active document updates. By default, the IPC will listen on the port 10234.
 
 Here is a short example of a minimal custom runtime:
 

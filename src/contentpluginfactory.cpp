@@ -79,12 +79,20 @@ void ContentPluginFactory::load()
 
         QPluginLoader loader(path);
 
-        ContentAdapterInterface *plugin = qobject_cast<ContentAdapterInterface*>(loader.instance());
-        if (plugin)
-            m_plugins.append(plugin);
-
-        if (!loader.isLoaded())
+        if (!loader.load()) {
             qWarning() << "Error while trying to load" <<path << ":" << loader.errorString();
+            continue;
+        }
+
+        ContentAdapterInterface *plugin = qobject_cast<ContentAdapterInterface*>(loader.instance());
+        if (plugin) {
+            loader.instance()->setParent(this);
+            m_plugins.append(plugin);
+        } else {
+            qWarning() << "Error while trying to load" <<path << ": Unsupported root component type"
+                       << loader.instance()->metaObject()->className();
+            loader.unload();
+        }
     }
 
     if (!m_plugins.isEmpty())

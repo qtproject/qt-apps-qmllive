@@ -50,7 +50,7 @@ static void setDarkStyle(QApplication *app)
     palette.setColor(QPalette::Base, QColor("#303030"));
     palette.setColor(QPalette::AlternateBase, QColor("#4A4A4A"));
     palette.setColor(QPalette::ToolTipBase, QColor("#FFFFFF"));
-    palette.setColor(QPalette::ToolTipText, QColor("#FFFFFF"));
+    palette.setColor(QPalette::ToolTipText, QColor("#3D3D3D"));
     palette.setColor(QPalette::Text, QColor("#F0F0F0"));
     palette.setColor(QPalette::Button, QColor("#353535"));
     palette.setColor(QPalette::ButtonText, QColor("#FFFFFF"));

@@ -225,7 +225,7 @@ void RemoteReceiver::onClientConnected(QTcpSocket *socket)
     if (m_client)
         delete m_client;
 
-    m_client = new IpcClient(socket);
+    m_client = new IpcClient(socket, this);
 
     m_socket = socket;
 

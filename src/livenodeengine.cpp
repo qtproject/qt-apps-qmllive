@@ -311,6 +311,7 @@ void LiveNodeEngine::reloadDocument()
     } else {
         view = m_view;
         view->setSource(QUrl());
+        view->engine()->trimComponentCache();
     }
 
     checkQmlFeatures(view);

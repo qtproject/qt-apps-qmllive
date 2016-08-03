@@ -36,7 +36,6 @@
 
 #include "contentadapterinterface.h"
 
-class IpcPeer;
 class LiveRuntime;
 class ContentPluginFactory;
 
@@ -114,7 +113,6 @@ private:
     int m_yOffset;
     int m_rotation;
 
-    IpcPeer *m_ipc;
     QQuickView *m_view;
     QQuickView *m_recreateView;
     QPointer<QQmlComponent> m_windowComponent;

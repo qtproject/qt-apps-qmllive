@@ -129,8 +129,6 @@ int main(int argc, char** argv)
     app.setAttribute(Qt::AA_NativeWindows, true);
     app.setAttribute(Qt::AA_ImmediateWidgetCreation, true);
 
-    setDarkStyle(&app);
-
     Options *options = Options::instance();
     parseArguments(app.arguments(), options);
 

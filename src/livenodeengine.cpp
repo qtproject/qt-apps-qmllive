@@ -313,6 +313,7 @@ void LiveNodeEngine::reloadDocument()
         view = m_view;
         view->setSource(QUrl());
         view->engine()->trimComponentCache();
+        view->releaseResources();
     }
 
     checkQmlFeatures(view);

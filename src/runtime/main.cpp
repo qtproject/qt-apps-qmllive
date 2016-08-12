@@ -100,7 +100,9 @@ static void parseArguments(const QStringList &arguments)
 
     parser.process(arguments);
 
-    options.ipcPort = parser.value(ipcPortOption).toInt();
+    if (parser.isSet(ipcPortOption)) {
+        options.ipcPort = parser.value(ipcPortOption).toInt();
+    }
     options.pluginPath = parser.value(pluginPathOption);
     options.importPaths = parser.values(importPathOption);
     options.stayontop = parser.isSet(stayOnTopOption);

@@ -36,43 +36,31 @@
 #include "widgets/windowwidget.h"
 #include "liveruntime.h"
 #include "widgets/workspaceview.h"
-#include "benchquickview.h"
 
 #include <QFileIconProvider>
 #include <QQmlImageProviderBase>
 
 BenchLiveNodeEngine::BenchLiveNodeEngine(QObject *parent)
     : LiveNodeEngine(parent),
-      m_view(0),
       m_ww(0),
+      m_imageProvider(new PreviewImageProvider(this)),
       m_workspaceView(0),
-      m_ignoreCache(false),
       m_clipToRootObject(false)
 {
-    setUpdateMode(LiveNodeEngine::RecreateView);
+    setQmlEngine(new QQmlEngine(this));
+    setFallbackView(new QQuickView(qmlEngine(), 0));
+
+    qmlEngine()->addImageProvider("qmlLiveDirectoryPreview", m_imageProvider);
+}
+
+BenchLiveNodeEngine::~BenchLiveNodeEngine()
+{
+    delete fallbackView();
 }
 
 void BenchLiveNodeEngine::setWindowWidget(WindowWidget *widget)
 {
     m_ww = widget;
-}
-
-QQuickView *BenchLiveNodeEngine::initView()
-{
-    m_view = new BenchQuickView();
-    connect(m_view, SIGNAL(sizeChanged(QSize)), this, SLOT(onSizeChanged(QSize)));
-
-    if (!m_imageProvider) {
-        m_imageProvider = new PreviewImageProvider(this);
-    }
-
-    m_imageProvider->setIgnoreCache(m_ignoreCache);
-
-    m_view->engine()->addImageProvider("qmlLiveDirectoryPreview", m_imageProvider);
-
-    emit viewChanged(m_view);
-
-    return m_view;
 }
 
 void BenchLiveNodeEngine::setWorkspaceView(WorkspaceView *view)
@@ -83,14 +71,14 @@ void BenchLiveNodeEngine::setWorkspaceView(WorkspaceView *view)
 //If a refresh is done we want to reload everything
 void BenchLiveNodeEngine::refresh()
 {
-    m_ignoreCache = true;
+    m_imageProvider->setIgnoreCache(true);
     reloadHelper();
 }
 
 //A normal reload should use the cache
 void BenchLiveNodeEngine::reloadDocument()
 {
-    m_ignoreCache = false;
+    m_imageProvider->setIgnoreCache(false);
     reloadHelper();
 }
 
@@ -113,22 +101,6 @@ QImage BenchLiveNodeEngine::convertIconToImage(const QFileInfo &info, const QSiz
     return img;
 }
 
-void BenchLiveNodeEngine::onSizeChanged(const QSize &size)
-{
-    m_runtime->setScreenWidth(size.width());
-    m_runtime->setScreenHeight(size.height());
-}
-
-void BenchLiveNodeEngine::onWidthChanged(int width)
-{
-    m_runtime->setScreenWidth(width);
-}
-
-void BenchLiveNodeEngine::onHeightChanged(int height)
-{
-    m_runtime->setScreenHeight(height);
-}
-
 void BenchLiveNodeEngine::initPlugins()
 {
     LiveNodeEngine::initPlugins();
@@ -141,7 +113,7 @@ void BenchLiveNodeEngine::initPlugins()
 
     QmlPreviewAdapter *previewAdapter = new QmlPreviewAdapter(this);
 
-    previewAdapter->setImportPaths(importPaths());
+    previewAdapter->setImportPaths(qmlEngine()->importPathList());
 
     m_plugins.append(adapter);
     m_plugins.append(previewAdapter);
@@ -152,6 +124,9 @@ void BenchLiveNodeEngine::initPlugins()
 
 void BenchLiveNodeEngine::reloadHelper()
 {
+    // avoid flickering
+    fallbackView()->resize(m_ww->size());
+
     LiveNodeEngine::reloadDocument();
 
     QAbstractScrollArea *scroller = m_ww;

@@ -87,13 +87,12 @@ private slots:
     void clearRecentFolder();
     void stayOnTop();
 
-    void initView(BenchQuickView *view);
+    void onActiveWindowChanged(QQuickWindow *activeWindow);
 
     void onLogWidgetAdded(QDockWidget* logDock);
 
 private:
     void updateRecentFolder(const QString &path = QString());
-    BenchQuickView *m_qmlview;
     WindowWidget *m_ww;
     WorkspaceView *m_workspace;
     LogView *m_log;
@@ -114,7 +113,6 @@ private:
     QAction *m_openWorkspace;
     QAction *m_refresh;
     QAction *m_resizeFit;
-    QAction *m_enablePluginReload;
     QAction *m_clipRootObject;
     QToolBar* m_toolBar;
     QStringList m_qmlDefaultimportList;

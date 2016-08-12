@@ -33,7 +33,6 @@
 
 #include "livenodeengine.h"
 
-class BenchQuickView;
 class WindowWidget;
 class PreviewImageProvider;
 class WorkspaceView;
@@ -43,6 +42,7 @@ class BenchLiveNodeEngine : public LiveNodeEngine
 
 public:
     BenchLiveNodeEngine(QObject* parent = 0);
+    ~BenchLiveNodeEngine();
 
     void setWorkspaceView(WorkspaceView* view);
     void setWindowWidget(WindowWidget *widget);
@@ -51,26 +51,16 @@ public slots:
     void refresh();
     void reloadDocument();
 
-signals:
-    void viewChanged(BenchQuickView *view);
-
 protected:
     void initPlugins();
     void reloadHelper();
 
-    virtual QQuickView* initView();
-
 private Q_SLOTS:
     QImage convertIconToImage(const QFileInfo& info, const QSize& requestedSize);
-    void onHeightChanged(int height);
-    void onWidthChanged(int width);
-    void onSizeChanged(const QSize& size);
 
 private:
-    BenchQuickView *m_view;
     WindowWidget* m_ww;
     QPointer<PreviewImageProvider> m_imageProvider;
     WorkspaceView* m_workspaceView;
-    bool m_ignoreCache;
     bool m_clipToRootObject;
 };

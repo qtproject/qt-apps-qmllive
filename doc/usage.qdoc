@@ -141,6 +141,6 @@ For this you need to add \tt{$(QMLLIVEPROJECT)/src/src.pri} to your project fold
 
 Here is a short example of a minimal custom runtime:
 
-\snippet ../examples/customruntime/main.cpp 0
+\snippet ../examples/app/main.cpp 0
 
 */

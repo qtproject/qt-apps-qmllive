@@ -29,18 +29,35 @@
 **
 ****************************************************************************/
 
-#include "benchquickview.h"
-#include "QDebug"
-#include "QGraphicsObject"
+import QtQuick 2.0
+import QtQuick.Window 2.2
 
-BenchQuickView::BenchQuickView(QWindow *parent) :
-    QQuickView(parent)
-{
-}
+Window {
+    id: window
+    width: 100
+    height: 100
+    visible: true
 
-void BenchQuickView::resizeEvent(QResizeEvent *event)
-{
-    emit sizeChanged(size());
+    ListView {
+        // TODO: Make it work with 'anchors.fill: parent'. Window size seems to
+        // be propagated too late to the contentItem, giving zero size initially.
+        width: window.width
+        height: window.height
 
-    QQuickView::resizeEvent(event);
+        model: myColors
+        delegate: Rectangle {
+            width: ListView.view.width
+            height: 25
+            color: model.modelData
+            Image {
+                anchors.left: parent.left
+                source: "../icon.png"
+            }
+            Text {
+                x: 25
+                text: model.modelData
+                color: "white"
+            }
+        }
+    }
 }

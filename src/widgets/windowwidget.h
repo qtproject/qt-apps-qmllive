@@ -34,7 +34,7 @@
 #include <QAbstractScrollArea>
 #include <QPointer>
 
-QT_FORWARD_DECLARE_CLASS(QQuickView);
+QT_FORWARD_DECLARE_CLASS(QQuickWindow);
 
 class WindowWidget : public QAbstractScrollArea
 {
@@ -42,8 +42,8 @@ class WindowWidget : public QAbstractScrollArea
 public:
     explicit WindowWidget(QWidget *parent = 0);
 
-    QQuickView *hostedWindow() const;
-    void setHostedWindow(QQuickView *hostedWindow);
+    QQuickWindow *hostedWindow() const;
+    void setHostedWindow(QQuickWindow *hostedWindow);
     void setVisible(bool visible);
     void setCenteringEnabled(bool enabled);
     QSize sizeHint() const;
@@ -63,7 +63,7 @@ private:
     void updateWindowPosition();
     QSize qmlSize() const;
 
-    QPointer<QQuickView> m_hostedWindow;
+    QPointer<QQuickWindow> m_hostedWindow;
     bool m_resizing;
     bool m_centering;
 };

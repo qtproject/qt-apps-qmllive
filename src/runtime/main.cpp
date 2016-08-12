@@ -116,34 +116,43 @@ static void parseArguments(const QStringList &arguments)
         options.workspace = positionalArguments.value(0);
 }
 
+class RuntimeLiveNodeEngine : public LiveNodeEngine
+{
+    Q_OBJECT
 
-class RuntimeLiveNodeEngine : public LiveNodeEngine {
-
-    virtual QQuickView *initView()
+public:
+    RuntimeLiveNodeEngine()
     {
-        QQuickView *view = new QQuickView();
+        connect(this, &LiveNodeEngine::activeWindowChanged,
+                this, &RuntimeLiveNodeEngine::onActiveWindowChanged);
+    }
+
+private slots:
+    void onActiveWindowChanged(QQuickWindow *activeWindow)
+    {
+        if (activeWindow == 0)
+            return;
+
         if (options.transparent) {
             QSurfaceFormat surfaceFormat;
             surfaceFormat.setAlphaBufferSize(8);
-            view->setFormat(surfaceFormat);
-            view->setClearBeforeRendering(true);
-            view->setColor(QColor(Qt::transparent));
+            activeWindow->setFormat(surfaceFormat);
+            activeWindow->setClearBeforeRendering(true);
+            activeWindow->setColor(QColor(Qt::transparent));
         }
 
         if (options.stayontop) {
-            view->setFlags(view->flags() | Qt::X11BypassWindowManagerHint);
-            view->setFlags(view->flags() | Qt::WindowStaysOnTopHint);
+            activeWindow->setFlags(activeWindow->flags() | Qt::X11BypassWindowManagerHint);
+            activeWindow->setFlags(activeWindow->flags() | Qt::WindowStaysOnTopHint);
         }
 
         if (options.frameless) {
-            view->setFlags(view->flags() | Qt::FramelessWindowHint);
+            activeWindow->setFlags(activeWindow->flags() | Qt::FramelessWindowHint);
         }
 
         if (options.fullscreen) {
-            view->setWindowState(Qt::WindowFullScreen);
+            activeWindow->setWindowState(Qt::WindowFullScreen);
         }
-
-        return view;
     }
 };
 
@@ -156,15 +165,16 @@ int main(int argc, char** argv)
 
     parseArguments(app.arguments());
 
-    QQuickView view;
+    QQmlEngine qmlEngine;
+    qmlEngine.setImportPathList(options.importPaths + qmlEngine.importPathList());
 
-    QStringList defaultImports = view.engine()->importPathList();
+    QQuickView fallbackView(&qmlEngine, 0);
 
     RuntimeLiveNodeEngine engine;
-    engine.setUpdateMode(LiveNodeEngine::RecreateView);
-    engine.setWorkspace(options.workspace);
+    engine.setQmlEngine(&qmlEngine);
+    engine.setFallbackView(&fallbackView);
+    engine.setWorkspace(options.workspace, LiveNodeEngine::LoadDummyData);
     engine.setPluginPath(options.pluginPath);
-    engine.setImportPaths(options.importPaths + defaultImports);
     engine.loadDocument(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
     RemoteReceiver receiver;
     receiver.listen(options.ipcPort);
@@ -182,3 +192,5 @@ int main(int argc, char** argv)
 
     return ret;
 }
+
+#include "main.moc"

@@ -37,23 +37,27 @@
 #include "livenodeengine.h"
 #include "remotereceiver.h"
 
-class MyView : public QQuickView
+class CustomQmlEngine : public QQmlEngine
 {
     Q_OBJECT
 
 public:
-    MyView(); // Perform some setup here
+    CustomQmlEngine(); // Perform some setup here
 };
 
 int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
 
-    MyView view;
+    CustomQmlEngine qmlEngine;
+    QQuickView fallbackView(&qmlEngine, 0);
 
     LiveNodeEngine node;
-    // Let qml live instrument your view
-    node.setView(&view);
+    // Let qml live know your runtime
+    node.setQmlEngine(&qmlEngine);
+    // Allow it to display QML components with non-QQuickWindow root object
+    node.setFallbackView(&fallbackView);
     // Tell it where file updates should be stored relative to
     node.setWorkspace(".");
     // For local usage use the LocalPublisher
@@ -62,13 +66,11 @@ int main(int argc, char **argv)
     // Listen to ipc call from remote
     receiver.listen(10234);
 
-    view.show();
-
     return app.exec();
 }
 //![0]
 
-MyView::MyView()
+CustomQmlEngine::CustomQmlEngine()
 {
     QStringList colors;
     colors.append(QStringLiteral("red"));
@@ -76,9 +78,6 @@ MyView::MyView()
     colors.append(QStringLiteral("blue"));
     colors.append(QStringLiteral("black"));
     rootContext()->setContextProperty("myColors", colors);
-
-    setResizeMode(QQuickView::SizeViewToRootObject);
-    setSource(QUrl::fromLocalFile("main.qml"));
 };
 
 #include "main.moc"

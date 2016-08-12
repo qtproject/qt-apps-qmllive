@@ -42,7 +42,6 @@
 #include "benchlivenodeengine.h"
 #include "qmlhelper.h"
 #include "optionsdialog.h"
-#include "benchquickview.h"
 #include "hostmodel.h"
 #include "hostmanager.h"
 #include "allhostswidget.h"
@@ -52,7 +51,6 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , m_qmlview(0)
     , m_workspace(new WorkspaceView())
     , m_log(new LogView(true, this))
     , m_hostManager(new HostManager(this))
@@ -80,15 +78,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_workspace, SIGNAL(pathActivated(QString)), m_hostManager, SLOT(followTreeSelection(QString)));
     connect(m_hub, SIGNAL(activateDocument(QString)), this, SLOT(updateWindowTitle()));
     connect(m_hub, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
-    connect(m_node, SIGNAL(viewChanged(BenchQuickView*)), this, SLOT(initView(BenchQuickView*)));
+    connect(m_node, SIGNAL(activeWindowChanged(QQuickWindow*)), this, SLOT(onActiveWindowChanged(QQuickWindow*)));
+    connect(m_node->qmlEngine(), SIGNAL(quit()), this, SLOT(logQuitEvent()));
     connect(m_allHosts, SIGNAL(publishAll()), m_hostManager, SLOT(publishAll()));
     connect(m_allHosts, SIGNAL(currentFileChanged(QString)), m_hostManager, SLOT(setCurrentFile(QString)));
     connect(m_allHosts, SIGNAL(refreshAll()), m_hostManager, SLOT(refreshAll()));
     connect(m_hostManager, SIGNAL(logWidgetAdded(QDockWidget*)), this, SLOT(onLogWidgetAdded(QDockWidget*)));
     connect(m_hostManager, SIGNAL(openHostConfig(Host*)), this, SLOT(openPreferences(Host*)));
 
-    BenchQuickView view;
-    m_qmlDefaultimportList = view.engine()->importPathList();
+    m_qmlDefaultimportList = m_node->qmlEngine()->importPathList();
 }
 
 MainWindow::~MainWindow()
@@ -111,14 +109,10 @@ void MainWindow::setupContent()
     setCentralWidget(m_ww);
 }
 
-void MainWindow::initView(BenchQuickView *view)
+void MainWindow::onActiveWindowChanged(QQuickWindow *activeWindow)
 {
-    m_qmlview = view;
-
     m_ww->setCenteringEnabled(true);
-    m_ww->setHostedWindow(m_qmlview);
-
-    connect(m_qmlview->engine(), SIGNAL(quit()), this, SLOT(logQuitEvent()));
+    m_ww->setHostedWindow(activeWindow);
 }
 
 void MainWindow::onLogWidgetAdded(QDockWidget *logDock)
@@ -195,9 +189,6 @@ void MainWindow::setupMenuBar()
     view->addSeparator();
 
     m_refresh = view->addAction(QIcon::fromTheme("view-refresh"), tr("Refresh"), m_node, SLOT(refresh()), QKeySequence::Refresh);
-    m_enablePluginReload = view->addAction("Reload QML Plugins");
-    m_enablePluginReload->setCheckable(true);
-    connect(m_enablePluginReload, SIGNAL(toggled(bool)), m_node, SLOT(setReloadPluginsEnabled(bool)));
 
     m_resizeFit = view->addAction(QIcon::fromTheme("zoom-fit-best"), tr("Resize to Fit"), this, SLOT(resizeToFit()));
     view->addAction(tr("Show Containing Folder"), m_workspace, SLOT(goUp()), QKeySequence("Ctrl+Esc"));
@@ -316,7 +307,6 @@ void MainWindow::setupToolBar()
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_refresh);
     m_toolBar->addAction(m_resizeFit);
-    m_toolBar->addAction(m_enablePluginReload);
 }
 
 void MainWindow::activateDocument(const QString path)
@@ -334,7 +324,8 @@ void MainWindow::resizeToFit()
 void MainWindow::takeSnapshot()
 {
     QImage img;
-    img = m_qmlview->grabWindow();
+    if (m_node->activeWindow())
+        img = m_node->activeWindow()->grabWindow();
 
     if (img.isNull()) {
         m_log->appendToLog(LogView::InternalError, tr("QmlLive: could not retrieve snapshot pixmap"));
@@ -372,7 +363,7 @@ void MainWindow::setPluginPath(const QString &path)
 
 void MainWindow::setImportPaths(const QStringList &pathList)
 {
-    m_node->setImportPaths(pathList + m_qmlDefaultimportList);
+    m_node->qmlEngine()->setImportPathList(pathList + m_qmlDefaultimportList);
 }
 
 void MainWindow::setStaysOnTop(bool enabled)

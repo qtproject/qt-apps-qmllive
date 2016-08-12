@@ -29,51 +29,25 @@
 **
 ****************************************************************************/
 
-#include "qmlhelper.h"
+import QtQuick 2.0
 
+ListView {
+    width: 100
+    height: 100
 
-/*!
- * \class QmlHelper
- * \brief Provides a set of helper functions to setup your qml viewer
- * \inmodule qmllive
- */
-
-/*!
- * Standard constructor using \a parent as parent
- */
-QmlHelper::QmlHelper(QObject *parent) :
-    QObject(parent)
-{
-}
-
-/*!
- * Loads dummy data from a "dummydata" folder in the workspace folder
- * \a engine defines the Engine where you want to export the dummy data to
- * The "dummydata" will be searched in the "dummydata" sub directory of \a workspace
- */
-void QmlHelper::loadDummyData(QQmlEngine *engine, const QString &workspace)
-{
-    Q_ASSERT(engine);
-    QDir dir(workspace + "/dummydata", "*.qml");
-    foreach (QString entry, dir.entryList()) {
-
-        QQmlComponent comp(engine, dir.filePath(entry));
-        QObject *obj = comp.create();
-
-        if (comp.isError()) {
-            foreach (const QQmlError error, comp.errors()) {
-                qWarning() << error;
-            }
+    model: myColors
+    delegate: Rectangle {
+        width: ListView.view.width
+        height: 25
+        color: model.modelData
+        Image {
+            anchors.left: parent.left
+            source: "../icon.png"
         }
-        if (obj) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
-            qInfo() << "loaded dummy data: " << dir.filePath(entry);
-#else
-            qWarning() << "loaded dummy data: " << dir.filePath(entry);
-#endif
-            entry.chop(4);
-            engine->rootContext()->setContextProperty(entry, obj);
-            obj->setParent(engine);
+        Text {
+            x: 25
+            text: model.modelData
+            color: "white"
         }
     }
 }

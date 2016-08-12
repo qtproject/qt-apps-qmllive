@@ -29,19 +29,25 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.0
 
-#include <QQuickView>
+ListView {
+    width: 100
+    height: 100
 
-class BenchQuickView : public QQuickView
-{
-    Q_OBJECT
-public:
-    explicit BenchQuickView(QWindow *parent = 0);
-
-signals:
-    void sizeChanged(const QSize &size);
-protected:
-    void resizeEvent(QResizeEvent * event);
-
-};
+    model: ["red", "green", "blue", "black"]
+    delegate: Rectangle {
+        width: ListView.view.width
+        height: 25
+        color: model.modelData
+        Image {
+            anchors.left: parent.left
+            source: "../icon.png"
+        }
+        Text {
+            x: 25
+            text: model.modelData
+            color: "white"
+        }
+    }
+}

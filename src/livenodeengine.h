@@ -42,92 +42,89 @@ class ContentPluginFactory;
 class LiveNodeEngine : public QObject
 {
     Q_OBJECT
+
 public:
-
-    enum UpdateMode {
-        ReloadDocument,
-        RecreateView,
-        RecreateProcess
+    enum WorkspaceOption {
+        NoWorkspaceOption = 0x0,
+        LoadDummyData = 0x1
     };
-    Q_ENUMS(UpdateMode)
+    Q_DECLARE_FLAGS(WorkspaceOptions, WorkspaceOption)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+    Q_FLAG(WorkspaceOptions)
+#else
+    Q_FLAGS(WorkspaceOptions)
+#endif
 
+public:
     explicit LiveNodeEngine(QObject *parent = 0);
-    virtual void setView(QQuickView* view);
+
+    QQmlEngine *qmlEngine() const;
+    void setQmlEngine(QQmlEngine *qmlEngine);
+
+    QQuickView *fallbackView() const;
+    void setFallbackView(QQuickView *fallbackView);
 
     int xOffset() const;
     int yOffset() const;
     int rotation() const;
 
-    void setUpdateMode(LiveNodeEngine::UpdateMode mode);
-    LiveNodeEngine::UpdateMode updateMode() const;
-
-    void setWorkspace(const QString& path);
-
-    void setImportPaths(const QStringList& paths);
-    QStringList importPaths() const;
+    void setWorkspace(const QString &path, WorkspaceOptions options = NoWorkspaceOption);
 
     void setPluginPath(const QString& path);
     QString pluginPath() const;
 
     QUrl activeDocument() const;
     ContentAdapterInterface *activePlugin() const;
-    bool isReloadPluginsEnabled() const;
+    QQuickWindow *activeWindow() const;
 
 public Q_SLOTS:
-
     void setXOffset(int offset);
     void setYOffset(int offset);
     void setRotation(int rotation);
-    void setReloadPluginsEnabled(bool enabled);
     void setActiveDocument(const QString& document);
     void loadDocument(const QUrl& url);
     void delayReload();
     virtual void reloadDocument();
+
 Q_SIGNALS:
     void activateDocument(const QString& document);
     void logClear();
     void logIgnoreMessages(bool on);
     void documentLoaded();
-    void viewChanged(QQuickView *view);
+    void activeWindowChanged(QQuickWindow *window);
     void logErrors(const QList<QQmlError> &errors);
 
-
 protected:
-    virtual QQuickView* initView();
     virtual void initPlugins();
     QList<ContentAdapterInterface*> m_plugins;
     QUrl m_activeFile;
     LiveRuntime *m_runtime;
+
 private Q_SLOTS:
-    void onStatusChanged(QQuickView::Status status);
     void onSizeChanged();
 
-    void recreateView();
-
-    void checkQmlFeatures(QQuickView *view);
-
 private:
+    void checkQmlFeatures();
+    QUrl errorScreenUrl() const;
     QUrl queryDocumentViewer(const QUrl& url);
+
 private:
     int m_xOffset;
     int m_yOffset;
     int m_rotation;
 
-    QQuickView *m_view;
-    QQuickView *m_recreateView;
-    QPointer<QQmlComponent> m_windowComponent;
-    QPointer<QObject> m_windowObject;
+    QPointer<QQmlEngine> m_qmlEngine;
+    QPointer<QQuickView> m_fallbackView;
+    QPointer<QObject> m_object;
+    QPointer<QQuickWindow> m_activeWindow;
+    QList<QMetaObject::Connection> m_activeWindowConnections;
     QDir m_workspace;
     QTimer *m_delayReload;
-    QStringList m_importPaths;
-
-    UpdateMode m_mode;
 
     ContentPluginFactory* m_pluginFactory;
     ContentAdapterInterface* m_activePlugin;
 
     ContentAdapterInterface::Features m_quickFeatures;
-
-    bool m_reloadPlugins;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(LiveNodeEngine::WorkspaceOptions)

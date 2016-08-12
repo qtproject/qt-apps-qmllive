@@ -12,7 +12,6 @@ SOURCES += \
     previewimageprovider.cpp \
     directorypreviewadapter.cpp \
     qmlpreviewadapter.cpp \
-    benchquickview.cpp \
     host.cpp \
     hostmodel.cpp \
     hostwidget.cpp \
@@ -33,7 +32,6 @@ HEADERS += \
     previewimageprovider.h \
     directorypreviewadapter.h \
     qmlpreviewadapter.h \
-    benchquickview.h \
     host.h \
     hostmodel.h \
     hostwidget.h \

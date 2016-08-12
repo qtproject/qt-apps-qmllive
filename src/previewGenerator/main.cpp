@@ -63,6 +63,11 @@ public:
         return m_server->serverName();
     }
 
+    QString errorString() const
+    {
+        return m_server->errorString();
+    }
+
 protected slots:
     void onNewConnection()
     {
@@ -91,7 +96,8 @@ int main (int argc, char** argv)
 
     PreviewServer preview;
     if (!preview.listen()) {
-        qFatal("Failed to listen to local socket \"QmlLivePreviewGenerator\"");
+        qFatal("Failed to listen to local socket \"QmlLivePreviewGenerator\": %s",
+               qPrintable(preview.errorString()));
     }
 
     printf("ready#%s\n", preview.serverName().toUtf8().toHex().constData());

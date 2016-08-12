@@ -55,6 +55,7 @@ public:
 
     bool listen()
     {
+        QLocalServer::removeServer("QmlLivePreviewGenerator");
         return m_server->listen("QmlLivePreviewGenerator");
     }
 

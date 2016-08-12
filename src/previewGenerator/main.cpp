@@ -90,6 +90,7 @@ FILE *dbgf = 0;
 int main (int argc, char** argv)
 {
     QApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
 
     if (app.arguments().count() != 2 ||
        (app.arguments().at(1) != "QmlLiveBench") )

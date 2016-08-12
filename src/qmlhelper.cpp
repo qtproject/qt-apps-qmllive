@@ -73,16 +73,3 @@ void QmlHelper::loadDummyData(QQuickView *view, const QString &workspace)
         }
     }
 }
-
-/*!
- * Adds an import path \a path to your qml viewer \a view
- */
-void QmlHelper::addImportPath(QQuickView *view, const QString &path)
-{
-    Q_ASSERT(view);
-    view->engine()->addImportPath(path);
-}
-
-
-
-

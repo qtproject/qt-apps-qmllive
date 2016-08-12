@@ -1,5 +1,6 @@
 TEMPLATE = app
 TARGET = previewGenerator
+DESTDIR = $$BUILD_DIR/bin
 
 # install rules
 isEmpty(PREFIX) {

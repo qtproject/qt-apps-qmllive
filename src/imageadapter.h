@@ -45,7 +45,8 @@ public:
     QImage preview(const QString& path, const QSize &requestedSize);
 
     bool canAdapt(const QUrl& url) const;
-
     virtual QUrl adapt(const QUrl& url, QQmlContext* context);
+
+    bool isFullScreen() const;
 };
 

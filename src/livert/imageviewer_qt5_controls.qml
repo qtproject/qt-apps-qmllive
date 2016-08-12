@@ -32,7 +32,9 @@ import QtQuick 2.0
 
 Item {
     id: root
-    width: 480; height: 272
+    width: livert.screenWidth
+    height: livert.screenHeight
+
     Rectangle {
         anchors.fill: parent
         color: imageViewerBackgroundColor

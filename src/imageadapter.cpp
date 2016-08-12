@@ -76,3 +76,8 @@ QUrl ImageAdapter::adapt(const QUrl &url, QQmlContext *context)
 
     return QUrl("qrc:/livert/imageviewer_qt5.qml");
 }
+
+bool ImageAdapter::isFullScreen() const
+{
+    return true;
+}

@@ -39,8 +39,7 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QDebug>
-
-#include <stdio.h>
+#include <QTextStream>
 
 void handlePreview(QLocalSocket *socket);
 
@@ -103,8 +102,7 @@ int main (int argc, char** argv)
                qPrintable(preview.errorString()));
     }
 
-    printf("ready#%s\n", preview.serverName().toUtf8().toHex().constData());
-    fflush(stdout);
+    QTextStream(stdout) << QLatin1String("ready#") << preview.serverName().toUtf8().toHex() << endl;
 
     return app.exec();
 }

@@ -31,7 +31,11 @@
 
 #include <QApplication>
 #include <QLoggingCategory>
+#include <QPointer>
+#include <QQuickItem>
+#include <QQuickItemGrabResult>
 #include <QQuickView>
+#include <QQmlComponent>
 #include <QQmlEngine>
 #include <QElapsedTimer>
 #include <QDir>
@@ -121,53 +125,74 @@ void handlePreview(QLocalSocket *socket)
 
     qCDebug(pg) << "Received" << expectedSize << path;
 
-    //QML Import paths and plugin paths will be set by environment variables
-    QQuickView *view = new QQuickView();
+    QQmlEngine engine;
 
-    view->engine()->setOutputWarningsToStandardError(false);
-    QObject::connect(view->engine(), &QQmlEngine::warnings, [](const QList<QQmlError> &warnings) {
+    engine.setOutputWarningsToStandardError(false);
+    QObject::connect(&engine, &QQmlEngine::warnings, [](const QList<QQmlError> &warnings) {
         foreach (const QQmlError &warning, warnings) {
             qCWarning(pg) << warning;
         }
     });
 
-    view->setFlags(Qt::ToolTip | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint |
-                   Qt::CustomizeWindowHint | Qt::WindowDoesNotAcceptFocus); // | Qt::WindowStaysOnBottomHint);
-    view->setPosition(-9999999, -9999999);
-    view->setSource(QUrl::fromLocalFile(path));
+    QPointer<QQmlComponent> component = new QQmlComponent(&engine, QUrl::fromLocalFile(path));
+    QPointer<QObject> object = component->create();
 
-    if (view->errors().isEmpty()) {
-        view->show();
+    QQuickWindow *window = 0;
+    QQuickItem *item = 0;
 
-        //Wait until the Window is exposed;
-        int timeout = 3000;
-        QElapsedTimer timer;
-        timer.start();
-        while (!view->isExposed()) {
-            int remaining = timeout - int(timer.elapsed());
-            if (remaining <= 0)
-                break;
-            QCoreApplication::processEvents(QEventLoop::AllEvents, remaining);
-            //Garbage collection (Delivers all DeferredDeleteEvents which are in the pipe)
-            QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
-        }
-
-        if (view->width() <= 0 || view->height() <= 0) {
-            view->setWidth(500);
-            view->setHeight(500);
-        }
-
-        if (view->rootObject()) {
-            QImage img = view->grabWindow();
-            if (!img.isNull()) {
-                img = img.scaled(expectedSize, Qt::KeepAspectRatio);
-                img.save(socket, "PNG");
-
-                qCDebug(pg) << "Sending image";
+    if (!component->isReady()) {
+        if (component->isLoading()) {
+            qCCritical(pg) << "Component did not load synchronously" << path;
+        } else {
+            qCWarning(pg) << "Failed to load component" << path;
+            foreach (const QQmlError &error, component->errors()) {
+                qCWarning(pg) << "\t" << error.toString();
             }
         }
+    } else if ((window = qobject_cast<QQuickWindow *>(object.data()))) {
+        if (!window->contentItem()->childItems().isEmpty()) {
+            item = window->contentItem()->childItems().first();
+        } else {
+            qCWarning(pg) << "Window has no child item:" << path;
+        }
+    } else if ((item = qobject_cast<QQuickItem *>(object.data()))) {
+        QQuickView *view = new QQuickView(&engine, 0);
+        view->setContent(QUrl::fromLocalFile(path), component, object);
+        window = view;
+    } else {
+        qCWarning(pg) << "Root object is not a QQuickWindow nor a QQuickItem:" << path;
     }
-    delete view;
+
+
+    if (window) {
+        window->setFlags(Qt::ToolTip | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint |
+                       Qt::CustomizeWindowHint | Qt::WindowDoesNotAcceptFocus); // | Qt::WindowStaysOnBottomHint);
+        window->setPosition(-9999999, -9999999);
+        window->show();
+    }
+
+    if (item) {
+        qCDebug(pg) << "About to grab image for" << path;
+        if (QSharedPointer<QQuickItemGrabResult> result = item->grabToImage()) {
+            QEventLoop loop;
+            QObject::connect(result.data(), &QQuickItemGrabResult::ready, &loop, &QEventLoop::quit);
+            loop.exec();
+            QImage image = result->image();
+            if (!image.isNull()) {
+                image = image.scaled(expectedSize, Qt::KeepAspectRatio);
+                image.save(socket, "PNG");
+                qCDebug(pg) << "Sending image";
+            } else {
+                qCWarning(pg) << "Grabbed a null image for" << path;
+            }
+        } else {
+            qCWarning(pg) << "Failed to grab an image for" << path;
+        }
+    }
+
+    delete window; // this equals either to object or view
+    delete object;
+    delete component;
 
     socket->write("\nEND");
     socket->flush();

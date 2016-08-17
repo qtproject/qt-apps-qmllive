@@ -71,14 +71,14 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
     static const QStringList arguments("QmlLiveBench");
 
     if (proc()->state() != QProcess::Running) {
-        QStringList env = QProcess::systemEnvironment();
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         {
             QMutexLocker m(&m_mutex);
-            env.append(QString("QT_PLUGIN_PATH=%1").arg(m_pluginPaths.join(":")));
-            env.append(QString("QML_IMPORT_PATH=%1").arg(m_importPaths.join(":")));
-            env.append(QString("QML2_IMPORT_PATH=%1").arg(m_importPaths.join(":")));
+            env.insert(QStringLiteral("QT_PLUGIN_PATH"), m_pluginPaths.join(QChar(':')));
+            env.insert(QStringLiteral("QML_IMPORT_PATH"), m_importPaths.join(QChar(':')));
+            env.insert(QStringLiteral("QML2_IMPORT_PATH"), m_importPaths.join(QChar(':')));
         }
-        proc()->setEnvironment(env);
+        proc()->setProcessEnvironment(env);
         proc()->start(program, arguments);
         if (!proc()->waitForStarted()) {
             qWarning() << "Failed to start" << program;

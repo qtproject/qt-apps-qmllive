@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QLoggingCategory>
 #include <QQuickView>
 #include <QQmlEngine>
 #include <QElapsedTimer>
@@ -84,8 +85,8 @@ private:
     QLocalServer *m_server;
 };
 
-
-FILE *dbgf = 0;
+Q_DECLARE_LOGGING_CATEGORY(pg)
+Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtWarningMsg)
 
 int main (int argc, char** argv)
 {
@@ -105,13 +106,12 @@ int main (int argc, char** argv)
     printf("ready#%s\n", preview.serverName().toUtf8().toHex().constData());
     fflush(stdout);
 
-    //dbgf = fopen("C:\\Qt\\pg.log", "w");
     return app.exec();
 }
 
 void handlePreview(QLocalSocket *socket)
 {
-    if (dbgf) { fprintf(dbgf, "PG: waiting on input\n"); fflush(dbgf); }
+    qCDebug(pg) << "Waiting on input";
 
     socket->waitForReadyRead();
 
@@ -121,10 +121,18 @@ void handlePreview(QLocalSocket *socket)
 
     ds >> expectedSize >> path;
 
-    if (dbgf) { fprintf(dbgf, "PG: received [%dx%d] %s\n", expectedSize.width(), expectedSize.height(), qPrintable(path)); fflush(dbgf); }
+    qCDebug(pg) << "Received" << expectedSize << path;
 
     //QML Import paths and plugin paths will be set by environment variables
     QQuickView *view = new QQuickView();
+
+    view->engine()->setOutputWarningsToStandardError(false);
+    QObject::connect(view->engine(), &QQmlEngine::warnings, [](const QList<QQmlError> &warnings) {
+        foreach (const QQmlError &warning, warnings) {
+            qCWarning(pg) << warning;
+        }
+    });
+
     view->setFlags(Qt::ToolTip | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint |
                    Qt::CustomizeWindowHint | Qt::WindowDoesNotAcceptFocus); // | Qt::WindowStaysOnBottomHint);
     view->setPosition(-9999999, -9999999);
@@ -157,7 +165,7 @@ void handlePreview(QLocalSocket *socket)
                 img = img.scaled(expectedSize, Qt::KeepAspectRatio);
                 img.save(socket, "PNG");
 
-                if (dbgf) { fprintf(dbgf, "PG: sending image\n"); fflush(dbgf); }
+                qCDebug(pg) << "Sending image";
             }
         }
     }
@@ -166,7 +174,7 @@ void handlePreview(QLocalSocket *socket)
     socket->write("\nEND");
     socket->flush();
 
-    if (dbgf) { fprintf(dbgf, "PG: sent END and flushed\n"); fflush(dbgf); }
+    qCDebug(pg) << "Sent END and flushed";
 }
 
 

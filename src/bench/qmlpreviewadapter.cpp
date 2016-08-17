@@ -79,6 +79,9 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
             env.insert(QStringLiteral("QML2_IMPORT_PATH"), m_importPaths.join(QChar(':')));
         }
         proc()->setProcessEnvironment(env);
+
+        proc()->setProcessChannelMode(QProcess::ForwardedErrorChannel);
+
         proc()->start(program, arguments);
         if (!proc()->waitForStarted()) {
             qWarning() << "Failed to start" << program;
@@ -88,7 +91,7 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
         proc()->waitForReadyRead();
         QByteArray data = proc()->readAll();
         if (!data.startsWith("ready#")) {
-            qWarning() << "previewGenerator did not send the \"ready\" token:" << proc()->readAllStandardError();
+            qWarning() << "previewGenerator did not send the \"ready\" token";
             return QImage();
         }
         QString server = QString::fromUtf8(QByteArray::fromHex(data.mid(6)));
@@ -143,7 +146,7 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
     img.loadFromData(data, "PNG");
 
     if (img.size().isNull()) {
-        qWarning() << "Failed to generate Preview:" << proc()->readAllStandardError();
+        qWarning() << "Failed to generate Preview";
 
         img = QImage("://livert/no.png");
     }

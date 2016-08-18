@@ -199,7 +199,11 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
     m_node = node;
     setWorkspace(m_node->workspace());
     connect(m_node, SIGNAL(workspaceChanged(QString)), this, SLOT(setWorkspace(QString)));
+    connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
     connect(this, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
+    connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
+    connect(this, SIGNAL(yOffsetChanged(int)), m_node, SLOT(setYOffset(int)));
+    connect(this, SIGNAL(rotationChanged(int)), m_node, SLOT(setRotation(int)));
 }
 
 /*!

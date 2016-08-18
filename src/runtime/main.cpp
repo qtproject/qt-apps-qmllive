@@ -181,12 +181,6 @@ int main(int argc, char** argv)
     receiver.setWorkspaceWriteable(options.allowUpdates);
     receiver.registerNode(&engine);
 
-    engine.connect(&engine, SIGNAL(logErrors(QList<QQmlError>)), &receiver, SLOT(appendToLog(QList<QQmlError>)));
-
-    receiver.connect(&receiver, SIGNAL(xOffsetChanged(int)), &engine, SLOT(setXOffset(int)));
-    receiver.connect(&receiver, SIGNAL(yOffsetChanged(int)), &engine, SLOT(setYOffset(int)));
-    receiver.connect(&receiver, SIGNAL(rotationChanged(int)), &engine, SLOT(setRotation(int)));
-
     int ret = app.exec();
 
     return ret;

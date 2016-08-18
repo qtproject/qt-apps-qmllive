@@ -269,6 +269,8 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
         in >> column;
 
         emit remoteLog(msgType, description, url, line, column);
+    } else if (method == "clearLog()") {
+        emit clearLog();
     }
 }
 

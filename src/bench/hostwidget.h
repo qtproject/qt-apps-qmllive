@@ -52,6 +52,7 @@ signals:
     void connected();
     void openHostConfig(Host*);
     void remoteLog(int type, const QString &msg, const QUrl &url = QUrl(), int line = -1, int column = -1);
+    void clearLog();
 
 public slots:
     void publishWorkspace();

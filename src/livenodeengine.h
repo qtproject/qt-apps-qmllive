@@ -89,7 +89,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void activateDocument(const QString& document);
-    void logClear();
+    void clearLog();
     void logIgnoreMessages(bool on);
     void documentLoaded();
     void activeWindowChanged(QQuickWindow *window);

@@ -141,6 +141,7 @@ void HostManager::addHost(int index)
     connect(host, SIGNAL(nameChanged(QString)), dock, SLOT(setWindowTitle(QString)));
     LogView *view = new LogView(false, dock);
     connect(widget, SIGNAL(remoteLog(int,QString,QUrl,int,int)), view, SLOT(appendToLog(int,QString,QUrl,int,int)));
+    connect(widget, SIGNAL(clearLog()), view, SLOT(clear()));
     dock->setWidget(view);
     m_logList.append(dock);
     emit logWidgetAdded(dock);

@@ -56,6 +56,7 @@ Q_SIGNALS:
     void needsPinAuthentication();
     void pinOk(bool ok);
     void remoteLog(int type, const QString &msg, const QUrl &url = QUrl(), int line = -1, int column = -1);
+    void clearLog();
 
 public Q_SLOTS:
     void setWorkspace(const QString &path);

@@ -112,6 +112,7 @@ HostWidget::HostWidget(QWidget *parent) :
     connect(&m_publisher, SIGNAL(pinOk(bool)), this, SLOT(onPinOk(bool)));
     connect(&m_publisher, SIGNAL(remoteLog(int,QString,QUrl,int,int)),
             this, SIGNAL(remoteLog(int,QString,QUrl,int,int)));
+    connect(&m_publisher, SIGNAL(clearLog()), this, SIGNAL(clearLog()));
 
     onDisconnected();
 }

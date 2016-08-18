@@ -200,6 +200,7 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
     setWorkspace(m_node->workspace());
     connect(m_node, SIGNAL(workspaceChanged(QString)), this, SLOT(setWorkspace(QString)));
     connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
+    connect(m_node, SIGNAL(clearLog()), this, SLOT(clearLog()));
     connect(this, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
     connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
     connect(this, SIGNAL(yOffsetChanged(int)), m_node, SLOT(setYOffset(int)));
@@ -275,6 +276,14 @@ void RemoteReceiver::appendToLog(const QList<QQmlError> &errors)
 
         m_client->send("qmlLog(QtMsgType, QString, QUrl, int, int)", bytes);
     }
+}
+
+/*!
+ * Called to clear remote logging output
+ */
+void RemoteReceiver::clearLog()
+{
+    m_client->send("clearLog()", QByteArray());
 }
 
 /*!

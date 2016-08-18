@@ -165,7 +165,7 @@ void MainWindow::setupLogView()
     m_logDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
     addDockWidget(Qt::BottomDockWidgetArea, m_logDock);
 
-    connect(m_node, SIGNAL(logClear()), m_log, SLOT(clear()));
+    connect(m_node, SIGNAL(clearLog()), m_log, SLOT(clear()));
     connect(m_node, SIGNAL(logIgnoreMessages(bool)), m_log, SLOT(setIgnoreMessages(bool)));
     connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), m_log, SLOT(appendToLog(QList<QQmlError>)));
 }

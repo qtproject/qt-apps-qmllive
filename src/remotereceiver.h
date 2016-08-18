@@ -74,6 +74,7 @@ private Q_SLOTS:
     void writeDocument(const QString& document, const QByteArray& content);
 
     void appendToLog(const QList<QQmlError> &errors);
+    void clearLog();
 
     void onClientConnected(QTcpSocket *socket);
 private:

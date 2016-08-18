@@ -60,10 +60,9 @@ int main(int argc, char **argv)
     node.setFallbackView(&fallbackView);
     // Tell it where file updates should be stored relative to
     node.setWorkspace(".");
-    // For local usage use the LocalPublisher
+    // Listen to ipc call from remote QmlLiveBench
     RemoteReceiver receiver;
     receiver.registerNode(&node);
-    // Listen to ipc call from remote
     receiver.listen(10234);
 
     return app.exec();

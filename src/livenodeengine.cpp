@@ -53,8 +53,7 @@
  * \inmodule qmllive
  *
  * LiveNodeEngine provides ways to reload qml documents based incoming requests
- * from a hub. A hub can be connected via a local mode ( LocalPublisher) or
- * remote mode (RemotePublisher with a RemoteReceiver).
+ * from a hub. A hub can be connected via a RemotePublisher/RemoteReceiver pair.
  *
  * The primary use case is to allow loading of QML components instantiating
  * QQuickWindow, i.e., inheriting QML Window. A fallbackView can be set in order

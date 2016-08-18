@@ -178,7 +178,6 @@ int main(int argc, char** argv)
     engine.loadDocument(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
     RemoteReceiver receiver;
     receiver.listen(options.ipcPort);
-    receiver.setWorkspace(options.workspace);
     receiver.setWorkspaceWriteable(options.allowUpdates);
     receiver.registerNode(&engine);
 

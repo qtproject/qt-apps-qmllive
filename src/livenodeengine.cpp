@@ -392,6 +392,14 @@ void LiveNodeEngine::setActiveDocument(const QString &document)
 }
 
 /*!
+ * Returns the current workspace path.
+ */
+QString LiveNodeEngine::workspace() const
+{
+    return m_workspace.absolutePath();
+}
+
+/*!
  * Sets the current workspace to \a path. Documents location will be adjusted based on
  * this workspace path. Certain features can be controled by passing \a options.
  *
@@ -405,6 +413,8 @@ void LiveNodeEngine::setWorkspace(const QString &path, WorkspaceOptions options)
 
     if (options & LoadDummyData)
         QmlHelper::loadDummyData(m_qmlEngine, m_workspace.absolutePath());
+
+    emit workspaceChanged(workspace());
 }
 
 /*!
@@ -514,4 +524,12 @@ void LiveNodeEngine::onSizeChanged()
  * \fn void LiveNodeEngine::logErrors(const QList<QQmlError> &errors)
  *
  * Log the Errors \a errors
+ */
+
+/*!
+ * \fn void LiveNodeEngine::workspaceChanged(const QString &workspace)
+ *
+ * This signal is emitted after workspace is changed with setWorkspace()
+ *
+ * \sa workspace()
  */

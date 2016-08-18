@@ -68,6 +68,7 @@ public:
     int yOffset() const;
     int rotation() const;
 
+    QString workspace() const;
     void setWorkspace(const QString &path, WorkspaceOptions options = NoWorkspaceOption);
 
     void setPluginPath(const QString& path);
@@ -93,6 +94,7 @@ Q_SIGNALS:
     void documentLoaded();
     void activeWindowChanged(QQuickWindow *window);
     void logErrors(const QList<QQmlError> &errors);
+    void workspaceChanged(const QString &workspace);
 
 protected:
     virtual void initPlugins();

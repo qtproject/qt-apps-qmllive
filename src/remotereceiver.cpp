@@ -81,6 +81,9 @@ void RemoteReceiver::listen(int port)
 /*!
  * Sets the current workspace to \a path. Documents location will be adjusted based on
  * this workspace path.
+ *
+ * When a LiveNodeEngine is registered with registerNode(), workspace path is
+ * determined automatically as LiveNodeEngine::workspace().
  */
 void RemoteReceiver::setWorkspace(const QString &path)
 {
@@ -194,6 +197,8 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
 {
     if (m_node) { disconnect(m_node); }
     m_node = node;
+    setWorkspace(m_node->workspace());
+    connect(m_node, SIGNAL(workspaceChanged(QString)), this, SLOT(setWorkspace(QString)));
     connect(this, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
 }
 

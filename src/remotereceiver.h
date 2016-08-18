@@ -50,12 +50,15 @@ public:
     void listen(int port);
     void registerNode(LiveNodeEngine *node);
     void setWorkspaceWriteable(bool on);
-    void setWorkspace(const QString &path);
     QString workspace() const;
     void setPin(const QString& pin);
     QString pin() const;
 
     void setMaxConnections(int max);
+
+public Q_SLOTS:
+    void setWorkspace(const QString &path);
+
 Q_SIGNALS:
     void activateDocument(const QString& document);
     void reload();

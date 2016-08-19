@@ -1,6 +1,7 @@
 project = QML Live
 description = Pelagicore QML Live Reference Documentation
 url = https://doc.qt.io/QmlLive
+version = $QMLLIVE_VERSION
 
 sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
 headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
@@ -24,9 +25,9 @@ outputdir = $OUTDIR
 
 qhp.projects                               = QmlLive
 qhp.QmlLive.file                = qmllive.qhp
-qhp.QmlLive.namespace           = io.qt.QmlLive.$QMLLIVE_VERSION_TAG
-qhp.QmlLive.virtualFolder       = QmlLive
-qhp.QmlLive.indexTitle          = Pelagicore QML Live Reference Documentation
+qhp.QmlLive.namespace           = io.qt.qmllive.$QMLLIVE_VERSION_TAG
+qhp.QmlLive.virtualFolder       = qmllive
+qhp.QmlLive.indexTitle          = Qt QML Live
 qhp.QmlLive.indexRoot           =
 
 qhp.QmlLive.filterAttributes = QmlLive $QMLLIVE_VERSION

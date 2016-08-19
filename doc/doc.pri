@@ -17,7 +17,7 @@ defineReplace(cmdEnv) {
 }
 
 defineReplace(qdoc) {
-    return("$$cmdEnv(OUTDIR=$$1 QMLLIVE_VERSION=$$VERSION QMLLIVE_VERSION_TAG=$$VERSION_TAG) $$QDOC")
+    return("$$cmdEnv(OUTDIR=$$1 QMLLIVE_VERSION=$$VERSION QMLLIVE_VERSION_TAG=$$VERSION_TAG QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS/src]) $$QDOC")
 }
 
 printConfigLine("Documentation generator", $$check_qdoc)

@@ -38,6 +38,7 @@
 
 class LiveRuntime;
 class ContentPluginFactory;
+class OverlayUrlInterceptor;
 
 class LiveNodeEngine : public QObject
 {
@@ -47,7 +48,8 @@ public:
     enum WorkspaceOption {
         NoWorkspaceOption = 0x0,
         LoadDummyData = 0x1,
-        AllowUpdates = 0x2
+        AllowUpdates = 0x2,
+        UpdatesAsOverlay = 0x4 | AllowUpdates
     };
     Q_DECLARE_FLAGS(WorkspaceOptions, WorkspaceOption)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
@@ -124,6 +126,7 @@ private:
     QList<QMetaObject::Connection> m_activeWindowConnections;
     QDir m_workspace;
     WorkspaceOptions m_workspaceOptions;
+    QPointer<OverlayUrlInterceptor> m_overlayUrlInterceptor;
     QTimer *m_delayReload;
 
     ContentPluginFactory* m_pluginFactory;

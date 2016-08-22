@@ -47,6 +47,11 @@
 #define DEBUG if (0) qDebug()
 #endif
 
+namespace {
+const char *const OVERLAY_PATH_PREFIX = "qml-live-overlay--";
+const char OVERLAY_PATH_SEPARATOR = '-';
+}
+
 /*!
  * \class LiveNodeEngine
  * \brief The LiveNodeEngine class instantiates QML components in cooperation with LiveHubEngine.
@@ -78,7 +83,57 @@
  *          "dummydata" subdirectory of the workspace directory.
  *   \value AllowUpdates
  *          Enables receiving updates to workspace documents.
+ *   \value UpdatesAsOverlay
+ *          With this option enabled, updates can be received even if workspace
+ *          is read only. Updates will be stored in a writable overlay stacked
+ *          over the original workspace with the help of
+ *          QQmlAbstractUrlInterceptor. Implies \l AllowUpdates.
+ *
+ * \sa {QmlLive Runtime}
  */
+
+class OverlayUrlInterceptor : public QObject, public QQmlAbstractUrlInterceptor
+{
+    Q_OBJECT
+
+public:
+    OverlayUrlInterceptor(const QString &basePath,
+                          QQmlAbstractUrlInterceptor *otherInterceptor, QObject *parent)
+        : QObject(parent)
+        , m_base(basePath)
+        , m_otherInterceptor(otherInterceptor)
+    {
+        Q_ASSERT(!basePath.isEmpty());
+    }
+
+    QString reserve(const QString &document)
+    {
+        QWriteLocker locker(&m_lock);
+
+        QString overlayingPath = QDir(m_overlay.path()).absoluteFilePath(document);
+        m_mappings.insert(QUrl::fromLocalFile(m_base.absoluteFilePath(document)),
+                          QUrl::fromLocalFile(overlayingPath));
+        return overlayingPath;
+    }
+
+    // From QQmlAbstractUrlInterceptor
+    QUrl intercept(const QUrl &url, DataType type) Q_DECL_OVERRIDE
+    {
+        Q_UNUSED(type);
+
+        QReadLocker locker(&m_lock);
+
+        const QUrl url_ = m_otherInterceptor ? m_otherInterceptor->intercept(url, type) : url;
+        return m_mappings.value(url_, url_);
+    }
+
+private:
+    QReadWriteLock m_lock;
+    QDir m_base;
+    QQmlAbstractUrlInterceptor *m_otherInterceptor;
+    QTemporaryDir m_overlay;
+    QHash<QUrl, QUrl> m_mappings;
+};
 
 /*!
  * Standard constructor using \a parent as parent
@@ -365,9 +420,12 @@ void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &c
         return;
     }
 
-    QString filePath = m_workspace.absoluteFilePath(document);
+    QString filePath = (m_workspaceOptions & UpdatesAsOverlay)
+        ? m_overlayUrlInterceptor->reserve(document)
+        : m_workspace.absoluteFilePath(document);
+
     QString dirPath = QFileInfo(filePath).absoluteDir().absolutePath();
-    m_workspace.mkpath(dirPath);
+    QDir().mkpath(dirPath);
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly)) {
         qWarning() << "Unable to save file: " << file.errorString();
@@ -440,6 +498,11 @@ void LiveNodeEngine::setWorkspace(const QString &path, WorkspaceOptions options)
 
     if (m_workspaceOptions & LoadDummyData)
         QmlHelper::loadDummyData(m_qmlEngine, m_workspace.absolutePath());
+
+    if (m_workspaceOptions & UpdatesAsOverlay) {
+        m_overlayUrlInterceptor = new OverlayUrlInterceptor(path, qmlEngine()->urlInterceptor(), this);
+        qmlEngine()->setUrlInterceptor(m_overlayUrlInterceptor);
+    }
 
     emit workspaceChanged(workspace());
 }
@@ -560,3 +623,5 @@ void LiveNodeEngine::onSizeChanged()
  *
  * \sa workspace()
  */
+
+#include "livenodeengine.moc"

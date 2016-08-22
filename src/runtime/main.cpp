@@ -44,14 +44,14 @@ struct Options
 {
     Options()
         : ipcPort(10234)
-        , allowUpdates(true)
+        , updatesAsOverlay(false)
         , fullscreen(false)
         , transparent(false)
         , frameless(false)
         , stayontop(false)
     {}
     int ipcPort;
-    bool allowUpdates;
+    bool updatesAsOverlay;
     QString activeDocument;
     QString workspace;
     QString pluginPath;
@@ -86,8 +86,9 @@ static void parseArguments(const QStringList &arguments)
     QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");
     parser.addOption(stayOnTopOption);
 
-    QCommandLineOption noFileUpdatesOption("no-file-updates", "do not write to files on changes");
-    parser.addOption(noFileUpdatesOption);
+    QCommandLineOption updatesAsOverlayOption("updates-as-overlay", "allow to receive updates even if workspace is "
+                                              "readonly - store updates in a writable overlay");
+    parser.addOption(updatesAsOverlayOption);
 
     QCommandLineOption fullScreenOption("fullscreen", "shows in fullscreen mode");
     parser.addOption(fullScreenOption);
@@ -106,7 +107,7 @@ static void parseArguments(const QStringList &arguments)
     options.pluginPath = parser.value(pluginPathOption);
     options.importPaths = parser.values(importPathOption);
     options.stayontop = parser.isSet(stayOnTopOption);
-    options.allowUpdates = !parser.isSet(noFileUpdatesOption);
+    options.updatesAsOverlay = parser.isSet(updatesAsOverlayOption);
     options.fullscreen = parser.isSet(fullScreenOption);
     options.transparent = parser.isSet(transparentOption);
     options.frameless = parser.isSet(framelessOption);
@@ -170,10 +171,9 @@ int main(int argc, char** argv)
 
     QQuickView fallbackView(&qmlEngine, 0);
 
-    LiveNodeEngine::WorkspaceOptions workspaceOptions = LiveNodeEngine::LoadDummyData;
-    if (options.allowUpdates) {
-        workspaceOptions |= LiveNodeEngine::AllowUpdates;
-    }
+    LiveNodeEngine::WorkspaceOptions workspaceOptions = LiveNodeEngine::LoadDummyData | LiveNodeEngine::AllowUpdates;
+    if (options.updatesAsOverlay)
+        workspaceOptions |= LiveNodeEngine::UpdatesAsOverlay;
 
     RuntimeLiveNodeEngine engine;
     engine.setQmlEngine(&qmlEngine);

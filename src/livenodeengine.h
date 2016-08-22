@@ -46,7 +46,8 @@ class LiveNodeEngine : public QObject
 public:
     enum WorkspaceOption {
         NoWorkspaceOption = 0x0,
-        LoadDummyData = 0x1
+        LoadDummyData = 0x1,
+        AllowUpdates = 0x2
     };
     Q_DECLARE_FLAGS(WorkspaceOptions, WorkspaceOption)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
@@ -86,6 +87,7 @@ public Q_SLOTS:
     void loadDocument(const QUrl& url);
     void delayReload();
     virtual void reloadDocument();
+    void updateDocument(const QString &document, const QByteArray &content);
 
 Q_SIGNALS:
     void activateDocument(const QString& document);
@@ -121,6 +123,7 @@ private:
     QPointer<QQuickWindow> m_activeWindow;
     QList<QMetaObject::Connection> m_activeWindowConnections;
     QDir m_workspace;
+    WorkspaceOptions m_workspaceOptions;
     QTimer *m_delayReload;
 
     ContentPluginFactory* m_pluginFactory;

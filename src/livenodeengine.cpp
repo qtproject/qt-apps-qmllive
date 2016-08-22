@@ -76,6 +76,8 @@
  *   \value LoadDummyData
  *          Enables loading of dummy QML data - QML documents located in the
  *          "dummydata" subdirectory of the workspace directory.
+ *   \value AllowUpdates
+ *          Enables receiving updates to workspace documents.
  */
 
 /*!
@@ -352,6 +354,31 @@ void LiveNodeEngine::reloadDocument()
         m_activeWindow->show();
 }
 
+/*!
+ * Updates \a content of the given workspace \a document when enabled.
+ *
+ * The behavior of this function is controlled by WorkspaceOptions passed to setWorkspace().
+ */
+void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &content)
+{
+    if (!(m_workspaceOptions & AllowUpdates)) {
+        return;
+    }
+
+    QString filePath = m_workspace.absoluteFilePath(document);
+    QString dirPath = QFileInfo(filePath).absoluteDir().absolutePath();
+    m_workspace.mkpath(dirPath);
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Unable to save file: " << file.errorString();
+        return;
+    }
+    file.write(content);
+    file.close();
+
+    delayReload();
+}
+
 
 /*!
  * Allows to adapt a \a url to display not native qml documents (e.g. images).
@@ -409,8 +436,9 @@ void LiveNodeEngine::setWorkspace(const QString &path, WorkspaceOptions options)
     Q_ASSERT(qmlEngine());
 
     m_workspace = QDir(path);
+    m_workspaceOptions = options;
 
-    if (options & LoadDummyData)
+    if (m_workspaceOptions & LoadDummyData)
         QmlHelper::loadDummyData(m_qmlEngine, m_workspace.absolutePath());
 
     emit workspaceChanged(workspace());

@@ -170,15 +170,19 @@ int main(int argc, char** argv)
 
     QQuickView fallbackView(&qmlEngine, 0);
 
+    LiveNodeEngine::WorkspaceOptions workspaceOptions = LiveNodeEngine::LoadDummyData;
+    if (options.allowUpdates) {
+        workspaceOptions |= LiveNodeEngine::AllowUpdates;
+    }
+
     RuntimeLiveNodeEngine engine;
     engine.setQmlEngine(&qmlEngine);
     engine.setFallbackView(&fallbackView);
-    engine.setWorkspace(options.workspace, LiveNodeEngine::LoadDummyData);
+    engine.setWorkspace(options.workspace, workspaceOptions);
     engine.setPluginPath(options.pluginPath);
     engine.loadDocument(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
     RemoteReceiver receiver;
     receiver.listen(options.ipcPort);
-    receiver.setWorkspaceWriteable(options.allowUpdates);
     receiver.registerNode(&engine);
 
     int ret = app.exec();

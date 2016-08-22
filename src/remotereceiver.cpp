@@ -59,7 +59,6 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
     : QObject(parent)
     , m_server(new IpcServer(this))
     , m_node(0)
-    , m_workspaceWriteable(true)
     , m_connectionAcknowledged(false)
     , m_socket(0)
     , m_client(0)
@@ -76,26 +75,6 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
 void RemoteReceiver::listen(int port)
 {
     m_server->listen(port);
-}
-
-/*!
- * Sets the current workspace to \a path. Documents location will be adjusted based on
- * this workspace path.
- *
- * When a LiveNodeEngine is registered with registerNode(), workspace path is
- * determined automatically as LiveNodeEngine::workspace().
- */
-void RemoteReceiver::setWorkspace(const QString &path)
-{
-    m_workspace = QDir(path);
-}
-
-/*!
- * Return the current workspace absolute path
- */
-QString RemoteReceiver::workspace() const
-{
-    return m_workspace.absolutePath();
 }
 
 /*!
@@ -120,14 +99,6 @@ QString RemoteReceiver::pin() const
 void RemoteReceiver::setMaxConnections(int max)
 {
     m_server->setMaxConnections(max);
-}
-
-/*!
- * Sets whether the workspace is writeable to \a on. Otherwise incoming write document requests will be ignored.
- */
-void RemoteReceiver::setWorkspaceWriteable(bool on)
-{
-    m_workspaceWriteable = on;
 }
 
 /*!
@@ -177,7 +148,7 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
         QDataStream in(content);
         in >> document;
         in >> data;
-        writeDocument(document, data);
+        emit updateDocument(document, data);
     } else if (method == "activateDocument(QString)") {
         QString document;
         QDataStream in(content);
@@ -197,35 +168,13 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
 {
     if (m_node) { disconnect(m_node); }
     m_node = node;
-    setWorkspace(m_node->workspace());
-    connect(m_node, SIGNAL(workspaceChanged(QString)), this, SLOT(setWorkspace(QString)));
     connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
     connect(m_node, SIGNAL(clearLog()), this, SLOT(clearLog()));
     connect(this, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
+    connect(this, SIGNAL(updateDocument(QString,QByteArray)), m_node, SLOT(updateDocument(QString,QByteArray)));
     connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
     connect(this, SIGNAL(yOffsetChanged(int)), m_node, SLOT(setYOffset(int)));
     connect(this, SIGNAL(rotationChanged(int)), m_node, SLOT(setRotation(int)));
-}
-
-/*!
- * Handles RPC call "writeDocument" to write the transferred document to file system
- */
-void RemoteReceiver::writeDocument(const QString &document, const QByteArray &content)
-{
-    if (!m_workspaceWriteable) { return; }
-    QString filePath = m_workspace.absoluteFilePath(document);
-    QString dirPath = QFileInfo(filePath).absoluteDir().absolutePath();
-    m_workspace.mkpath(dirPath);
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "Unable to save file: " << file.errorString();
-        return;
-    }
-    file.write(content);
-    file.close();
-
-    if (m_node)
-        m_node->delayReload();
 }
 
 /*!
@@ -334,3 +283,8 @@ void RemoteReceiver::clearLog()
  * This signal is emitted to notify the view to apply the rotation with the angle \a rotation
  */
 
+/*!
+ * \fn void RemoteReceiver::updateDocument(const QString &document, const QByteArray &content)
+ *
+ * This signal is emitted to notify that a \a document has changed its \a content
+ */

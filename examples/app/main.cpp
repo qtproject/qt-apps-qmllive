@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     // Allow it to display QML components with non-QQuickWindow root object
     node.setFallbackView(&fallbackView);
     // Tell it where file updates should be stored relative to
-    node.setWorkspace(".");
+    node.setWorkspace(".", LiveNodeEngine::AllowUpdates);
     // Listen to ipc call from remote QmlLiveBench
     RemoteReceiver receiver;
     receiver.registerNode(&node);

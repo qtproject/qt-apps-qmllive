@@ -49,15 +49,10 @@ public:
     explicit RemoteReceiver(QObject *parent = 0);
     void listen(int port);
     void registerNode(LiveNodeEngine *node);
-    void setWorkspaceWriteable(bool on);
-    QString workspace() const;
     void setPin(const QString& pin);
     QString pin() const;
 
     void setMaxConnections(int max);
-
-public Q_SLOTS:
-    void setWorkspace(const QString &path);
 
 Q_SIGNALS:
     void activateDocument(const QString& document);
@@ -68,10 +63,10 @@ Q_SIGNALS:
     void xOffsetChanged(int offset);
     void yOffsetChanged(int offset);
     void rotationChanged(int rotation);
+    void updateDocument(const QString &document, const QByteArray &content);
 
 private Q_SLOTS:
     void handleCall(const QString& method, const QByteArray& content);
-    void writeDocument(const QString& document, const QByteArray& content);
 
     void appendToLog(const QList<QQmlError> &errors);
     void clearLog();
@@ -80,9 +75,6 @@ private Q_SLOTS:
 private:
     IpcServer *m_server;
     LiveNodeEngine *m_node;
-
-    QDir m_workspace;
-    bool m_workspaceWriteable;
 
     QString m_pin;
     bool m_connectionAcknowledged;

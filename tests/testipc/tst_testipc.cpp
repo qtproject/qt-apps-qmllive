@@ -28,9 +28,8 @@
 ** SPDX-License-Identifier: GPL-3.0
 **
 ****************************************************************************/
-#include <QtCore>
+
 #include <QtTest>
-#include <QtNetwork>
 
 #include "ipc/ipcserver.h"
 #include "ipc/ipcclient.h"
@@ -47,7 +46,6 @@ public slots:
             QDataStream stream(data);
             QString message;
             stream >> message;
-            qDebug() << method << ": " << message;
         }
         if (method == "sendFile(QString,QByteArray)") {
             QDataStream stream(data);
@@ -55,7 +53,6 @@ public slots:
             stream >> path;
             QByteArray body;
             stream >> body;
-            qDebug() << method << ": " << path;
         }
     }
 
@@ -71,8 +68,7 @@ private Q_SLOTS:
         stream << QString("Hello IPC!");
         peer2.send("echo(QString)", bytes);
         QSignalSpy received(&peer1, SIGNAL(received(QString,QByteArray)));
-        QTest::qWait(100);
-        QVERIFY(received.count() == 1);
+        QTRY_COMPARE(received.count(), 1);
     }
 
     void sendFile() {
@@ -88,8 +84,7 @@ private Q_SLOTS:
         stream << QString("hello").toLatin1();
         peer2.send("sendFile(QString,QByteArray)", bytes);
         QSignalSpy received(&peer1, SIGNAL(received(QString,QByteArray)));
-        QTest::qWait(100);
-        QVERIFY(received.count() == 1);
+        QTRY_COMPARE(received.count(), 1);
     }
 };
 

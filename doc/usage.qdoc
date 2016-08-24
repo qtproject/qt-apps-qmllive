@@ -124,6 +124,7 @@ Usage qmlliveruntime [options] <workspace>
  options:
   -ipcport <port> ....................the port the ipc shall listen on
   -updates-as-overlay ................allow receiving updates with read only workspace
+  -persistent-overlay ................keep overlay with updates between executions
   -pluginpath ........................path to qmllive plugins
   -importpath ........................path to the qml import path
   -fullscreen ........................shows in fullscreen mode
@@ -140,6 +141,11 @@ a location which is not user writable. In most cases hacking on the file
 permissions after deployment can help, but a more convenient method is available
 - let the runtime store all updates in a writable workspace overlay. Use the \c
 -updates-as-overlay option to enable this feature.
+
+Workspace overlay is volatile by default. Pass \c -persistent-overlay in order
+to preserve its content between executions. Attention: with persistent workspace
+overlay not more than one instance of the application may be running at the same
+time!
 
 
 \chapter Custom Runtime

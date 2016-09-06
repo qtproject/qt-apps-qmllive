@@ -1,16 +1,14 @@
+include(../../qmllive.pri)
+
 TEMPLATE = app
 TARGET = previewGenerator
-DESTDIR = $$BUILD_DIR/bin
+win32: DESTDIR = $$BUILD_DIR/bin
+else: DESTDIR = $$BUILD_DIR/libexec/qmllive
 
 # install rules
-isEmpty(PREFIX) {
-    target.path = $$[QT_INSTALL_BINS]
-} else {
-    macos: INSTALLSUBDIR=$${TARGET}.app/Contents/MacOS/
-    macos: CONFIG -= app_bundle
-    target.path = $$PREFIX
-}
-
+macx*: CONFIG -= app_bundle
+win32: target.path = $$PREFIX/bin
+else: target.path = $$PREFIX/libexec/qmllive
 INSTALLS += target
 
 QT = gui core quick widgets

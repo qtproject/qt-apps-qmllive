@@ -1,13 +1,21 @@
+include(../qmllive.pri)
+
 TEMPLATE = subdirs
 CONFIG += ordered
 
-!android:!ios {
+skip-bench:skip-examples:static-link-runtime {
+  CONFIG += skip-lib
+}
+
+!skip-lib {
+  SUBDIRS += lib.pro
+}
+
+!skip-bench {
   SUBDIRS += bench \
              previewGenerator
 }
 
-SUBDIRS += \
-  runtime
-
-
-include(src.pri)
+!skip-runtime {
+  SUBDIRS += runtime
+}

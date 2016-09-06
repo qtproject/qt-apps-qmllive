@@ -35,10 +35,12 @@
 #include <QMutex>
 #include <QUrl>
 
+#include "qmllive_global.h"
 
-class Logger : public QObject
+class QMLLIVESHARED_EXPORT Logger : public QObject
 {
     Q_OBJECT
+
 public:
     explicit Logger(QObject *parent = 0);
     virtual ~Logger();

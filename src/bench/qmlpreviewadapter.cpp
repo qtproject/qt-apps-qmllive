@@ -61,13 +61,12 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
         return QImage();
     }
 
+    static const QString program = QCoreApplication::applicationDirPath() +
 #ifdef Q_OS_WINDOWS
-    static const QString suffix = ".exe";
+        QStringLiteral("/previewGenerator.exe");
 #else
-    static const QString suffix;
+        QStringLiteral("/../libexec/qmllive/previewGenerator");
 #endif
-
-    static const QString program = QCoreApplication::applicationDirPath() + QDir::separator() + "previewGenerator" + suffix;
     static const QStringList arguments("QmlLiveBench");
 
     if (proc()->state() != QProcess::Running) {

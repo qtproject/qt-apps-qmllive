@@ -7,7 +7,7 @@ QT = gui core
 qt5:QT += quick widgets core-private
 else:QT += declarative
 
-osx: CONFIG -= app_bundle
+macx*: CONFIG -= app_bundle
 
 qt5:DEFINES += USING_QT5
 else:DEFINES += USING_QT4

@@ -35,9 +35,11 @@
 #include <QUrl>
 #include <QHostAddress>
 
+#include "qmllive_global.h"
+
 QT_FORWARD_DECLARE_CLASS(QUdpSocket);
 
-class LogReceiver : public QObject
+class QMLLIVESHARED_EXPORT LogReceiver : public QObject
 {
     Q_OBJECT
 public:

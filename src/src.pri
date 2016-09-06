@@ -21,20 +21,23 @@ SOURCES += \
     $$PWD/logreceiver.cpp \
     $$PWD/fontadapter.cpp
 
-HEADERS += \
-    $$PWD/watcher.h \
+public_headers += \
     $$PWD/livehubengine.h \
     $$PWD/livenodeengine.h \
     $$PWD/qmlhelper.h \
     $$PWD/liveruntime.h \
+    $$PWD/logger.h \
+    $$PWD/logreceiver.h \
     $$PWD/remotepublisher.h \
     $$PWD/remotereceiver.h \
     $$PWD/contentadapterinterface.h \
+    $$PWD/remotelogger.h
+
+HEADERS += \
+    $$public_headers \
+    $$PWD/watcher.h \
     $$PWD/imageadapter.h \
     $$PWD/contentpluginfactory.h \
-    $$PWD/logger.h \
-    $$PWD/remotelogger.h \
-    $$PWD/logreceiver.h \
     $$PWD/fontadapter.h
 
 OTHER_FILES += \
@@ -51,5 +54,3 @@ RESOURCES += \
     $$PWD/livert.qrc
 
 include(ipc/ipc.pri)
-
-

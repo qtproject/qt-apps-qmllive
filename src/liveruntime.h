@@ -34,14 +34,13 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "qmllive_global.h"
 
-class LiveRuntime : public QObject
+class QMLLIVESHARED_EXPORT LiveRuntime : public QObject
 {
     Q_OBJECT
-
     Q_PROPERTY(qreal screenWidth READ screenWidth WRITE setScreenWidth NOTIFY screenWidthChanged)
     Q_PROPERTY(qreal screenHeight READ screenHeight WRITE setScreenHeight NOTIFY screenHeightChanged)
-
 
 public:
     explicit LiveRuntime(QObject *parent = 0);

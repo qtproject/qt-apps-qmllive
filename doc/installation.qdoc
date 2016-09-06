@@ -49,7 +49,13 @@
     $ make
 \endcode
 
-The desktop executable is available at `./bin/qmllivebench`.
+QML Live Bench can be started directly from build directory by executing
+\c{./bin/qmllivebench}. Optionally it can be installed with
+
+\code
+    $ make install
+\endcode
+
 
 \chapter Building for device
 
@@ -57,14 +63,22 @@ The desktop executable is available at `./bin/qmllivebench`.
 target.}
 
 \code
-    $ qmake # from cross compiler toolchain
+    # using qmake from cross compiler toolchain
+    $ qmake "CONFIG+=skip-bench skip-examples static-link-runtime"
     $ make
 \endcode
 
-You need to cross-compile QmlLive and copy the `./bin/qmlliveruntime` onto the
+You need to cross-compile QmlLive and copy the \c{./bin/qmlliveruntime} binary onto the
 target.
 
-\chapter Build documentation
+Optionally it can be packaged with the help of
+
+\code
+    $ make install INSTALL_ROOT=...
+\endcode
+
+
+\chapter Building documentation
 
 \code
     $ export QT_INSTALL_DOCS=$QTSRC/qtbase/doc
@@ -72,5 +86,51 @@ target.
 \endcode
 
 The documentation will be available at \tt{doc/html/index.html}.
+
+
+\chapter Build options reference
+
+The following values can be added to qmake \c CONFIG variable:
+
+\table
+\header
+    \li Option
+    \li Description
+
+\row
+    \li skip-bench
+    \li Do not build \l{Workbench}{QML Live Bench}
+
+\row
+    \li skip-examples
+    \li Do not build examples
+
+\row
+    \li skip-runtime
+    \li Do not build \l{QmlLive Runtime}{QML Live Runtime}
+
+\row
+    \li skip-tests
+    \li Do not build tests
+
+\row
+    \li static-link-runtime
+    \li Produce a single-binary QML Live Runtime executable. Without this option
+        enabled QML Live Runtime executable requires the \c libqmllive dynamic
+        library to be copied to the target.
+\endtable
+
+The following custom qmake variables are recognized:
+
+\table
+\header
+    \li Variable
+    \li Description
+
+\row
+    \li PREFIX
+    \li Installation prefix. Defaults to \c{$$[QT_INSTALL_PREFIX]}.
+\endtable
+
 
 */

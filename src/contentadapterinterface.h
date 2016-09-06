@@ -35,11 +35,13 @@
 #include <QUrl>
 #include <QImage>
 
+#include "qmllive_global.h"
+
 QT_FORWARD_DECLARE_CLASS(QDeclarativeContext);
 QT_FORWARD_DECLARE_CLASS(QQmlContext);
 
 //! [0]
-class ContentAdapterInterface
+class QMLLIVESHARED_EXPORT ContentAdapterInterface
 {
 public:
 

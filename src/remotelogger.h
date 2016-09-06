@@ -35,11 +35,14 @@
 #include <QHostAddress>
 #include <QtQuick>
 
+#include "qmllive_global.h"
+
 QT_FORWARD_DECLARE_CLASS(QUdpSocket);
 
-class RemoteLogger : public Logger
+class QMLLIVESHARED_EXPORT RemoteLogger : public Logger
 {
     Q_OBJECT
+
 public:
     explicit RemoteLogger(QObject *parent = 0);
 

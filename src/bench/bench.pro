@@ -1,3 +1,5 @@
+include(../../qmllive.pri)
+
 TEMPLATE = app
 TARGET = qmllivebench
 DESTDIR = $$BUILD_DIR/bin
@@ -45,7 +47,6 @@ HEADERS += \
     autodiscoveryhostsdialog.h \
     options.h
 
-
 FORMS += \
     optionsdialog.ui \
     hostsoptionpage.ui \
@@ -54,18 +55,12 @@ FORMS += \
     autodiscoveryhostsdialog.ui
 
 include(../widgets/widgets.pri)
-include(../src.pri)
+include(../lib.pri)
 
 # install rules
-isEmpty(PREFIX) {
-    target.path = $$[QT_INSTALL_BINS]
-} else {
-    macos: INSTALLSUBDIR=$${TARGET}.app/Contents/MacOS/
-    macos: CONFIG -= app_bundle
-    target.path = $$PREFIX
-}
-
+macx*: CONFIG -= app_bundle
+target.path = $$PREFIX/bin
 INSTALLS += target
 
 win32: RC_FILE = ../../icons/appicon.rc
-osx: ICON = ../../icons/appicon.icns
+macx*: ICON = ../../icons/appicon.icns

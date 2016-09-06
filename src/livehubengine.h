@@ -33,10 +33,12 @@
 
 #include <QtCore>
 
+#include "qmllive_global.h"
+
 class Watcher;
 class ContentPluginFactory;
 
-class LiveHubEngine : public QObject
+class QMLLIVESHARED_EXPORT LiveHubEngine : public QObject
 {
     Q_OBJECT
 public:

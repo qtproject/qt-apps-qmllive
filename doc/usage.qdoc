@@ -152,10 +152,23 @@ any QML component.
 
 You can create your own custom runtime with the QmlLive features. This allows you to use your QML view setup with your additional C++ code together with the QmlLive system.
 
-For this you need to add \tt{$(QMLLIVEPROJECT)/src/src.pri} to your project folder and use the \b{LiveNodeEngine} class to be able to receive workspace changes and active document updates. By default, the IPC will listen on the port 10234.
+For this you need to use the \b{LiveNodeEngine} class to be able to receive
+workspace changes and active document updates. By default, the IPC will listen
+on the port 10234.
 
 Here is a short example of a minimal custom runtime:
 
 \snippet ../examples/app/main.cpp 0
+
+On platforms where pkg-config is supported simply add the following to your
+project file if QML Live is installed on your build host:
+
+\code
+CONFIG += link_pkgconfig
+PKGCONFIG += qmllive
+\endcode
+
+Another option is to compile everything directly into your application by
+including \c{$(QMLLIVEPROJECT)/src/src.pri} in your project file.
 
 */

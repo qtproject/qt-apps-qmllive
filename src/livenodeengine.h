@@ -35,12 +35,13 @@
 #include <QtQuick>
 
 #include "contentadapterinterface.h"
+#include "qmllive_global.h"
 
 class LiveRuntime;
 class ContentPluginFactory;
 class OverlayUrlInterceptor;
 
-class LiveNodeEngine : public QObject
+class QMLLIVESHARED_EXPORT LiveNodeEngine : public QObject
 {
     Q_OBJECT
 

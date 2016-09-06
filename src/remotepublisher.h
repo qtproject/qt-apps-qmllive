@@ -34,10 +34,12 @@
 #include <QtCore>
 #include <QAbstractSocket>
 
+#include "qmllive_global.h"
+
 class LiveHubEngine;
 class IpcClient;
 
-class RemotePublisher : public QObject
+class QMLLIVESHARED_EXPORT RemotePublisher : public QObject
 {
     Q_OBJECT
 public:

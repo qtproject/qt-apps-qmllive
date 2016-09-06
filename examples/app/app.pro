@@ -1,7 +1,9 @@
 TEMPLATE = app
 TARGET = app
 
-include(../../src/src.pri)
+QT *= quick
+
+include(../../src/lib.pri)
 
 SOURCES += main.cpp
 OTHER_FILES += \

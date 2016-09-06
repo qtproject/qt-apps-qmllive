@@ -35,7 +35,9 @@
 #include <QtQml>
 #include <QtQuick>
 
-class QmlHelper : public QObject
+#include "qmllive_global.h"
+
+class QMLLIVESHARED_EXPORT QmlHelper : public QObject
 {
     Q_OBJECT
 public:

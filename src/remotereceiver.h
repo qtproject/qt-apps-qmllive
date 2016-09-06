@@ -36,13 +36,15 @@
 
 #include <QQmlError>
 
+#include "qmllive_global.h"
+
 class LiveNodeEngine;
 class IpcServer;
 class IpcClient;
 
 QT_FORWARD_DECLARE_CLASS(QTcpSocket);
 
-class RemoteReceiver : public QObject
+class QMLLIVESHARED_EXPORT RemoteReceiver : public QObject
 {
     Q_OBJECT
 

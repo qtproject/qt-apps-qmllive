@@ -552,7 +552,11 @@ void LiveNodeEngine::initOverlay()
         // With temporary overlay allow parallel execution
         QTemporaryDir overlay(overlayBasePath);
         if (!overlay.isValid())
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
             qFatal("Failed to create (temporary) overlay directory: %s", qPrintable(overlay.errorString()));
+#else
+            qFatal("Failed to create (temporary) overlay directory");
+#endif
         overlay.setAutoRemove(false);
         overlayPath = overlay.path();
     }

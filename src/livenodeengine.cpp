@@ -684,7 +684,8 @@ void LiveNodeEngine::onSizeChanged()
 /*!
  * \fn void LiveNodeEngine::workspaceChanged(const QString &workspace)
  *
- * This signal is emitted after workspace is changed with setWorkspace()
+ * This signal is emitted after workspace is changed with setWorkspace(). \a
+ * workspace is the new workspace path.
  *
  * \sa workspace()
  */

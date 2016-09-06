@@ -308,6 +308,12 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
  */
 
 /*!
+ * \fn RemotePublisher::clearLog()
+ *
+ * The signal is emmited after receiving a clearLog call from a remote client.
+ */
+
+/*!
  * \fn RemotePublisher::needsPinAuthentication()
  *
  * The signal is emitted after receiving the needsPinAuthentication IPC call,

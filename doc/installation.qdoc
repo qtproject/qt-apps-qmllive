@@ -130,6 +130,11 @@ The following custom qmake variables are recognized:
 \row
     \li PREFIX
     \li Installation prefix. Defaults to \c{$$[QT_INSTALL_PREFIX]}.
+
+\row
+    \li EXAMPLES_PREFIX
+    \li Installation prefix for examples. Defaults to
+        \c{$$[QT_INSTALL_LIBS]/qmllive/examples}.
 \endtable
 
 

@@ -5,6 +5,7 @@ android|ios {
 
 VERSION = 0.1.0
 isEmpty(PREFIX): PREFIX = $$[QT_INSTALL_PREFIX]
+isEmpty(EXAMPLES_PREFIX): EXAMPLES_PREFIX = $$[QT_INSTALL_LIBS]/qmllive/examples
 
 VERSIONS = $$split(VERSION, ".")
 VERSION_MAJOR = $$member(VERSIONS, 0)

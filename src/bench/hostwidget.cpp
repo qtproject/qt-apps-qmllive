@@ -149,6 +149,9 @@ void HostWidget::setLiveHubEngine(LiveHubEngine *engine)
 
     connect(m_engine.data(), SIGNAL(workspaceChanged(QString)), &m_publisher, SLOT(setWorkspace(QString)));
     connect(m_engine.data(), SIGNAL(fileChanged(QString)), this, SLOT(sendDocument(QString)));
+    connect(m_engine.data(), SIGNAL(beginPublishWorkspace()), &m_publisher, SLOT(beginBulkSend()));
+    connect(m_engine.data(), SIGNAL(endPublishWorkspace()), &m_publisher, SLOT(endBulkSend()));
+    connect(&m_publisher, SIGNAL(needsPublishWorkspace()), this, SLOT(publishWorkspace()));
 }
 
 void HostWidget::setCurrentFile(const QString currentFile)

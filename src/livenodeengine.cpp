@@ -88,10 +88,6 @@ const char OVERLAY_PATH_SEPARATOR = '-';
  *          is read only. Updates will be stored in a writable overlay stacked
  *          over the original workspace with the help of
  *          QQmlAbstractUrlInterceptor. Implies \l AllowUpdates.
- *   \value PersistentOverlay
- *          With this option enabled, updates stored in an overlay will be
- *          preserved between executions much like with overwriting actuall
- *          workspace files. Implies \l UpdatesAsOverlay.
  *
  * \sa {QmlLive Runtime}
  */
@@ -540,39 +536,29 @@ void LiveNodeEngine::initOverlay()
         overlayBasePath += settings.organizationName() + QLatin1Char(OVERLAY_PATH_SEPARATOR);
     overlayBasePath += settings.applicationName();
 
-    QString overlayPath;
-    if (m_workspaceOptions & PersistentOverlay) {
-        overlayPath = overlayBasePath;
-        if (!QDir().mkpath(overlayPath))
-            qFatal("Failed to create (persistent) overlay directory");
-    } else {
-        // Allow cleaning the persistent overlay by executing once without persistence enabled
-        if (!QDir(overlayBasePath).removeRecursively())
-            qWarning() << "Failed to remove (persistent) overlay directory";
-        // With temporary overlay allow parallel execution
-        QTemporaryDir overlay(overlayBasePath);
-        if (!overlay.isValid())
+    // With temporary overlay allow parallel execution
+    QTemporaryDir overlay(overlayBasePath);
+    if (!overlay.isValid())
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-            qFatal("Failed to create (temporary) overlay directory: %s", qPrintable(overlay.errorString()));
+        qFatal("Failed to create overlay directory: %s", qPrintable(overlay.errorString()));
 #else
-            qFatal("Failed to create (temporary) overlay directory");
+        qFatal("Failed to create overlay directory");
 #endif
-        overlay.setAutoRemove(false);
-        overlayPath = overlay.path();
-    }
+    overlay.setAutoRemove(false);
 
-    m_overlayUrlInterceptor = new OverlayUrlInterceptor(m_workspace.path(), overlayPath, qmlEngine()->urlInterceptor(), this);
+    m_overlayUrlInterceptor = new OverlayUrlInterceptor(m_workspace.path(),
+        overlay.path(), qmlEngine()->urlInterceptor(), this);
     qmlEngine()->setUrlInterceptor(m_overlayUrlInterceptor);
 }
 
 void LiveNodeEngine::destroyOverlay()
 {
-    if ((m_workspaceOptions & UpdatesAsOverlay) && !(m_workspaceOptions & PersistentOverlay)) {
+    if (m_workspaceOptions & UpdatesAsOverlay) {
         // Better be paranoid than sorry.
         bool safe = m_overlayUrlInterceptor->overlay().absolutePath().startsWith(QDir::tempPath() + QDir::separator());
         Q_ASSERT(safe);
         if (!safe || !m_overlayUrlInterceptor->overlay().removeRecursively())
-            qWarning() << "Failed to remove (temporary) overlay directory";
+            qWarning() << "Failed to remove overlay directory";
     }
 }
 

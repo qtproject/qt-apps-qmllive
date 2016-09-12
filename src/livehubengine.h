@@ -50,6 +50,8 @@ public Q_SLOTS:
     void setFilePublishingActive(bool on);
     void publishWorkspace();
 Q_SIGNALS:
+    void beginPublishWorkspace();
+    void endPublishWorkspace();
     void publishFile(const QString& document);
     void fileChanged(const QString& document);
     void activateDocument(const QString& document);

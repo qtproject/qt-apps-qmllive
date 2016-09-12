@@ -93,6 +93,10 @@ void RemotePublisher::registerHub(LiveHubEngine *hub)
     m_hub = hub;
     connect(hub, SIGNAL(activateDocument(QString)), this, SLOT(activateDocument(QString)));
     connect(hub, SIGNAL(fileChanged(QString)), this, SLOT(sendDocument(QString)));
+    connect(hub, SIGNAL(publishFile(QString)), this, SLOT(sendDocument(QString)));
+    connect(this, SIGNAL(needsPublishWorkspace()), hub, SLOT(publishWorkspace()));
+    connect(hub, SIGNAL(beginPublishWorkspace()), this, SLOT(beginBulkSend()));
+    connect(hub, SIGNAL(endPublishWorkspace()), this, SLOT(endBulkSend()));
 }
 
 /*!
@@ -140,6 +144,24 @@ QUuid RemotePublisher::activateDocument(const QString &document)
     QDataStream out(&bytes, QIODevice::WriteOnly);
     out << document;
     return m_ipc->send("activateDocument(QString)", bytes);
+}
+
+/*!
+ * Sends "beginBulkSend()" via IPC.
+ */
+QUuid RemotePublisher::beginBulkSend()
+{
+    DEBUG << "RemotePublisher::beginBulkSend";
+    return m_ipc->send("beginBulkSend()", QByteArray());
+}
+
+/*!
+ * Sends "endBulkSend()" via IPC.
+ */
+QUuid RemotePublisher::endBulkSend()
+{
+    DEBUG << "RemotePublisher::endBulkSend";
+    return m_ipc->send("endBulkSend()", QByteArray());
 }
 
 /*!
@@ -254,6 +276,8 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
     } else if (method == "pinOK(bool)") {
         qDebug() << "pinOk" << content.toInt();
         emit pinOk(content.toInt());
+    } else if (method == "needsPublishWorkspace()") {
+        emit needsPublishWorkspace();
     } else if (method == "qmlLog(QtMsgType, QString, QUrl, int, int)") {
         int msgType;
         QString description;
@@ -318,6 +342,13 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
  *
  * The signal is emitted after receiving the needsPinAuthentication IPC call,
  * to indicate the client requires a pin authentication to continue.
+ */
+
+/*!
+ * \fn RemotePublisher::needsPublishWorkspace()
+ *
+ * The signal is emitted after receiving the needsPublishWorkspace IPC call,
+ * to indicate the client asks for (re)sending all workspace documents.
  */
 
 /*! \fn RemotePublisher::sentSuccessfully(const QUuid& uuid)

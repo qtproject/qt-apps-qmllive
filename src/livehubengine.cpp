@@ -115,11 +115,13 @@ void LiveHubEngine::directoriesChanged(const QStringList &changes)
 void LiveHubEngine::publishWorkspace()
 {
     if (!m_filePublishingActive) { return; }
+    emit beginPublishWorkspace();
     QDirIterator iter(m_watcher->directory(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     publishDirectory(m_watcher->directory(), false);
     while (iter.hasNext()) {
         publishDirectory(iter.next(), false);
     }
+    emit endPublishWorkspace();
 }
 
 /*!
@@ -144,6 +146,20 @@ void LiveHubEngine::setFilePublishingActive(bool on)
 {
     m_filePublishingActive = on;
 }
+
+/*!
+ * \fn void LiveHubEngine::beginPublishWorkspace()
+ *
+ * This signal is emitted at the beginning of \l publishWorkspace() call before
+ * any \l publishFile signal is emitted.
+ */
+
+/*!
+ * \fn void LiveHubEngine::endPublishWorkspace()
+ *
+ * This signal is emitted at the end of \l publishWorkspace() call after
+ * all \l publishFile signals were emitted.
+ */
 
 /*!
  * \fn void LiveHubEngine::publishFile(const QString& document)

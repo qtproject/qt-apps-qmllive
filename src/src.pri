@@ -1,6 +1,7 @@
 !greaterThan(QT_MAJOR_VERSION, 4):error("You need at least Qt5 to build this application")
 
 QT *= quick quick-private qml-private network
+CONFIG *= c++11
 
 INCLUDEPATH += $${PWD}
 DEFINES += NO_LIBRSYNC

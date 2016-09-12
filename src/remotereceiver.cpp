@@ -53,6 +53,24 @@
  */
 
 /*!
+ * \enum RemoteReceiver::ConnectionOption
+ *
+ * This enum type is used to select optional connection related features:
+ *
+ * \value NoConnectionOption
+ *        No optional feature is enabled.
+ * \value UpdateDocumentsOnConnect
+ *        The remote publisher will be asked to publish all workspace files on
+ *        connect. This applies to the very first connection only.
+ * \value BlockingConnect
+ *        Call to \l listen() will block until a connection from remote publisher
+ *        is open and (optional) PIN exchange and (optional) initial documents
+ *        update finishes.
+ *
+ * \sa listen()
+ */
+
+/*!
  * Standard Constructor using \a parent as parent
  */
 RemoteReceiver::RemoteReceiver(QObject *parent)
@@ -62,6 +80,8 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
     , m_connectionAcknowledged(false)
     , m_socket(0)
     , m_client(0)
+    , m_bulkUpdateInProgress(false)
+    , m_updateDocumentsOnConnectState(UpdateNotStarted)
 {
     connect(m_server, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
     connect(m_server, SIGNAL(clientConnected(QTcpSocket*)), this, SLOT(onClientConnected(QTcpSocket*)));
@@ -70,11 +90,49 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
 }
 
 /*!
- * Listens on remote publisher connections on \a port
+ * Listens on remote publisher connections on \a port with given \a options. If
+ * \a options contains BlockingConnect the return value indicates whether PIN
+ * exchange and/or initial documents update was successful. Otherwise the
+ * return value is always \c true.
  */
-void RemoteReceiver::listen(int port)
+bool RemoteReceiver::listen(int port, ConnectionOptions options)
 {
+    m_connectionOptions = options;
     m_server->listen(port);
+
+    if (m_connectionOptions & BlockingConnect) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
+        qWarning() << "Waiting for connection from QML Live bench…";
+#else
+        qInfo() << "Waiting for connection from QML Live bench…";
+#endif
+
+        QEventLoop loop;
+
+        if (!m_pin.isEmpty()) {
+            bool pinOk = false;
+            connect(this, &RemoteReceiver::pinOk, [&loop, &pinOk](bool ok) {
+                pinOk = ok;
+                loop.quit();
+            });
+            loop.exec();
+            if (!pinOk)
+                return false;
+        }
+
+        if (m_connectionOptions & UpdateDocumentsOnConnect) {
+            bool finishedOk = false;
+            connect(this, &RemoteReceiver::updateDocumentsOnConnectFinished, [&loop, &finishedOk](bool ok) {
+                finishedOk = ok;
+                loop.quit();
+            });
+            loop.exec();
+            if (!finishedOk)
+                return false;
+        }
+    }
+
+    return true;
 }
 
 /*!
@@ -116,6 +174,7 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
             m_connectionAcknowledged = true;
             emit pinOk(true);
             m_client->send("pinOK(bool)", QByteArray::number(1));
+            maybeStartUpdateDocumentsOnConnect();
         } else if (m_client) {
             emit pinOk(false);
             m_client->send("pinOK(bool)", QByteArray::number(0));
@@ -142,6 +201,26 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
         QDataStream in(content);
         in >> rotation;
         emit rotationChanged(rotation);
+    } else if (method == "beginBulkSend()") {
+        if (!m_bulkUpdateInProgress) {
+            m_bulkUpdateInProgress = true;
+            emit beginBulkUpdate();
+            if (m_updateDocumentsOnConnectState == UpdateRequested)
+                m_updateDocumentsOnConnectState = UpdateStarted;
+        } else {
+            qCritical() << "Ignoring nested 'beginBulkSend()' call";
+        }
+    } else if (method == "endBulkSend()") {
+        if (m_bulkUpdateInProgress) {
+            m_bulkUpdateInProgress = false;
+            emit endBulkUpdate();
+            if (m_updateDocumentsOnConnectState == UpdateStarted) {
+                m_updateDocumentsOnConnectState = UpdateFinished;
+                emit updateDocumentsOnConnectFinished(true);
+            }
+        } else {
+            qCritical() << "Ignoring unpaired 'endBulkSend()' call";
+        }
     } else if (method == "sendDocument(QString,QByteArray)") {
         QString document;
         QByteArray data;
@@ -194,6 +273,32 @@ void RemoteReceiver::onClientConnected(QTcpSocket *socket)
         m_connectionAcknowledged = false;
     } else {
         m_connectionAcknowledged = true;
+        maybeStartUpdateDocumentsOnConnect();
+    }
+}
+
+void RemoteReceiver::onClientDisconnected(QTcpSocket *socket)
+{
+    Q_ASSERT(socket == m_socket);
+    Q_UNUSED(socket);
+
+    if (m_updateDocumentsOnConnectState != UpdateNotStarted) {
+        if (m_updateDocumentsOnConnectState != UpdateFinished) {
+            emit updateDocumentsOnConnectFinished(false);
+            m_updateDocumentsOnConnectState = UpdateFinished;
+        }
+    }
+    if (m_bulkUpdateInProgress)
+        emit endBulkUpdate();
+}
+void RemoteReceiver::maybeStartUpdateDocumentsOnConnect()
+{
+    if (!(m_connectionOptions & UpdateDocumentsOnConnect))
+        return;
+
+    if (m_updateDocumentsOnConnectState == UpdateNotStarted) {
+        m_client->send("needsPublishWorkspace()", QByteArray());
+        m_updateDocumentsOnConnectState = UpdateRequested;
     }
 }
 
@@ -281,6 +386,27 @@ void RemoteReceiver::clearLog()
  * \fn void RemoteReceiver::rotationChanged(int rotation)
  *
  * This signal is emitted to notify the view to apply the rotation with the angle \a rotation
+ */
+
+/*!
+ * \fn void RemoteReceiver::beginBulkUpdate()
+ *
+ * This signal is emitted before an expected sequence of \l updateDocument emissions.
+ */
+
+/*!
+ * \fn void RemoteReceiver::endBulkUpdate()
+ *
+ * This signal is emitted after an expected sequence of \l updateDocument emissions.
+ */
+
+/*!
+ * \fn void RemoteReceiver::updateDocumentsOnConnectFinished(bool ok)
+ *
+ * This signal is emitted to notify that the (optional) initial update of all
+ * workspace documents finished. \a ok indicates its result.
+ *
+ * \sa UpdateDocumentsOnConnect
  */
 
 /*!

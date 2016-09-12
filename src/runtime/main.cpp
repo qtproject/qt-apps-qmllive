@@ -45,7 +45,7 @@ struct Options
     Options()
         : ipcPort(10234)
         , updatesAsOverlay(false)
-        , persistentOverlay(false)
+        , updateOnConnect(false)
         , fullscreen(false)
         , transparent(false)
         , frameless(false)
@@ -53,7 +53,7 @@ struct Options
     {}
     int ipcPort;
     bool updatesAsOverlay;
-    bool persistentOverlay;
+    bool updateOnConnect;
     QString activeDocument;
     QString workspace;
     QString pluginPath;
@@ -92,9 +92,8 @@ static void parseArguments(const QStringList &arguments)
                                               "readonly - store updates in a writable overlay");
     parser.addOption(updatesAsOverlayOption);
 
-    QCommandLineOption persistentOverlayOption("persistent-overlay", "keep updates stored in an overlay between "
-                                               "executions (implies '--updates-as-overlay')");
-    parser.addOption(persistentOverlayOption);
+    QCommandLineOption updateOnConnectOption("update-on-connect", "update all workspace documents initially (blocking).");
+    parser.addOption(updateOnConnectOption);
 
     QCommandLineOption fullScreenOption("fullscreen", "shows in fullscreen mode");
     parser.addOption(fullScreenOption);
@@ -114,7 +113,7 @@ static void parseArguments(const QStringList &arguments)
     options.importPaths = parser.values(importPathOption);
     options.stayontop = parser.isSet(stayOnTopOption);
     options.updatesAsOverlay = parser.isSet(updatesAsOverlayOption);
-    options.persistentOverlay = parser.isSet(persistentOverlayOption);
+    options.updateOnConnect = parser.isSet(updateOnConnectOption);
     options.fullscreen = parser.isSet(fullScreenOption);
     options.transparent = parser.isSet(transparentOption);
     options.frameless = parser.isSet(framelessOption);
@@ -181,8 +180,10 @@ int main(int argc, char** argv)
     LiveNodeEngine::WorkspaceOptions workspaceOptions = LiveNodeEngine::LoadDummyData | LiveNodeEngine::AllowUpdates;
     if (options.updatesAsOverlay)
         workspaceOptions |= LiveNodeEngine::UpdatesAsOverlay;
-    if (options.persistentOverlay)
-        workspaceOptions |= LiveNodeEngine::PersistentOverlay;
+
+    RemoteReceiver::ConnectionOptions connectionOptions;
+    if (options.updateOnConnect)
+        connectionOptions |= RemoteReceiver::UpdateDocumentsOnConnect | RemoteReceiver::BlockingConnect;
 
     RuntimeLiveNodeEngine engine;
     engine.setQmlEngine(&qmlEngine);
@@ -191,8 +192,9 @@ int main(int argc, char** argv)
     engine.setPluginPath(options.pluginPath);
     engine.loadDocument(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
     RemoteReceiver receiver;
-    receiver.listen(options.ipcPort);
     receiver.registerNode(&engine);
+    if (!receiver.listen(options.ipcPort, connectionOptions))
+        return EXIT_FAILURE;
 
     int ret = app.exec();
 

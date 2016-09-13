@@ -333,6 +333,9 @@ QUrl LiveNodeEngine::errorScreenUrl() const
  * Reloads the active qml document.
  *
  * Emits documentLoaded() when finished.
+ *
+ * If \l fallbackView is set, its \c source will be cleared, whether the view
+ * was previously used or not.
  */
 void LiveNodeEngine::reloadDocument()
 {
@@ -342,7 +345,8 @@ void LiveNodeEngine::reloadDocument()
         disconnect(m_activeWindowConnections.takeLast());
     }
 
-    if (m_fallbackView && m_activeWindow == m_fallbackView) {
+    // Do this unconditionally!
+    if (m_fallbackView) {
         m_fallbackView->setSource(QUrl());
         m_fallbackView->close();
     }

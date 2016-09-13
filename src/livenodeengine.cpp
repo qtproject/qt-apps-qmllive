@@ -344,7 +344,7 @@ void LiveNodeEngine::reloadDocument()
 
     if (m_fallbackView && m_activeWindow == m_fallbackView) {
         m_fallbackView->setSource(QUrl());
-        m_fallbackView->hide();
+        m_fallbackView->close();
     }
 
     m_activeWindow = 0;

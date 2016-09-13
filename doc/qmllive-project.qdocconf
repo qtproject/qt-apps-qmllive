@@ -1,7 +1,7 @@
 project = QML Live
 description = Pelagicore QML Live Reference Documentation
 url = https://doc.qt.io/QmlLive
-version = $QMLLIVE_VERSION
+version = $QT_VERSION
 
 sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
 headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
@@ -21,18 +21,16 @@ sourcedirs = \
 
 imagedirs = images
 
-outputdir = $OUTDIR
-
-qhp.projects                               = QmlLive
+qhp.projects                    = QmlLive
 qhp.QmlLive.file                = qmllive.qhp
-qhp.QmlLive.namespace           = io.qt.qmllive.$QMLLIVE_VERSION_TAG
+qhp.QmlLive.namespace           = io.qt.qmllive.$QT_VERSION_TAG
 qhp.QmlLive.virtualFolder       = qmllive
 qhp.QmlLive.indexTitle          = Qt QML Live
 qhp.QmlLive.indexRoot           =
 
-qhp.QmlLive.filterAttributes = QmlLive $QMLLIVE_VERSION
-qhp.QmlLive.customFilters.QmlLive.name = QML Live $QMLLIVE_VERSION
-qhp.QmlLive.customFilters.QmlLive.filterAttributes = QmlLive $QMLLIVE_VERSION
+qhp.QmlLive.filterAttributes = QmlLive $QT_VERSION
+qhp.QmlLive.customFilters.QmlLive.name = QML Live $QT_VERSION
+qhp.QmlLive.customFilters.QmlLive.filterAttributes = QmlLive $QT_VERSION
 
 qhp.QmlLive.subprojects = manual
 qhp.QmlLive.subprojects.manual.title = Qt QML Live
@@ -40,4 +38,4 @@ qhp.QmlLive.subprojects.manual.indexTitle = Qt QML Live
 qhp.QmlLive.subprojects.manual.type = manual
 
 navigation.landingpage = "Qt QML Live"
-buildversion = "Qt QML Live $QMLLIVE_VERSION"
+buildversion = "Qt QML Live $QT_VERSION"

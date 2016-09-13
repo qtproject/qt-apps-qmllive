@@ -48,7 +48,6 @@ public:
 int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
-    app.setQuitOnLastWindowClosed(false);
 
     CustomQmlEngine qmlEngine;
     QQuickView fallbackView(&qmlEngine, 0);

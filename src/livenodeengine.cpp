@@ -455,7 +455,8 @@ void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &c
     file.write(content);
     file.close();
 
-    delayReload();
+    if (!m_activeFile.isEmpty())
+        delayReload();
 }
 
 

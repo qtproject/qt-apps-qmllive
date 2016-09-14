@@ -49,8 +49,11 @@ Rectangle {
     }
 
     Text {
-        anchors.centerIn: parent
+        anchors.fill: parent
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
         text: qsTr("An error occurred - please check the Log Output pane.")
+        wrapMode: Text.WordWrap
         font.pointSize: 20
         font.bold: true
         color: palette.text

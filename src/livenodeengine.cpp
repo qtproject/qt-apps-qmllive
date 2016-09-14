@@ -87,7 +87,7 @@ const char OVERLAY_PATH_SEPARATOR = '-';
  *          With this option enabled, updates can be received even if workspace
  *          is read only. Updates will be stored in a writable overlay stacked
  *          over the original workspace with the help of
- *          QQmlAbstractUrlInterceptor. Implies \l AllowUpdates.
+ *          QQmlAbstractUrlInterceptor. Requires \l AllowUpdates.
  *
  * \sa {QmlLive Runtime}
  */
@@ -529,6 +529,11 @@ void LiveNodeEngine::setWorkspace(const QString &path, WorkspaceOptions options)
 
     if (m_workspaceOptions & LoadDummyData)
         QmlHelper::loadDummyData(m_qmlEngine, m_workspace.absolutePath());
+
+    if ((m_workspaceOptions & UpdatesAsOverlay) && !(m_workspaceOptions & AllowUpdates)) {
+        qWarning() << "Got UpdatesAsOverlay without AllowUpdates. Enabling AllowUpdates.";
+        m_workspaceOptions |= AllowUpdates;
+    }
 
     if (m_workspaceOptions & UpdatesAsOverlay)
         initOverlay();

@@ -414,6 +414,11 @@ void LiveNodeEngine::reloadDocument()
         error.setDescription(tr("LiveNodeEngine: Cannot display this component: "
                                 "Root object is not a QQuickWindow nor a QQuickItem."));
         emit logErrors(QList<QQmlError>() << error);
+        if (m_fallbackView) {
+            m_fallbackView->setResizeMode(QQuickView::SizeRootObjectToView);
+            m_fallbackView->setSource(errorScreenUrl());
+            m_activeWindow = m_fallbackView;
+        }
     }
 
     if (m_activeWindow) {

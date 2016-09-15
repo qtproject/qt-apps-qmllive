@@ -3,7 +3,7 @@ include(../../qmllive.pri)
 TARGET = qmlliveruntime
 DESTDIR = $$BUILD_DIR/bin
 
-QT *= widgets quick
+QT *= quick
 macx*: CONFIG -= app_bundle
 
 SOURCES += main.cpp

@@ -29,7 +29,7 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QPointer>
 #include <QQuickItem>
@@ -93,7 +93,7 @@ Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtWarningMsg)
 
 int main (int argc, char** argv)
 {
-    QApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
 
     if (app.arguments().count() != 2 ||

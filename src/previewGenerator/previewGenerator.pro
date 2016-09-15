@@ -11,7 +11,7 @@ win32: target.path = $$PREFIX/bin
 else: target.path = $$PREFIX/libexec/qmllive
 INSTALLS += target
 
-QT = gui core quick widgets
+QT = gui core quick
 
 SOURCES += \
     main.cpp

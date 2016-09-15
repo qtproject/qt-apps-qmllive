@@ -32,7 +32,6 @@
 #include <QtGui>
 #include <QCryptographicHash>
 #include <QtQuick>
-#include <QtWidgets>
 
 #include "livenodeengine.h"
 #include "remotereceiver.h"
@@ -165,7 +164,7 @@ private slots:
 
 int main(int argc, char** argv)
 {
-    QApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     app.setApplicationName("QmlLiveRuntime");
     app.setOrganizationDomain("pelagicore.com");
     app.setOrganizationName("Pelagicore");

@@ -37,7 +37,7 @@
 #include "remotereceiver.h"
 #include "logger.h"
 #include "qmlhelper.h"
-
+#include "qmllive_version.h"
 
 struct Options
 {
@@ -166,8 +166,8 @@ int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
     app.setApplicationName("QmlLiveRuntime");
-    app.setOrganizationDomain("pelagicore.com");
-    app.setOrganizationName("Pelagicore");
+    app.setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
+    app.setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 
     parseArguments(app.arguments());
 

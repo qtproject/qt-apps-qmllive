@@ -143,6 +143,11 @@ The following custom qmake variables are recognized:
 \row
     \li QMLLIVE_REVISION
     \li The VCS revision number.
+
+\row
+    \li QMLLIVE_SETTINGS_VARIANT
+    \li Overrides \c QCoreApplication::organizationName which is used to determine
+        application specific \c QSettings storage.
 \endtable
 
 

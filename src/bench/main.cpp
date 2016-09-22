@@ -34,7 +34,7 @@
 
 #include "options.h"
 #include "mainwindow.h"
-
+#include "qmllive_version.h"
 
 static void setDarkStyle(QApplication *app)
 {
@@ -124,8 +124,8 @@ int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
     app.setApplicationName("QmlLiveBench");
-    app.setOrganizationDomain("pelagicore.com");
-    app.setOrganizationName("Pelagicore");
+    app.setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
+    app.setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
     app.setAttribute(Qt::AA_NativeWindows, true);
     app.setAttribute(Qt::AA_ImmediateWidgetCreation, true);
 

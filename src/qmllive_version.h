@@ -48,3 +48,11 @@ const char *const QMLLIVE_REVISION_STR = QT_STRINGIFY(QMLLIVE_REVISION);
 #else
 const char *const QMLLIVE_REVISION_STR = "";
 #endif
+
+#ifdef QMLLIVE_SETTINGS_VARIANT
+const char *const QMLLIVE_ORGANIZATION_NAME = QT_STRINGIFY(QMLLIVE_SETTINGS_VARIANT);
+const char *const QMLLIVE_ORGANIZATION_DOMAIN = "";
+#else
+const char *const QMLLIVE_ORGANIZATION_NAME = "Pelagicore";
+const char *const QMLLIVE_ORGANIZATION_DOMAIN = "pelagicore.com";
+#endif

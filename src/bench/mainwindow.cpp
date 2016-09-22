@@ -38,6 +38,7 @@
 
 #include "widgets/workspaceview.h"
 #include "widgets/logview.h"
+#include "aboutdialog.h"
 #include "livehubengine.h"
 #include "benchlivenodeengine.h"
 #include "qmlhelper.h"
@@ -201,6 +202,11 @@ void MainWindow::setupMenuBar()
     view->addAction(m_hostDock->toggleViewAction());
     m_logDockMenu = view->addMenu("Logs");
     m_logDockMenu->addAction(m_logDock->toggleViewAction());
+
+    QMenu *help = menuBar()->addMenu(tr("&Help"));
+    QAction *about = help->addAction(tr("About Qt QML Live..."));
+    connect(about, &QAction::triggered, this, [this]() { AboutDialog::exec(this); });
+    about->setMenuRole(QAction::AboutRole);
 }
 
 void MainWindow::init(Options *options)

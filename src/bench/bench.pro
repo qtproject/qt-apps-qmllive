@@ -8,6 +8,7 @@ CONFIG += c++11
 QT *= gui core quick widgets core-private
 
 SOURCES += \
+    aboutdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     optionsdialog.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
     options.cpp
 
 HEADERS += \
+    aboutdialog.h \
     mainwindow.h \
     optionsdialog.h \
     benchlivenodeengine.h \

@@ -35,6 +35,7 @@ public_headers += \
 
 HEADERS += \
     $$public_headers \
+    $$PWD/qmllive_version.h \
     $$PWD/watcher.h \
     $$PWD/imageadapter.h \
     $$PWD/contentpluginfactory.h \

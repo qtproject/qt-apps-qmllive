@@ -135,6 +135,14 @@ The following custom qmake variables are recognized:
     \li EXAMPLES_PREFIX
     \li Installation prefix for examples. Defaults to
         \c{$$[QT_INSTALL_LIBS]/qmllive/examples}.
+
+\row
+    \li QMLLIVE_VERSION_EXTRA
+    \li Distribution specific version description (spaces allowed).
+
+\row
+    \li QMLLIVE_REVISION
+    \li The VCS revision number.
 \endtable
 
 

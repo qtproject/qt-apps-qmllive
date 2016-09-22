@@ -198,7 +198,6 @@ void MainWindow::setupMenuBar()
 
     view->addSeparator();
     view->addAction(m_workspaceDock->toggleViewAction());
-    m_hostDock->close();
     view->addAction(m_hostDock->toggleViewAction());
     m_logDockMenu = view->addMenu("Logs");
     m_logDockMenu->addAction(m_logDock->toggleViewAction());

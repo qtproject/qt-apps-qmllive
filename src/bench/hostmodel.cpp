@@ -150,6 +150,33 @@ void HostModel::clear()
     endResetModel();
 }
 
+void HostModel::addOrUpdateHost(QSettings *s, const QString &name, const QString &address, int port)
+{
+    Q_ASSERT(s);
+
+    HostModel model;
+    model.restoreFromSettings(s);
+
+    Host *host = 0;
+    foreach (Host *existing, model.m_hosts) {
+        if (existing->name() == name) {
+            host = existing;
+            break;
+        }
+    }
+
+    if (host == 0) {
+        host = new Host(Host::Manual, &model);
+        host->setName(name);
+        model.addHost(host);
+    }
+
+    host->setAddress(address);
+    host->setPort(port);
+
+    model.saveToSettings(s);
+}
+
 QList<Host *> HostModel::findByAutoDiscoveryId(QUuid id) const
 {
     QList<Host *> hosts;

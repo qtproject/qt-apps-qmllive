@@ -36,6 +36,14 @@
 class Options : public QObject
 {
     Q_OBJECT
+
+public:
+    struct HostOptions {
+        QString name;
+        QString address;
+        int port = 10234;
+    };
+
 private:
     explicit Options(QObject *parent = 0);
 public:
@@ -58,6 +66,9 @@ public:
     bool stayOnTop() const;
     void setStayOnTop(bool stayOnTop);
 
+    QList<HostOptions> hostsToAdd() const;
+    void addHostToAdd(const HostOptions &hostOptions);
+
 private:
     static Options *s_instance;
     QString m_activeDocument;
@@ -65,5 +76,6 @@ private:
     QString m_pluginPath;
     QStringList m_importPaths;
     bool m_stayOnTop;
+    QList<HostOptions> m_hostsToAdd;
 };
 

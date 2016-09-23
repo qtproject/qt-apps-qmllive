@@ -32,6 +32,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "hostmodel.h"
 #include "options.h"
 #include "mainwindow.h"
 #include "qmllive_version.h"
@@ -75,12 +76,38 @@ static void parseArguments(const QStringList& arguments, Options *options)
     parser.addOption(importPathOption);
     QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");
     parser.addOption(stayOnTopOption);
+    QCommandLineOption addHostOption("addhost", "add or update remote host configuration and exit", "name,address[,port]");
+    parser.addOption(addHostOption);
 
     parser.process(arguments);
 
     options->setPluginPath(parser.value(pluginPathOption));
     options->setImportPaths(parser.values(importPathOption));
     options->setStayOnTop(parser.isSet(stayOnTopOption));
+
+    if (parser.isSet(addHostOption)) {
+        foreach (const QString &value, parser.values(addHostOption)) {
+            const QStringList split = value.split(QLatin1Char(','));
+            if (split.count() < 2 || split.count() > 3) {
+                qWarning() << "Invalid argument: " << value;
+                parser.showHelp(-1);
+            }
+
+            Options::HostOptions host;
+            host.name = split.at(0);
+            host.address = split.at(1);
+            if (split.count() == 3) {
+                bool ok;
+                host.port = split.at(2).toInt(&ok);
+                if (!ok) {
+                    qWarning() << "Port must be specified with a number" << value;
+                    parser.showHelp(-1);
+                }
+            }
+
+            options->addHostToAdd(host);
+        }
+    }
 
     const QStringList positionalArguments = parser.positionalArguments();
     if (positionalArguments.count() >= 1) {
@@ -133,6 +160,14 @@ int main(int argc, char** argv)
 
     Options *options = Options::instance();
     parseArguments(app.arguments(), options);
+
+    if (!options->hostsToAdd().isEmpty()) {
+        QSettings s;
+        foreach (const Options::HostOptions &host, options->hostsToAdd()) {
+            HostModel::addOrUpdateHost(&s, host.name, host.address, host.port);
+        }
+        return EXIT_SUCCESS;
+    }
 
     MainWindow win;
     win.init(options); // Parse and apply command line and settings file options

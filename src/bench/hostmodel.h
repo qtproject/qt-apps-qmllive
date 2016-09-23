@@ -57,6 +57,7 @@ public:
     void removeHost(int index);
     int indexOf(Host* host);
     void clear();
+    static void addOrUpdateHost(QSettings *s, const QString &name, const QString &address, int port);
 
     QList<Host*> findByAutoDiscoveryId(QUuid id) const;
 

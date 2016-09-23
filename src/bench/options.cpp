@@ -106,3 +106,13 @@ void Options::setStayOnTop(bool stayOnTop)
 {
     m_stayOnTop = stayOnTop;
 }
+
+QList<Options::HostOptions> Options::hostsToAdd() const
+{
+    return m_hostsToAdd;
+}
+
+void Options::addHostToAdd(const HostOptions &hostOptions)
+{
+    m_hostsToAdd.append(hostOptions);
+}

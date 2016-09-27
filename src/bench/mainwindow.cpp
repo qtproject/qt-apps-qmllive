@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_hostManager->setModel(m_hostModel);
     m_hostManager->setLiveHubEngine(m_hub);
+    m_hostManager->setFrameShape(QFrame::NoFrame);
 
     setWindowIcon(QIcon("://images/favicon.png"));
 

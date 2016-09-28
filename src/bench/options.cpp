@@ -44,6 +44,9 @@ bool Options::hasNoninteractiveOptions() const
     if (!m_hostsToAdd.isEmpty())
         return true;
 
+    if (!m_hostsToRemove.isEmpty())
+        return true;
+
     return false;
 }
 
@@ -125,4 +128,14 @@ QList<Options::HostOptions> Options::hostsToAdd() const
 void Options::addHostToAdd(const HostOptions &hostOptions)
 {
     m_hostsToAdd.append(hostOptions);
+}
+
+QStringList Options::hostsToRemove() const
+{
+    return m_hostsToRemove;
+}
+
+void Options::setHostsToRemove(const QStringList &hostNames)
+{
+    m_hostsToRemove = hostNames;
 }

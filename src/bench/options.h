@@ -72,6 +72,9 @@ public:
     QList<HostOptions> hostsToAdd() const;
     void addHostToAdd(const HostOptions &hostOptions);
 
+    QStringList hostsToRemove() const;
+    void setHostsToRemove(const QStringList &hostNames);
+
 private:
     bool m_remoteOnly;
     QString m_activeDocument;
@@ -80,5 +83,6 @@ private:
     QStringList m_importPaths;
     bool m_stayOnTop;
     QList<HostOptions> m_hostsToAdd;
+    QStringList m_hostsToRemove;
 };
 

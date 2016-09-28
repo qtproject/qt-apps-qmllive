@@ -185,6 +185,8 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addOption(stayOnTopOption);
     QCommandLineOption addHostOption("addhost", "add or update remote host configuration and exit", "name,address[,port]");
     parser.addOption(addHostOption);
+    QCommandLineOption rmHostOption("rmhost", "remove remote host configuration and exit", "name");
+    parser.addOption(rmHostOption);
     QCommandLineOption remoteOnlyOption("remoteonly", "talk to a running bench, do nothing if none is running.");
     parser.addOption(remoteOnlyOption);
 
@@ -218,6 +220,8 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
             options->addHostToAdd(host);
         }
     }
+
+    options->setHostsToRemove(parser.values(rmHostOption));
 
     const QStringList positionalArguments = parser.positionalArguments();
     if (positionalArguments.count() >= 1) {
@@ -358,24 +362,48 @@ void MasterApplication::applyOptions(const Options &options)
         m_window->setStaysOnTop(true);
     }
 
-    if (!options.hostsToAdd().isEmpty()) {
+    auto withHostModel = [this](std::function<void(HostModel *)> f) {
+        QSettings s;
+        HostModel *hostModel;
         if (!m_window->isInitialized()) {
-            QSettings s;
-            foreach (const Options::HostOptions &host, options.hostsToAdd()) {
-                HostModel::addOrUpdateHost(&s, host.name, host.address, host.port);
-            }
+            hostModel = new HostModel;
+            hostModel->restoreFromSettings(&s);
         } else {
+            hostModel = m_window->hostModel();
+        }
+
+        f(hostModel);
+
+        if (!m_window->isInitialized()) {
+            hostModel->saveToSettings(&s);
+            delete hostModel;
+        }
+    };
+
+    if (!options.hostsToAdd().isEmpty()) {
+        withHostModel([&options](HostModel *hostModel) {
             foreach (const Options::HostOptions &hostOptions, options.hostsToAdd()) {
-                Host *host = m_window->hostModel()->host(hostOptions.name);
+                Host *host = hostModel->host(hostOptions.name);
                 if (host == 0) {
                     host = new Host;
                     host->setName(hostOptions.name);
-                    m_window->hostModel()->addHost(host);
+                    hostModel->addHost(host);
                 }
                 host->setAddress(hostOptions.address);
                 host->setPort(hostOptions.port);
             }
-        }
+        });
+    }
+
+    if (!options.hostsToRemove().isEmpty()) {
+        withHostModel([&options](HostModel *hostModel) {
+            foreach (const QString &hostName, options.hostsToRemove()) {
+                if (Host *host = hostModel->host(hostName))
+                    hostModel->removeHost(host);
+                else
+                    qWarning() << "No such host: " << hostName;
+            }
+        });
     }
 }
 

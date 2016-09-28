@@ -52,6 +52,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , m_initialized(false)
     , m_workspace(new WorkspaceView())
     , m_log(new LogView(true, this))
     , m_hostManager(new HostManager(this))
@@ -209,31 +210,13 @@ void MainWindow::setupMenuBar()
     about->setMenuRole(QAction::AboutRole);
 }
 
-void MainWindow::init(Options *options)
+void MainWindow::init()
 {
-    Q_ASSERT(options);
-    if (!options->workspace().isEmpty()) {
-        setWorkspace(QDir(options->workspace()).absolutePath());
-    }
-    if (!options->pluginPath().isEmpty()) {
-        setPluginPath(QDir(options->pluginPath()).absolutePath());
-    }
-    if (!options->importPaths().isEmpty()) {
-        setImportPaths(options->importPaths());
-    }
-    if (!options->activeDocument().isEmpty()) {
-        activateDocument(options->activeDocument());
-    }
-
-    if (options->stayOnTop()) {
-        setStaysOnTop(true);
-    }
-
     QSettings s;
     restoreGeometry(s.value("geometry").toByteArray());
     //Only set the workspace if we didn't already set it by command line
-    if (options->workspace().isNull()) {
-        setWorkspace(s.value("workspace").toString());
+    if (m_workspacePath.isEmpty()) {
+        setWorkspace(s.value("workspace", QDir::currentPath()).toString());
     }
 
     if (s.value("http_proxy/enabled").toBool()) {
@@ -258,7 +241,7 @@ void MainWindow::init(Options *options)
     updateRecentFolder();
 
     //Only set the workspace if we didn't already set it by command line
-    if (options->activeDocument().isNull()) {
+    if (m_node->activeDocument().isEmpty()) {
         if (s.contains("activeDocument")) {
             activateDocument(s.value("activeDocument").toString());
         } else {
@@ -270,6 +253,8 @@ void MainWindow::init(Options *options)
 
     m_hostModel->restoreFromSettings(&s);
     restoreState(s.value("windowState").toByteArray());
+
+    m_initialized = true;
 }
 
 void MainWindow::writeSettings()
@@ -277,7 +262,7 @@ void MainWindow::writeSettings()
     QSettings s;
     s.setValue("geometry", saveGeometry());
     s.setValue("windowState", saveState());
-    s.setValue("workspace", m_hub->workspace());
+    s.setValue("workspace", m_workspacePath);
     s.setValue("activeDocument", m_node->activeDocument().toLocalFile());
 
     s.beginWriteArray("recentFolder");
@@ -355,6 +340,7 @@ void MainWindow::slowDownAnimations(bool enable)
 
 void MainWindow::setWorkspace(const QString& path)
 {
+    m_workspacePath = path;
     m_workspace->setRootPath(path);
     m_node->setWorkspace(path);
     m_hub->setWorkspace(path);

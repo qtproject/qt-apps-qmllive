@@ -61,6 +61,7 @@ public:
 
     QList<Host*> findByAutoDiscoveryId(QUuid id) const;
 
+    Host* host(const QString &name) const;
     Host* hostAt(int index) const;
 
     void restoreFromSettings(QSettings* s);

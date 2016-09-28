@@ -37,13 +37,120 @@
 #include "mainwindow.h"
 #include "qmllive_version.h"
 
-static void setDarkStyle(QApplication *app)
+class Application : public QApplication
+{
+    Q_OBJECT
+
+public:
+    static Application *create(int &argc, char **argv);
+
+protected:
+    Application(int &argc, char **argv);
+    static bool isMaster();
+
+    QString serverName() const;
+    void setDarkStyle();
+    void parseArguments(const QStringList &arguments, Options *options);
+};
+
+class MasterApplication : public Application
+{
+    Q_OBJECT
+
+public:
+    MasterApplication(int &argc, char **argv);
+
+private:
+    void listenForArguments();
+    void applyOptions(const Options &options);
+
+private:
+    QPointer<MainWindow> m_window;
+};
+
+class SlaveApplication : public Application
+{
+    Q_OBJECT
+
+public:
+    SlaveApplication(int &argc, char **argv);
+
+private:
+    void warnAboutIgnoredOptions(const Options &options);
+    void forwardArguments();
+};
+
+Application *Application::create(int &argc, char **argv)
+{
+    setApplicationName("QmlLiveBench");
+    setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
+    setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
+
+    if (isMaster())
+        return new MasterApplication(argc, argv);
+    else
+        return new SlaveApplication(argc, argv);
+}
+
+Application::Application(int &argc, char **argv)
+    : QApplication(argc, argv)
+{
+    setAttribute(Qt::AA_NativeWindows, true);
+    setAttribute(Qt::AA_ImmediateWidgetCreation, true);
+
+    setDarkStyle();
+}
+
+bool Application::isMaster()
+{
+    Q_ASSERT(!applicationName().isEmpty());
+    Q_ASSERT(!organizationDomain().isEmpty() || !organizationName().isEmpty());
+
+    static QSharedMemory *lock = 0;
+    static bool retv = false;
+
+    if (lock != 0)
+        return retv;
+
+    const QString key = QString::fromLatin1("%1.%2-lock")
+        .arg(organizationDomain().isEmpty() ? organizationName() : organizationDomain())
+        .arg(applicationName());
+
+    lock = new QSharedMemory(key, qApp);
+
+#ifdef Q_OS_UNIX
+    // Ensure there is no stale shared memory segment after crash - call QSharedMemory destructor
+    { QSharedMemory(key).attach(); }
+#endif
+
+    if (lock->attach(QSharedMemory::ReadOnly)) {
+        lock->detach();
+        return retv = false;
+    }
+
+    if (!lock->create(1))
+        return retv = false;
+
+    return retv = true;
+}
+
+QString Application::serverName() const
+{
+    Q_ASSERT(!applicationName().isEmpty());
+    Q_ASSERT(!organizationDomain().isEmpty() || !organizationName().isEmpty());
+
+    return QString::fromLatin1("%1.%2-app")
+        .arg(organizationDomain().isEmpty() ? organizationName() : organizationDomain())
+        .arg(applicationName());
+}
+
+void Application::setDarkStyle()
 {
     QStyle *style = QStyleFactory::create("fusion");
     if (!style) {
         return;
     }
-    app->setStyle(style);
+    setStyle(style);
 
     QPalette palette;
     palette.setColor(QPalette::Window, QColor("#3D3D3D"));
@@ -58,10 +165,10 @@ static void setDarkStyle(QApplication *app)
     palette.setColor(QPalette::BrightText, QColor("#D0021B"));
     palette.setColor(QPalette::Highlight, QColor("#F19300"));
     palette.setColor(QPalette::HighlightedText, QColor("#1C1C1C"));
-    app->setPalette(palette);
+    setPalette(palette);
 }
 
-static void parseArguments(const QStringList& arguments, Options *options)
+void Application::parseArguments(const QStringList &arguments, Options *options)
 {
     QCommandLineParser parser;
     parser.setApplicationDescription("QmlLive reloading workbench");
@@ -78,9 +185,12 @@ static void parseArguments(const QStringList& arguments, Options *options)
     parser.addOption(stayOnTopOption);
     QCommandLineOption addHostOption("addhost", "add or update remote host configuration and exit", "name,address[,port]");
     parser.addOption(addHostOption);
+    QCommandLineOption remoteOnlyOption("remoteonly", "talk to a running bench, do nothing if none is running.");
+    parser.addOption(remoteOnlyOption);
 
     parser.process(arguments);
 
+    options->setRemoteOnly(parser.isSet(remoteOnlyOption));
     options->setPluginPath(parser.value(pluginPathOption));
     options->setImportPaths(parser.values(importPathOption));
     options->setStayOnTop(parser.isSet(stayOnTopOption));
@@ -147,31 +257,179 @@ static void parseArguments(const QStringList& arguments, Options *options)
     }
 }
 
-int main(int argc, char** argv)
+/*
+ * class MasterApplication
+ */
+
+MasterApplication::MasterApplication(int &argc, char **argv)
+    : Application(argc, argv)
+    , m_window(new MainWindow)
 {
-    QApplication app(argc, argv);
-    app.setApplicationName("QmlLiveBench");
-    app.setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
-    app.setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
-    app.setAttribute(Qt::AA_NativeWindows, true);
-    app.setAttribute(Qt::AA_ImmediateWidgetCreation, true);
+    Options options;
+    parseArguments(arguments(), &options);
 
-    setDarkStyle(&app);
-
-    Options *options = Options::instance();
-    parseArguments(app.arguments(), options);
-
-    if (!options->hostsToAdd().isEmpty()) {
-        QSettings s;
-        foreach (const Options::HostOptions &host, options->hostsToAdd()) {
-            HostModel::addOrUpdateHost(&s, host.name, host.address, host.port);
-        }
-        return EXIT_SUCCESS;
+    if (options.remoteOnly()) {
+        QTimer::singleShot(0, this, &QCoreApplication::quit);
+        return;
     }
 
-    MainWindow win;
-    win.init(options); // Parse and apply command line and settings file options
-    win.show();
+    applyOptions(options);
 
-    return app.exec();
+    if (options.hasNoninteractiveOptions()) {
+        QTimer::singleShot(0, this, &QCoreApplication::quit);
+    } else {
+        m_window->init();
+        m_window->show();
+        listenForArguments();
+    }
 }
+
+void MasterApplication::listenForArguments()
+{
+    QLocalServer *server = new QLocalServer(this);
+
+    // Remove possibly stale server socket
+    QLocalServer::removeServer(serverName());
+
+    if (!server->listen(serverName())) {
+        qWarning() << "Failed to listen on local socket: " << server->errorString();
+        return;
+    }
+
+    auto handleConnection = [this](QLocalSocket *connection) {
+        auto QLocalSocket_error = static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error);
+        connect(connection, QLocalSocket_error, this, [connection]() {
+            qWarning() << "Error receiving arguments:" << connection->errorString();
+            connection->close();
+        });
+
+        connect(connection, &QLocalSocket::readyRead, this, [this, connection]() {
+            QStringList arguments;
+
+            QDataStream in(connection);
+            in.startTransaction();
+            in >> arguments;
+            if (!in.commitTransaction())
+                return;
+
+            Options options;
+            parseArguments(arguments, &options);
+            applyOptions(options);
+
+            connection->close();
+
+            if (!options.hasNoninteractiveOptions() && !options.remoteOnly())
+                m_window->activateWindow();
+        });
+
+        connect(connection, &QLocalSocket::disconnected, connection, &QObject::deleteLater);
+    };
+
+    connect(server, &QLocalServer::newConnection, this, [this, server, handleConnection]() {
+        while (QLocalSocket *connection = server->nextPendingConnection())
+            handleConnection(connection);
+    });
+}
+
+void MasterApplication::applyOptions(const Options &options)
+{
+    if (!options.workspace().isEmpty())
+        m_window->setWorkspace(QDir(options.workspace()).absolutePath());
+
+    if (!options.pluginPath().isEmpty()) {
+        if (!m_window->isInitialized())
+            m_window->setPluginPath(QDir(options.pluginPath()).absolutePath());
+        else
+            qDebug() << "Ignoring attempt to set plugin path after initialization.";
+    }
+
+    if (!options.importPaths().isEmpty()) {
+        if (!m_window->isInitialized())
+            m_window->setImportPaths(options.importPaths());
+        else
+            qDebug() << "Ignoring attempt to set import paths after initialization.";
+    }
+
+    if (!options.activeDocument().isEmpty()) {
+        m_window->activateDocument(options.activeDocument());
+    }
+
+    if (options.stayOnTop()) {
+        m_window->setStaysOnTop(true);
+    }
+
+    if (!options.hostsToAdd().isEmpty()) {
+        if (!m_window->isInitialized()) {
+            QSettings s;
+            foreach (const Options::HostOptions &host, options.hostsToAdd()) {
+                HostModel::addOrUpdateHost(&s, host.name, host.address, host.port);
+            }
+        } else {
+            foreach (const Options::HostOptions &hostOptions, options.hostsToAdd()) {
+                Host *host = m_window->hostModel()->host(hostOptions.name);
+                if (host == 0) {
+                    host = new Host;
+                    host->setName(hostOptions.name);
+                    m_window->hostModel()->addHost(host);
+                }
+                host->setAddress(hostOptions.address);
+                host->setPort(hostOptions.port);
+            }
+        }
+    }
+}
+
+/*
+ * class SlaveApplication
+ */
+
+SlaveApplication::SlaveApplication(int &argc, char **argv)
+    : Application(argc, argv)
+{
+    Options options;
+    parseArguments(arguments(), &options);
+
+    if (!options.remoteOnly() && !options.hasNoninteractiveOptions())
+        qInfo() << "Another instance running. Activating...";
+
+    warnAboutIgnoredOptions(options);
+    forwardArguments();
+}
+
+void SlaveApplication::warnAboutIgnoredOptions(const Options &options)
+{
+    if (!options.pluginPath().isEmpty())
+        qWarning() << "Ignoring --pluginpath option";
+
+    if (!options.importPaths().isEmpty())
+        qWarning() << "Ignoring --importpaths option";
+}
+
+void SlaveApplication::forwardArguments()
+{
+    QLocalSocket *socket = new QLocalSocket(this);
+
+    auto QLocalSocket_error = static_cast<void(QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error);
+    connect(socket, QLocalSocket_error, this, [socket]() {
+        qCritical() << "Error forwarding arguments:" << socket->errorString();
+        exit(1);
+    });
+
+    connect(socket, &QLocalSocket::connected, this, [socket]() {
+        QDataStream out(socket);
+        out << arguments();
+        socket->disconnectFromServer();
+    });
+
+    connect(socket, &QLocalSocket::disconnected, this, &QCoreApplication::quit);
+
+    socket->connectToServer(serverName());
+}
+
+int main(int argc, char** argv)
+{
+    QScopedPointer<Application> app(Application::create(argc, argv));
+    return app->exec();
+}
+
+#include "main.moc"

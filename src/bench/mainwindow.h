@@ -62,7 +62,11 @@ public:
     void setPluginPath(const QString& path);
     void setImportPaths(const QStringList& pathList);
     void setStaysOnTop(bool enabled);
-    void init(Options *options);
+    void init();
+    bool isInitialized() const { return m_initialized; }
+
+    HostModel *hostModel() const { return m_hostModel; }
+
 protected:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);
@@ -93,8 +97,12 @@ private slots:
 
 private:
     void updateRecentFolder(const QString &path = QString());
+
+private:
+    bool m_initialized;
     WindowWidget *m_ww;
     WorkspaceView *m_workspace;
+    QString m_workspacePath;
     LogView *m_log;
     QUrl m_currentSource;
     QDockWidget *m_logDock;

@@ -31,20 +31,30 @@
 
 #include "options.h"
 
-Options *Options::s_instance(nullptr);
-
 Options::Options(QObject *parent)
     : QObject(parent)
-
+    , m_remoteOnly(false)
+    , m_stayOnTop(false)
 {
 
 }
 
-Options *Options::instance() {
-    if (!s_instance) {
-        s_instance = new Options(QCoreApplication::instance());
-    }
-    return s_instance;
+bool Options::hasNoninteractiveOptions() const
+{
+    if (!m_hostsToAdd.isEmpty())
+        return true;
+
+    return false;
+}
+
+bool Options::remoteOnly() const
+{
+    return m_remoteOnly;
+}
+
+void Options::setRemoteOnly(bool remoteOnly)
+{
+    m_remoteOnly = remoteOnly;
 }
 
 QString Options::activeDocument() const

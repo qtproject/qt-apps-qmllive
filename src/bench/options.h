@@ -44,10 +44,13 @@ public:
         int port = 10234;
     };
 
-private:
-    explicit Options(QObject *parent = 0);
 public:
-    static Options *instance();
+    explicit Options(QObject *parent = 0);
+
+    bool hasNoninteractiveOptions() const;
+
+    bool remoteOnly() const;
+    void setRemoteOnly(bool remoteOnly);
 
     QString activeDocument() const;
     void setActiveDocument(const QString &activeDocument);
@@ -70,7 +73,7 @@ public:
     void addHostToAdd(const HostOptions &hostOptions);
 
 private:
-    static Options *s_instance;
+    bool m_remoteOnly;
     QString m_activeDocument;
     QString m_workspace;
     QString m_pluginPath;

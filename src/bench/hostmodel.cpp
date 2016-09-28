@@ -188,6 +188,16 @@ QList<Host *> HostModel::findByAutoDiscoveryId(QUuid id) const
     return hosts;
 }
 
+Host *HostModel::host(const QString &name) const
+{
+    foreach (Host *host, m_hosts) {
+        if (host->name() == name)
+            return host;
+    }
+
+    return 0;
+}
+
 Host *HostModel::hostAt(int index) const
 {
     if (index < 0 || index >= m_hosts.count())

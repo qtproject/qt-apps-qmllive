@@ -86,7 +86,10 @@ Application *Application::create(int &argc, char **argv)
     setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 
-    if (isMaster())
+    // Workaround: Cannot use QCoreApplication::arguments before app is instantiated
+    const bool hasNoRemoteOption = argc >= 2 && QString::fromLocal8Bit(argv[1]) == QLatin1String("--noremote");
+
+    if (hasNoRemoteOption || isMaster())
         return new MasterApplication(argc, argv);
     else
         return new SlaveApplication(argc, argv);
@@ -187,12 +190,21 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addOption(addHostOption);
     QCommandLineOption rmHostOption("rmhost", "remove remote host configuration and exit", "name");
     parser.addOption(rmHostOption);
+    QCommandLineOption noRemoteOption("noremote", "do not try to talk to a running bench, do not listen for remote "
+                                      "connections. It MUST BE the VERY FIRST argument on command line.");
+    parser.addOption(noRemoteOption);
     QCommandLineOption remoteOnlyOption("remoteonly", "talk to a running bench, do nothing if none is running.");
     parser.addOption(remoteOnlyOption);
 
     parser.process(arguments);
 
+    options->setNoRemote(parser.isSet(noRemoteOption));
     options->setRemoteOnly(parser.isSet(remoteOnlyOption));
+    if (options->noRemote() && options->remoteOnly()) {
+        qWarning() << "Options --noremote and --remoteonly cannot be used together";
+        parser.showHelp(-1);
+    }
+
     options->setPluginPath(parser.value(pluginPathOption));
     options->setImportPaths(parser.values(importPathOption));
     options->setStayOnTop(parser.isSet(stayOnTopOption));
@@ -284,7 +296,8 @@ MasterApplication::MasterApplication(int &argc, char **argv)
     } else {
         m_window->init();
         m_window->show();
-        listenForArguments();
+        if (!options.noRemote())
+            listenForArguments();
     }
 }
 

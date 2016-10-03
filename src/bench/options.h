@@ -49,6 +49,9 @@ public:
 
     bool hasNoninteractiveOptions() const;
 
+    bool noRemote() const;
+    void setNoRemote(bool noRemote);
+
     bool remoteOnly() const;
     void setRemoteOnly(bool remoteOnly);
 
@@ -76,6 +79,7 @@ public:
     void setHostsToRemove(const QStringList &hostNames);
 
 private:
+    bool m_noRemote;
     bool m_remoteOnly;
     QString m_activeDocument;
     QString m_workspace;

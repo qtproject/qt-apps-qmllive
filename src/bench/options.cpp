@@ -33,6 +33,7 @@
 
 Options::Options(QObject *parent)
     : QObject(parent)
+    , m_noRemote(false)
     , m_remoteOnly(false)
     , m_stayOnTop(false)
 {
@@ -48,6 +49,16 @@ bool Options::hasNoninteractiveOptions() const
         return true;
 
     return false;
+}
+
+bool Options::noRemote() const
+{
+    return m_noRemote;
+}
+
+void Options::setNoRemote(bool noRemote)
+{
+    m_noRemote = noRemote;
 }
 
 bool Options::remoteOnly() const

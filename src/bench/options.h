@@ -55,6 +55,9 @@ public:
     bool remoteOnly() const;
     void setRemoteOnly(bool remoteOnly);
 
+    bool ping() const;
+    void setPing(bool ping);
+
     QString activeDocument() const;
     void setActiveDocument(const QString &activeDocument);
 
@@ -81,6 +84,7 @@ public:
 private:
     bool m_noRemote;
     bool m_remoteOnly;
+    bool m_ping;
     QString m_activeDocument;
     QString m_workspace;
     QString m_pluginPath;

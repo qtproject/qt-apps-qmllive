@@ -35,6 +35,7 @@ Options::Options(QObject *parent)
     : QObject(parent)
     , m_noRemote(false)
     , m_remoteOnly(false)
+    , m_ping(false)
     , m_stayOnTop(false)
 {
 
@@ -69,6 +70,16 @@ bool Options::remoteOnly() const
 void Options::setRemoteOnly(bool remoteOnly)
 {
     m_remoteOnly = remoteOnly;
+}
+
+bool Options::ping() const
+{
+    return m_ping;
+}
+
+void Options::setPing(bool ping)
+{
+    m_ping = ping;
 }
 
 QString Options::activeDocument() const

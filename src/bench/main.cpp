@@ -195,15 +195,23 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addOption(noRemoteOption);
     QCommandLineOption remoteOnlyOption("remoteonly", "talk to a running bench, do nothing if none is running.");
     parser.addOption(remoteOnlyOption);
+    QCommandLineOption pingOption("ping", "just check if there is a bench running and accepting remote connections.");
+    parser.addOption(pingOption);
 
     parser.process(arguments);
 
     options->setNoRemote(parser.isSet(noRemoteOption));
     options->setRemoteOnly(parser.isSet(remoteOnlyOption));
+    options->setPing(parser.isSet(pingOption));
     if (options->noRemote() && options->remoteOnly()) {
         qWarning() << "Options --noremote and --remoteonly cannot be used together";
         parser.showHelp(-1);
     }
+    if (options->noRemote() && options->ping()) {
+        qWarning() << "Options --noremote and --ping cannot be used together";
+        parser.showHelp(-1);
+    }
+
 
     options->setPluginPath(parser.value(pluginPathOption));
     options->setImportPaths(parser.values(importPathOption));
@@ -283,6 +291,11 @@ MasterApplication::MasterApplication(int &argc, char **argv)
 {
     Options options;
     parseArguments(arguments(), &options);
+
+    if (options.ping()) {
+        QTimer::singleShot(0, [] { QCoreApplication::exit(1); });
+        return;
+    }
 
     if (options.remoteOnly()) {
         QTimer::singleShot(0, this, &QCoreApplication::quit);
@@ -429,6 +442,11 @@ SlaveApplication::SlaveApplication(int &argc, char **argv)
 {
     Options options;
     parseArguments(arguments(), &options);
+
+    if (options.ping()) {
+        QTimer::singleShot(0, &QCoreApplication::quit);
+        return;
+    }
 
     if (!options.remoteOnly() && !options.hasNoninteractiveOptions())
         qInfo() << "Another instance running. Activating...";

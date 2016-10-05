@@ -58,6 +58,7 @@ public slots:
     void setCurrentFile(const QString& currentFile);
     void publishAll();
     void refreshAll();
+    void probe(const QString &hostName);
 
 private slots:
     void rowsInserted(const QModelIndex& parent, int start, int end);\

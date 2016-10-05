@@ -117,6 +117,19 @@ void HostManager::refreshAll()
     }
 }
 
+void HostManager::probe(const QString &hostName)
+{
+    int index = m_model->indexOf(hostName);
+    if (index < 0) {
+        qWarning() << "No such host: " << hostName;
+        return;
+    }
+
+    HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(index, 0)));
+    Q_ASSERT(widget);
+    widget->probe();
+}
+
 void HostManager::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     if (parent.isValid())

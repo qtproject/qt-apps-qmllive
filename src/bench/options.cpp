@@ -49,6 +49,9 @@ bool Options::hasNoninteractiveOptions() const
     if (!m_hostsToRemove.isEmpty())
         return true;
 
+    if (!m_hostsToProbe.isEmpty())
+        return true;
+
     return false;
 }
 
@@ -160,4 +163,14 @@ QStringList Options::hostsToRemove() const
 void Options::setHostsToRemove(const QStringList &hostNames)
 {
     m_hostsToRemove = hostNames;
+}
+
+QStringList Options::hostsToProbe() const
+{
+    return m_hostsToProbe;
+}
+
+void Options::setHostsToProbe(const QStringList &hostNames)
+{
+    m_hostsToProbe = hostNames;
 }

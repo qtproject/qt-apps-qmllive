@@ -142,6 +142,16 @@ int HostModel::indexOf(Host *host)
     return m_hosts.indexOf(host);
 }
 
+int HostModel::indexOf(const QString &hostName)
+{
+    for (int i = 0; i < m_hosts.count(); ++i) {
+        if (m_hosts.at(i)->name() == hostName)
+            return i;
+    }
+
+    return -1;
+}
+
 void HostModel::clear()
 {
     beginResetModel();

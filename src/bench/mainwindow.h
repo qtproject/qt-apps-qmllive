@@ -66,6 +66,7 @@ public:
     bool isInitialized() const { return m_initialized; }
 
     HostModel *hostModel() const { return m_hostModel; }
+    HostManager *hostManager() const { return m_hostManager; }
 
 protected:
     void closeEvent(QCloseEvent *event);

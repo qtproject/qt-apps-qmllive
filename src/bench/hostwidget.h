@@ -55,6 +55,7 @@ signals:
     void clearLog();
 
 public slots:
+    void probe();
     void publishWorkspace();
     void refresh();
 

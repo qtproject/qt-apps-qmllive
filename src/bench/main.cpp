@@ -32,6 +32,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "hostmanager.h"
 #include "hostmodel.h"
 #include "options.h"
 #include "mainwindow.h"
@@ -190,6 +191,10 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addOption(addHostOption);
     QCommandLineOption rmHostOption("rmhost", "remove remote host configuration and exit", "name");
     parser.addOption(rmHostOption);
+    // All hosts are probed on startup, so only need to handle this as remote command
+    QCommandLineOption probeHostOption("probehost", "suggest host became online and should be connected "
+                                       "(implies --remoteonly)", "name");
+    parser.addOption(probeHostOption);
     QCommandLineOption noRemoteOption("noremote", "do not try to talk to a running bench, do not listen for remote "
                                       "connections. It MUST BE the VERY FIRST argument on command line.");
     parser.addOption(noRemoteOption);
@@ -200,11 +205,22 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
 
     parser.process(arguments);
 
+    bool remoteOnlyImplied = false;
+    if (parser.isSet(probeHostOption)) {
+        options->setRemoteOnly(true);
+        remoteOnlyImplied = true;
+    }
+    if (parser.isSet(remoteOnlyOption)) {
+        options->setRemoteOnly(true);
+        remoteOnlyImplied = false;
+    }
     options->setNoRemote(parser.isSet(noRemoteOption));
-    options->setRemoteOnly(parser.isSet(remoteOnlyOption));
     options->setPing(parser.isSet(pingOption));
     if (options->noRemote() && options->remoteOnly()) {
-        qWarning() << "Options --noremote and --remoteonly cannot be used together";
+        if (remoteOnlyImplied)
+            qWarning() << "Options --noremote and --remoteonly (implied) cannot be used together";
+        else
+            qWarning() << "Options --noremote and --remoteonly cannot be used together";
         parser.showHelp(-1);
     }
     if (options->noRemote() && options->ping()) {
@@ -242,6 +258,7 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     }
 
     options->setHostsToRemove(parser.values(rmHostOption));
+    options->setHostsToProbe(parser.values(probeHostOption));
 
     const QStringList positionalArguments = parser.positionalArguments();
     if (positionalArguments.count() >= 1) {
@@ -430,6 +447,13 @@ void MasterApplication::applyOptions(const Options &options)
                     qWarning() << "No such host: " << hostName;
             }
         });
+    }
+
+    if (!options.hostsToProbe().isEmpty()) {
+        // This is a remote-only option.
+        Q_ASSERT(m_window->isInitialized());
+        foreach (const QString &hostName, options.hostsToProbe())
+            m_window->hostManager()->probe(hostName);
     }
 }
 

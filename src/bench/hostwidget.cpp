@@ -285,6 +285,11 @@ void HostWidget::refresh()
     connectAndSendFile();
 }
 
+void HostWidget::probe()
+{
+    connectToServer();
+}
+
 void HostWidget::publishWorkspace()
 {
     connectToServer();

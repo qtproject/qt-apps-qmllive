@@ -56,6 +56,7 @@ public:
     void removeHost(Host* host);
     void removeHost(int index);
     int indexOf(Host* host);
+    int indexOf(const QString &hostName);
     void clear();
 
     QList<Host*> findByAutoDiscoveryId(QUuid id) const;

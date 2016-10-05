@@ -81,6 +81,9 @@ public:
     QStringList hostsToRemove() const;
     void setHostsToRemove(const QStringList &hostNames);
 
+    QStringList hostsToProbe() const;
+    void setHostsToProbe(const QStringList &hostNames);
+
 private:
     bool m_noRemote;
     bool m_remoteOnly;
@@ -92,5 +95,6 @@ private:
     bool m_stayOnTop;
     QList<HostOptions> m_hostsToAdd;
     QStringList m_hostsToRemove;
+    QStringList m_hostsToProbe;
 };
 

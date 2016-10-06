@@ -1,4 +1,4 @@
-android|ios {
+android|ios|qnx {
     message("Note: the bench, examples and shared library will not be built on this platform")
     CONFIG += skip-bench skip-examples static-link-runtime
 }

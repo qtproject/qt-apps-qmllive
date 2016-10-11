@@ -44,7 +44,7 @@
     contentadapterinterface.h in the QmlLive source code. This
     interface can be used to add a new ContentAdapter to QmlLive.
     The ContentAdapter will be used to display any content that shouldn't be
-    handled by the LiveRuntime, like displaying an image.
+    handled by the QmlLive Runtime, like displaying an image.
 
     \snippet contentadapterinterface.h 0
 

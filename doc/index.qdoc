@@ -32,13 +32,13 @@
 /*!
 
 \page index.html
-\keyword Pelagicore QML Live Reference Documentation
+\keyword Pelagicore QmlLive Reference Documentation
 \indexpage
-\title Qt QML Live
+\title Qt QmlLive
 
 \chapter Overview
 
-QmlLive is a local and remote QtQuick live reloading system. It allows you to
+Qt QmlLive is a local and remote Qt Quick live reloading system. It allows you to
 change your QML user interface source code and view the result in almost
 realtime.
 
@@ -68,7 +68,7 @@ The content of the documentation:
     \li \l{Concepts} - General overview of the system
     \li \l{qmllive-reference}{Reference} - The API reference to build your custom render scene
     \list
-      \li \l{qmllive}{QmlLive} - The QmlLIve library API
+      \li \l{qmllive}{QmlLive} - The QmlLive library API
       \li \l{ipc}{IPC} - The internal IPC API
     \endlist
 
@@ -79,7 +79,7 @@ The content of the documentation:
 
 /*!
  * \page qmllive-reference
- * \title Reference
+ * \title API Reference
  *
  *
  * \list

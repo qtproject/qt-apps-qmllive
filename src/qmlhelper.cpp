@@ -34,7 +34,7 @@
 
 /*!
  * \class QmlHelper
- * \brief Provides a set of helper functions to setup your qml viewer
+ * \brief Provides a set of helper functions to setup your QML viewer
  * \inmodule qmllive
  */
 

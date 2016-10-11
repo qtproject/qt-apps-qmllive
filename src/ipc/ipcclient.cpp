@@ -115,7 +115,7 @@ QAbstractSocket::SocketState IpcClient::state() const
 }
 
 /*!
- * Sets the Ip-Address to \a hostName and port to \a port to be used for a ipc call.
+ * Sets the Ip-Address to \a hostName and port to \a port to be used for a IPC call.
  */
 void IpcClient::connectToServer(const QString &hostName, int port)
 {

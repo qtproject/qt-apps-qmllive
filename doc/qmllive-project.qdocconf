@@ -1,5 +1,5 @@
-project = QML Live
-description = Pelagicore QML Live Reference Documentation
+project = QmlLive
+description = Pelagicore QmlLive Reference Documentation
 url = https://doc.qt.io/QmlLive
 version = $QT_VERSION
 
@@ -25,17 +25,17 @@ qhp.projects                    = QmlLive
 qhp.QmlLive.file                = qmllive.qhp
 qhp.QmlLive.namespace           = io.qt.qmllive.$QT_VERSION_TAG
 qhp.QmlLive.virtualFolder       = qmllive
-qhp.QmlLive.indexTitle          = Qt QML Live
+qhp.QmlLive.indexTitle          = Qt QmlLive
 qhp.QmlLive.indexRoot           =
 
 qhp.QmlLive.filterAttributes = QmlLive $QT_VERSION
-qhp.QmlLive.customFilters.QmlLive.name = QML Live $QT_VERSION
+qhp.QmlLive.customFilters.QmlLive.name = QmlLive $QT_VERSION
 qhp.QmlLive.customFilters.QmlLive.filterAttributes = QmlLive $QT_VERSION
 
 qhp.QmlLive.subprojects = manual
-qhp.QmlLive.subprojects.manual.title = Qt QML Live
-qhp.QmlLive.subprojects.manual.indexTitle = Qt QML Live
+qhp.QmlLive.subprojects.manual.title = Qt QmlLive
+qhp.QmlLive.subprojects.manual.indexTitle = Qt QmlLive
 qhp.QmlLive.subprojects.manual.type = manual
 
-navigation.landingpage = "Qt QML Live"
-buildversion = "Qt QML Live $QT_VERSION"
+navigation.landingpage = "Qt QmlLive"
+buildversion = "Qt QmlLive $QT_VERSION"

@@ -49,7 +49,7 @@
     $ make
 \endcode
 
-QML Live Bench can be started directly from build directory by executing
+QmlLive Bench can be started directly from build directory by executing
 \c{./bin/qmllivebench}. Optionally it can be installed with
 
 \code
@@ -99,7 +99,7 @@ The following values can be added to qmake \c CONFIG variable:
 
 \row
     \li skip-bench
-    \li Do not build \l{Workbench}{QML Live Bench}
+    \li Do not build \l{The Workbench}{QmlLive Bench}
 
 \row
     \li skip-examples
@@ -107,7 +107,7 @@ The following values can be added to qmake \c CONFIG variable:
 
 \row
     \li skip-runtime
-    \li Do not build \l{QmlLive Runtime}{QML Live Runtime}
+    \li Do not build \l{QmlLive Runtime}
 
 \row
     \li skip-tests
@@ -115,8 +115,8 @@ The following values can be added to qmake \c CONFIG variable:
 
 \row
     \li static-link-runtime
-    \li Produce a single-binary QML Live Runtime executable. Without this option
-        enabled QML Live Runtime executable requires the \c libqmllive dynamic
+    \li Produce a single-binary QmlLive Runtime executable. Without this option
+        enabled QmlLive Runtime executable requires the \c libqmllive dynamic
         library to be copied to the target.
 \endtable
 

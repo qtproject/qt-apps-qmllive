@@ -33,9 +33,10 @@
 /*!
     \module qmllive
 
-    \title Live Module
-    \brief Classes for watching a workspace and for local and remote reloading of QtQuick user interfaces
+    \title QmlLive Module
+    \brief Classes for watching a workspace and for local and remote reloading of Qt Quick user interfaces
 
-    The live module allows a developer to quickly create his own instance of a workbench or a live runtime.
+    The QmlLive module allows a developer to quickly create his own instance of
+    a QmlLive workbench or a QmlLive runtime.
 
  */

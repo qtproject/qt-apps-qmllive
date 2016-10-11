@@ -36,10 +36,10 @@
 
 /*!
  * \class LiveRuntime
- * \brief Collects properties to be used for an enhanced live runtime.
+ * \brief Collects properties to be used for an enhanced QmlLive runtime.
  * \inmodule qmllive
  *
- * This runtime is used in an live enhanced qml project to be able to access more
+ * This runtime is used in a live enhanced QML project to be able to access more
  * advanced features. Currently it does nothing
  */
 

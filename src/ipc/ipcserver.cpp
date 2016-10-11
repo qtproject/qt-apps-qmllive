@@ -126,9 +126,9 @@ void IpcServer::setMaxConnections(int num)
 
 /*!
  * \fn void IpcServer::received(const QString& method, const QByteArray& content)
- * \brief signals a ipc call has arrived
+ * \brief signals a IPC call has arrived
  *
- * A ipc call requesting \a method and using \a content a the parameters for the method
+ * A IPC call requesting \a method and using \a content a the parameters for the method
  */
 
 /*!

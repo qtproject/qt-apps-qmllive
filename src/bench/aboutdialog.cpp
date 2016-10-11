@@ -60,7 +60,7 @@ AboutDialog::AboutDialog(QWidget *parent)
 #endif
 
     QString about = tr(
-        "<h3>Qt QML Live %1%2</h3>"
+        "<h3>Qt QmlLive %1%2</h3>"
         "%3"
         "<p>%4</p>"
         "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, "

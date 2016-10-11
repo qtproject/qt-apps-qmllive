@@ -53,14 +53,14 @@ int main(int argc, char **argv)
     QQuickView fallbackView(&qmlEngine, 0);
 
     LiveNodeEngine node;
-    // Let qml live know your runtime
+    // Let QmlLive know your runtime
     node.setQmlEngine(&qmlEngine);
     // Allow it to display QML components with non-QQuickWindow root object
     node.setFallbackView(&fallbackView);
     // Tell it where file updates should be stored relative to
     node.setWorkspace(app.applicationDirPath(),
                       LiveNodeEngine::AllowUpdates | LiveNodeEngine::UpdatesAsOverlay);
-    // Listen to ipc call from remote QmlLiveBench
+    // Listen to IPC call from remote QmlLive Bench
     RemoteReceiver receiver;
     receiver.registerNode(&node);
     receiver.listen(10234);

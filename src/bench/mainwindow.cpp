@@ -205,7 +205,7 @@ void MainWindow::setupMenuBar()
     m_logDockMenu->addAction(m_logDock->toggleViewAction());
 
     QMenu *help = menuBar()->addMenu(tr("&Help"));
-    QAction *about = help->addAction(tr("About Qt QML Live..."));
+    QAction *about = help->addAction(tr("About Qt QmlLive..."));
     connect(about, &QAction::triggered, this, [this]() { AboutDialog::exec(this); });
     about->setMenuRole(QAction::AboutRole);
 }

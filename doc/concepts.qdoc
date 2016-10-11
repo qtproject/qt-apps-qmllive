@@ -87,8 +87,8 @@ display for the embedded device. There are subtle changes in the color
 appearance, pixel density, font rendering and proportions. So it is vital to
 ensure that a user experience designed on a PC looks just as brilliant on the
 embedded device. In the past this was always cumbersome and required that you
-manually copy the code to the device and restart the application. With
-QmlLive and the QmlLive Runtime you simply connect to the device, propagate your
+manually copy the code to the device and restart the application. With QmlLive
+Bench and QmlLive Runtime you simply connect to the device, propagate your
 workspace and from then on all changes are reflected on the device display. Of course,
 you can also connect more devices, or devices with different sizes.
 

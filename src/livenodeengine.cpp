@@ -57,14 +57,14 @@ const char OVERLAY_PATH_SEPARATOR = '-';
  * \brief The LiveNodeEngine class instantiates QML components in cooperation with LiveHubEngine.
  * \inmodule qmllive
  *
- * LiveNodeEngine provides ways to reload qml documents based incoming requests
+ * LiveNodeEngine provides ways to reload QML documents based incoming requests
  * from a hub. A hub can be connected via a RemotePublisher/RemoteReceiver pair.
  *
  * The primary use case is to allow loading of QML components instantiating
  * QQuickWindow, i.e., inheriting QML Window. A fallbackView can be set in order
  * to support also QML Item based components.
  *
- * In Addition to showing qml-Files the LiveNodeEngine can be extended by plugins to show any other datatype.
+ * In Addition to showing QML files the LiveNodeEngine can be extended by plugins to show any other filetype.
  * One need to set the Plugin path to the right destination and the LiveNodeEngine will load all the plugins
  * it finds there.
  *
@@ -285,7 +285,7 @@ int LiveNodeEngine::rotation() const
 }
 
 /*!
- * Loads the given \a url onto the qml view. Clears any caches.
+ * Loads the given \a url onto the QML view. Clears any caches.
  */
 void LiveNodeEngine::loadDocument(const QUrl& url)
 {
@@ -330,7 +330,7 @@ QUrl LiveNodeEngine::errorScreenUrl() const
 }
 
 /*!
- * Reloads the active qml document.
+ * Reloads the active QML document.
  *
  * Emits documentLoaded() when finished.
  *
@@ -470,7 +470,7 @@ void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &c
 
 
 /*!
- * Allows to adapt a \a url to display not native qml documents (e.g. images).
+ * Allows to adapt a \a url to display not native QML documents (e.g. images).
  */
 QUrl LiveNodeEngine::queryDocumentViewer(const QUrl& url)
 {

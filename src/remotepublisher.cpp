@@ -134,7 +134,7 @@ void RemotePublisher::disconnectFromServer()
 }
 
 /*!
- * Send "activateDocument(QString)" to ipc-server on activate document.
+ * Send "activateDocument(QString)" to IPC-server on activate document.
  * \a document defines the Document which should be activated
  */
 QUuid RemotePublisher::activateDocument(const QString &document)

@@ -28,7 +28,7 @@ INSTALLS += headers
 !win32 {
     CONFIG += create_pc create_prl no_install_prl
     QMAKE_PKGCONFIG_NAME = qmllive
-    QMAKE_PKGCONFIG_DESCRIPTION = Qt QML Live Library
+    QMAKE_PKGCONFIG_DESCRIPTION = Qt QmlLive Library
     QMAKE_PKGCONFIG_PREFIX = $$PREFIX
     QMAKE_PKGCONFIG_LIBDIR = ${prefix}/lib
     QMAKE_PKGCONFIG_INCDIR = ${prefix}/include/qmllive

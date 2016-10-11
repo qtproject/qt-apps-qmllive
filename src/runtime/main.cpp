@@ -75,13 +75,13 @@ static void parseArguments(const QStringList &arguments)
 
     parser.addPositionalArgument("workspace", "workspace folder to watch");
 
-    QCommandLineOption ipcPortOption("ipcport", "the port the ipc shall listen on, default is 10234", "ipcport");
+    QCommandLineOption ipcPortOption("ipcport", "the port the IPC shall listen on, default is 10234", "ipcport");
     parser.addOption(ipcPortOption);
 
-    QCommandLineOption pluginPathOption("pluginpath", "path to qmllive plugins", "pluginpath");
+    QCommandLineOption pluginPathOption("pluginpath", "path to QmlLive plugins", "pluginpath");
     parser.addOption(pluginPathOption);
 
-    QCommandLineOption importPathOption("importpath", "path to qml import path. Can appear multiple times", "importpath");
+    QCommandLineOption importPathOption("importpath", "path to QML import path. Can appear multiple times", "importpath");
     parser.addOption(importPathOption);
 
     QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");

@@ -181,9 +181,9 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addPositionalArgument("workspace", "workspace folder to watch. If this points to a QML document, than the directory is asssumed to be the workspace and the file the active document.");
     parser.addPositionalArgument("document", "main QML document to load initially.");
 
-    QCommandLineOption pluginPathOption("pluginpath", "path to qmllive plugins", "pluginpath");
+    QCommandLineOption pluginPathOption("pluginpath", "path to QmlLive plugins", "pluginpath");
     parser.addOption(pluginPathOption);
-    QCommandLineOption importPathOption("importpath", "path to qml import path. Can appear multiple times", "importpath");
+    QCommandLineOption importPathOption("importpath", "path to QML import path. Can appear multiple times", "importpath");
     parser.addOption(importPathOption);
     QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");
     parser.addOption(stayOnTopOption);

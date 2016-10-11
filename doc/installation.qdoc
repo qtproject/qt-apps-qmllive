@@ -81,11 +81,11 @@ Optionally it can be packaged with the help of
 \chapter Building documentation
 
 \code
-    $ export QT_INSTALL_DOCS=$QTSRC/qtbase/doc
+    $ qmake CONFIG+=force_independent
     $ make docs
 \endcode
 
-The documentation will be available at \tt{doc/html/index.html}.
+The documentation will be available at \tt{doc/qmllive/index.html}.
 
 
 \chapter Build options reference

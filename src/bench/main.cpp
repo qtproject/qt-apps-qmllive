@@ -354,14 +354,20 @@ void MasterApplication::listenForArguments()
             connection->close();
         });
 
-        connect(connection, &QLocalSocket::readyRead, this, [this, connection]() {
+        QPointer<QBuffer> buffer = new QBuffer(connection);
+        buffer->open(QIODevice::ReadOnly);
+
+        connect(connection, &QLocalSocket::readyRead, this, [this, connection, buffer]() {
             QStringList arguments;
 
-            QDataStream in(connection);
-            in.startTransaction();
+            buffer->buffer().append(connection->readAll());
+            buffer->reset();
+
+            QDataStream in(buffer);
             in >> arguments;
-            if (!in.commitTransaction())
+            if (in.status() == QDataStream::ReadPastEnd)
                 return;
+            Q_ASSERT(in.status() == QDataStream::Ok);
 
             Options options;
             parseArguments(arguments, &options);

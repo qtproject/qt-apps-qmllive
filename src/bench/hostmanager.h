@@ -34,6 +34,7 @@
 #include <QListView>
 #include <QPointer>
 
+class LiveDocument;
 class LiveHubEngine;
 class HostModel;
 class Host;
@@ -54,8 +55,8 @@ signals:
     void openHostConfig(Host* host);
 
 public slots:
-    void followTreeSelection(const QString& currentFile);
-    void setCurrentFile(const QString& currentFile);
+    void followTreeSelection(const LiveDocument& currentFile);
+    void setCurrentFile(const LiveDocument& currentFile);
     void publishAll();
     void refreshAll();
     void probe(const QString &hostName);

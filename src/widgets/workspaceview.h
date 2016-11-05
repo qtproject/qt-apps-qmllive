@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "livedocument.h"
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -41,19 +43,19 @@ class WorkspaceView : public QWidget
     Q_OBJECT
 public:
     explicit WorkspaceView(QWidget *parent = 0);
-    QString activeDocument() const;
+    LiveDocument activeDocument() const;
     QString rootPath() const;
     void setDirectoriesSelectable(bool enabled);
     bool directoriesSelectable() const;
 
 public Q_SLOTS:
     void setRootPath(const QString& dirPath);
-    void activateDocument(const QString& path);
+    void activateDocument(const LiveDocument& path);
     void activateRootPath();
     void goUp();
 
 Q_SIGNALS:
-    void pathActivated(const QString& path);
+    void pathActivated(const LiveDocument& path);
 
 private Q_SLOTS:
     void indexActivated(const QModelIndex& index);
@@ -63,5 +65,5 @@ private:
     QTreeView *m_view;
     FileSystemModel *m_model;
     QModelIndex m_rootIndex;
-    QString m_currentDocument;
+    LiveDocument m_currentDocument;
 };

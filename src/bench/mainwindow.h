@@ -39,6 +39,7 @@
 class BenchQuickView;
 class WorkspaceView;
 class LogView;
+class LiveDocument;
 class LiveRuntime;
 class LiveHubEngine;
 class BenchLiveNodeEngine;
@@ -57,7 +58,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void activateDocument(const QString path);
+    void activateDocument(const LiveDocument &path);
     void setWorkspace(const QString& path, bool activateRootPath = true);
     void setPluginPath(const QString& path);
     void setImportPaths(const QStringList& pathList);

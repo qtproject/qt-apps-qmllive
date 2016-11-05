@@ -34,6 +34,7 @@
 #include "host.h"
 #include "livehubengine.h"
 
+#include <QMessageBox>
 
 const int LABEL_STACK_INDEX=0;
 const int PROGRESS_STACK_INDEX=1;
@@ -130,7 +131,7 @@ void HostWidget::setHost(Host *host)
     connect(host, SIGNAL(addressChanged(QString)), this, SLOT(updateIp(QString)));
     connect(host, SIGNAL(portChanged(int)), this, SLOT(updatePort(int)));
     connect(host, SIGNAL(onlineChanged(bool)), this, SLOT(updateOnlineState(bool)));
-    connect(host, SIGNAL(currentFileChanged(QString)), this, SLOT(updateFile(QString)));
+    connect(host, SIGNAL(currentFileChanged(LiveDocument)), this, SLOT(updateFile(LiveDocument)));
     connect(host, SIGNAL(nameChanged(QString)), this, SLOT(updateName(QString)));
     connect(host, SIGNAL(xOffsetChanged(int)), this, SLOT(sendXOffset(int)));
     connect(host, SIGNAL(yOffsetChanged(int)), this, SLOT(sendYOffset(int)));
@@ -148,13 +149,14 @@ void HostWidget::setLiveHubEngine(LiveHubEngine *engine)
     m_publisher.setWorkspace(m_engine->workspace());
 
     connect(m_engine.data(), SIGNAL(workspaceChanged(QString)), &m_publisher, SLOT(setWorkspace(QString)));
-    connect(m_engine.data(), SIGNAL(fileChanged(QString)), this, SLOT(sendDocument(QString)));
+    connect(m_engine.data(), SIGNAL(workspaceChanged(QString)), this, SLOT(refreshDocumentLabel()));
+    connect(m_engine.data(), SIGNAL(fileChanged(LiveDocument)), this, SLOT(sendDocument(LiveDocument)));
     connect(m_engine.data(), SIGNAL(beginPublishWorkspace()), &m_publisher, SLOT(beginBulkSend()));
     connect(m_engine.data(), SIGNAL(endPublishWorkspace()), &m_publisher, SLOT(endBulkSend()));
     connect(&m_publisher, SIGNAL(needsPublishWorkspace()), this, SLOT(publishWorkspace()));
 }
 
-void HostWidget::setCurrentFile(const QString currentFile)
+void HostWidget::setCurrentFile(const LiveDocument &currentFile)
 {
     m_host->setCurrentFile(currentFile);
 }
@@ -192,25 +194,49 @@ void HostWidget::updatePort(int port)
     QTimer::singleShot(0, this, SLOT(connectToServer()));
 }
 
-void HostWidget::updateFile(const QString &file)
+void HostWidget::updateFile(const LiveDocument &file)
 {
     setUpdateFile(file);
 
     connectAndSendFile();
 }
 
-void HostWidget::setUpdateFile(const QString &file)
+void HostWidget::setUpdateFile(const LiveDocument &file)
 {
-    if (file.isEmpty()) {
-        m_documentLabel->setText(tr("&lt;none&gt;"));
-        m_documentLabel->setToolTip(tr("No active document. Drop one."));
-        return;
+    QFont font(this->font());
+    QPalette palette(this->palette());
+    QString text;
+    QString toolTip;
+
+    if (file.isNull()) {
+        text = tr("No active document");
+        toolTip = tr("No active document. Drop one.");
+        font.setItalic(true);
+    } else {
+        text = file.relativeFilePath();
+
+        if (file.isFileIn(m_engine->workspace())) {
+            toolTip = file.absoluteFilePathIn(m_engine->workspace());
+        } else {
+            // red color from http://clrs.cc
+            palette.setColor(QPalette::Text, QColor(0xff, 0x41, 0x36));
+            toolTip = file.errorString();
+        }
     }
 
-    QString relFile = QDir(m_engine->workspace()).relativeFilePath(file);
-    QFontMetrics metrics(font());
-    m_documentLabel->setText(metrics.elidedText(relFile, Qt::ElideLeft, m_documentLabel->width()));
-    m_documentLabel->setToolTip(relFile);
+    QFontMetrics metrics(font);
+    m_documentLabel->setFont(font);
+    m_documentLabel->setPalette(palette);
+    m_documentLabel->setText(metrics.elidedText(text, Qt::ElideLeft,
+                                                m_documentLabel->width()));
+    m_documentLabel->setToolTip(toolTip);
+}
+
+void HostWidget::refreshDocumentLabel()
+{
+    if (!m_host)
+        return;
+    setUpdateFile(m_host->currentFile());
 }
 
 void HostWidget::updateOnlineState(bool online)
@@ -254,7 +280,8 @@ void HostWidget::connectToServer()
 void HostWidget::connectAndSendFile()
 {
     connectToServer();
-    m_activateId = m_publisher.activateDocument(QDir(m_engine->workspace()).relativeFilePath(m_host->currentFile()));
+    if (!m_host->currentFile().isNull())
+        m_activateId = m_publisher.activateDocument(m_host->currentFile());
 }
 
 void HostWidget::onConnected()
@@ -307,12 +334,12 @@ void HostWidget::probe()
 void HostWidget::publishWorkspace()
 {
     connectToServer();
-    connect(m_engine.data(), SIGNAL(publishFile(QString)), this, SLOT(sendDocument(QString)));
+    connect(m_engine.data(), SIGNAL(publishFile(LiveDocument)), this, SLOT(sendDocument(LiveDocument)));
     m_engine->publishWorkspace();
-    disconnect(m_engine.data(), SIGNAL(publishFile(QString)), this, SLOT(sendDocument(QString)));
+    disconnect(m_engine.data(), SIGNAL(publishFile(LiveDocument)), this, SLOT(sendDocument(LiveDocument)));
 }
 
-void HostWidget::sendDocument(const QString& document)
+void HostWidget::sendDocument(const LiveDocument& document)
 {
     if (m_publisher.state() != QAbstractSocket::ConnectedState)
         return;
@@ -421,8 +448,7 @@ void HostWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    if (m_host)
-        setUpdateFile(m_host->currentFile());
+    refreshDocumentLabel();
 }
 
 void HostWidget::showPinDialog()
@@ -446,11 +472,19 @@ void HostWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void HostWidget::dropEvent(QDropEvent *event)
 {
-    QUrl url(event->mimeData()->text());
-
-    if (url.isLocalFile())
-        m_host->setCurrentFile(url.toLocalFile());
     event->acceptProposedAction();
+
+    QUrl url(event->mimeData()->text());
+    if (url.isLocalFile()) {
+        LiveDocument document = LiveDocument::resolve(m_engine->workspace(), url.toLocalFile());
+        if (!document.isNull() && document.isFileIn(m_engine->workspace())) {
+            m_host->setCurrentFile(document);
+        } else {
+            QMessageBox::warning(this, tr("Not a workspace document"),
+                    tr("The dropped document is not a file in the current workspace:<br/>%1")
+                        .arg(url.toString()));
+        }
+    }
 }
 
 bool HostWidget::eventFilter(QObject *object, QEvent *event)

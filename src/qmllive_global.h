@@ -40,4 +40,20 @@
 #  define QMLLIVESHARED_EXPORT Q_DECL_IMPORT
 #endif
 
+#if defined(QMLLIVE_VERSION)
+#  define QMLLIVE_SOURCE
+#endif
+
+#if defined(QMLLIVE_SOURCE)
+#  if !defined(QT_NO_DEBUG) || defined(QT_FORCE_ASSERTS)
+#    define LIVE_ASSERT(cond, action) Q_ASSERT(cond)
+#  else
+#    define LIVE_ASSERT(cond, action) if (cond) {} else {               \
+        QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO).critical()      \
+            << "Assertion \"" #cond "\" failed";                        \
+        action;                                                         \
+    } do {} while (0)
+#  endif
+#endif
+
 #endif // QMLLIVELIB_GLOBAL_H

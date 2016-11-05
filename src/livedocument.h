@@ -33,39 +33,35 @@
 
 #include <QtCore>
 
-#include "livedocument.h"
 #include "qmllive_global.h"
 
-class Watcher;
-class ContentPluginFactory;
-
-class QMLLIVESHARED_EXPORT LiveHubEngine : public QObject
+class QMLLIVESHARED_EXPORT LiveDocument
 {
-    Q_OBJECT
-public:
-    explicit LiveHubEngine(QObject *parent = 0);
-    void setWorkspace(const QString& path);
-    QString workspace() const;
+    Q_DECLARE_TR_FUNCTIONS(LiveDocument)
 
-    LiveDocument activePath() const;
-public Q_SLOTS:
-    void setActivePath(const LiveDocument& path);
-    void setFilePublishingActive(bool on);
-    void publishWorkspace();
-Q_SIGNALS:
-    void beginPublishWorkspace();
-    void endPublishWorkspace();
-    void publishFile(const LiveDocument& document);
-    void fileChanged(const LiveDocument& document);
-    void activateDocument(const LiveDocument& document);
-    void workspaceChanged(const QString& workspace);
-private Q_SLOTS:
-    void directoriesChanged(const QStringList& changes);
+public:
+    LiveDocument();
+    explicit LiveDocument(const QString &relativeFilePath);
+
+    bool isNull() const { return m_relativeFilePath.isEmpty(); }
+    QString errorString() const { return m_errorString; }
+
+    bool existsIn(const QDir &workspace) const;
+    bool isFileIn(const QDir &workspace) const;
+
+    QString relativeFilePath() const;
+    QString absoluteFilePathIn(const QDir &workspace) const;
+
+    static LiveDocument resolve(const QDir &workspace, const QString &filePath);
+
+    friend inline bool operator==(const LiveDocument &d1, const LiveDocument &d2)
+    { return d1.m_relativeFilePath == d2.m_relativeFilePath; }
+    friend inline bool operator!=(const LiveDocument &d1, const LiveDocument &d2)
+    { return !(d1 == d2); }
+
 private:
-    void publishDirectory(const QString& dirPath, bool fileChange);
-private:
-    Watcher *m_watcher;
-    bool m_filePublishingActive;
-    LiveDocument m_activePath;
+    QString m_relativeFilePath;
+    mutable QString m_errorString;
 };
 
+QDebug QMLLIVESHARED_EXPORT operator<<(QDebug dbg, const LiveDocument &document);

@@ -189,11 +189,12 @@ int main(int argc, char** argv)
     engine.setFallbackView(&fallbackView);
     engine.setWorkspace(options.workspace, workspaceOptions);
     engine.setPluginPath(options.pluginPath);
-    engine.loadDocument(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
     RemoteReceiver receiver;
     receiver.registerNode(&engine);
     if (!receiver.listen(options.ipcPort, connectionOptions))
         return EXIT_FAILURE;
+
+    fallbackView.setSource(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
 
     int ret = app.exec();
 

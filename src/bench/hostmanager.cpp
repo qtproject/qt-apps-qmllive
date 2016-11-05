@@ -82,9 +82,9 @@ void HostManager::setLiveHubEngine(LiveHubEngine *engine)
     }
 }
 
-void HostManager::followTreeSelection(const QString &currentFile)
+void HostManager::followTreeSelection(const LiveDocument &currentFile)
 {
-    if (!QFileInfo(currentFile).isFile())
+    if (!currentFile.isFileIn(m_engine->workspace()))
         return;
 
     for (int i=0; i < m_model->rowCount(); i++) {
@@ -94,9 +94,9 @@ void HostManager::followTreeSelection(const QString &currentFile)
     }
 }
 
-void HostManager::setCurrentFile(const QString &currentFile)
+void HostManager::setCurrentFile(const LiveDocument &currentFile)
 {
-    if (!QFileInfo(currentFile).isFile())
+    if (!currentFile.isFileIn(m_engine->workspace()))
         return;
 
     for (int i=0; i < m_model->rowCount(); i++) {

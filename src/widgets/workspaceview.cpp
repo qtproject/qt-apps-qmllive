@@ -85,17 +85,17 @@ void WorkspaceView::setRootPath(const QString &dirPath)
 /*!
  * Activates the document by the given \a path
  */
-void WorkspaceView::activateDocument(const QString &path)
+void WorkspaceView::activateDocument(const LiveDocument &path)
 {
     //qDebug() << "WorkspaceView::activateDocument" << path;
-    QModelIndex index = m_model->index(path);
+    QModelIndex index = m_model->index(path.absoluteFilePathIn(rootPath()));
     selectIndex(index);
 }
 
 void WorkspaceView::activateRootPath()
 {
     selectIndex(m_rootIndex);
-    emit pathActivated(m_model->rootPath());
+    emit pathActivated(LiveDocument(QStringLiteral(".")));
 }
 
 void WorkspaceView::goUp()
@@ -110,7 +110,7 @@ void WorkspaceView::goUp()
 /*!
  * Returns the active, selected document.
  */
-QString WorkspaceView::activeDocument() const
+LiveDocument WorkspaceView::activeDocument() const
 {
     return m_currentDocument;
 }
@@ -140,8 +140,8 @@ void WorkspaceView::indexActivated(const QModelIndex &index)
 
     QString path = m_model->filePath(index);
 
-    m_currentDocument = path;
-    emit pathActivated(path);
+    m_currentDocument = LiveDocument::resolve(m_model->rootDirectory(), path);
+    emit pathActivated(m_currentDocument);
 }
 
 void WorkspaceView::selectIndex(const QModelIndex &index)

@@ -77,14 +77,14 @@ MainWindow::MainWindow(QWidget *parent)
     m_hub->setFilePublishingActive(true);
     m_node->setWorkspaceView(m_workspace);
 
-    connect(m_workspace, SIGNAL(pathActivated(QString)), m_hub, SLOT(setActivePath(QString)));
-    connect(m_workspace, SIGNAL(pathActivated(QString)), m_hostManager, SLOT(followTreeSelection(QString)));
-    connect(m_hub, SIGNAL(activateDocument(QString)), this, SLOT(updateWindowTitle()));
-    connect(m_hub, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
+    connect(m_workspace, SIGNAL(pathActivated(LiveDocument)), m_hub, SLOT(setActivePath(LiveDocument)));
+    connect(m_workspace, SIGNAL(pathActivated(LiveDocument)), m_hostManager, SLOT(followTreeSelection(LiveDocument)));
+    connect(m_hub, SIGNAL(activateDocument(LiveDocument)), this, SLOT(updateWindowTitle()));
+    connect(m_hub, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(setActiveDocument(LiveDocument)));
     connect(m_node, SIGNAL(activeWindowChanged(QQuickWindow*)), this, SLOT(onActiveWindowChanged(QQuickWindow*)));
     connect(m_node->qmlEngine(), SIGNAL(quit()), this, SLOT(logQuitEvent()));
     connect(m_allHosts, SIGNAL(publishAll()), m_hostManager, SLOT(publishAll()));
-    connect(m_allHosts, SIGNAL(currentFileChanged(QString)), m_hostManager, SLOT(setCurrentFile(QString)));
+    connect(m_allHosts, SIGNAL(currentFileChanged(LiveDocument)), m_hostManager, SLOT(setCurrentFile(LiveDocument)));
     connect(m_allHosts, SIGNAL(refreshAll()), m_hostManager, SLOT(refreshAll()));
     connect(m_hostManager, SIGNAL(logWidgetAdded(QDockWidget*)), this, SLOT(onLogWidgetAdded(QDockWidget*)));
     connect(m_hostManager, SIGNAL(openHostConfig(Host*)), this, SLOT(openPreferences(Host*)));
@@ -240,13 +240,15 @@ void MainWindow::init()
 
     updateRecentFolder();
 
-    //Only set the workspace if we didn't already set it by command line
-    if (m_node->activeDocument().isEmpty()) {
-        if (s.contains("activeDocument")) {
-            activateDocument(s.value("activeDocument").toString());
-        } else {
+    //Only set the document if we didn't already set it by command line
+    if (m_node->activeDocument().isNull()) {
+        LiveDocument last;
+        if (s.contains("activeDocument"))
+            last = LiveDocument::resolve(m_workspacePath, s.value("activeDocument").toString());
+        if (!last.isNull())
+            activateDocument(last);
+        else
             m_workspace->activateRootPath();
-        }
     }
 
     resetImportPaths();
@@ -263,7 +265,8 @@ void MainWindow::writeSettings()
     s.setValue("geometry", saveGeometry());
     s.setValue("windowState", saveState());
     s.setValue("workspace", m_workspacePath);
-    s.setValue("activeDocument", m_node->activeDocument().toLocalFile());
+    if (!m_node->activeDocument().isNull())
+        s.setValue("activeDocument", m_node->activeDocument().relativeFilePath());
 
     s.beginWriteArray("recentFolder");
     for (int i = 0; i < m_recentFolder.count(); i++) {
@@ -300,7 +303,7 @@ void MainWindow::setupToolBar()
     m_toolBar->addAction(m_resizeFit);
 }
 
-void MainWindow::activateDocument(const QString path)
+void MainWindow::activateDocument(const LiveDocument &path)
 {
     m_workspace->activateDocument(path);
 }
@@ -395,11 +398,11 @@ void MainWindow::logQuitEvent()
 void MainWindow::updateWindowTitle()
 {
     setWindowFilePath(QString());
-    if (m_hub->activePath().isEmpty()) {
+    if (m_hub->activePath().isNull()) {
         setWindowTitle(QApplication::applicationName());
     } else {
         setWindowTitle(QString());
-        setWindowFilePath(m_hub->activePath());
+        setWindowFilePath(m_hub->activePath().absoluteFilePathIn(m_workspacePath));
     }
 }
 

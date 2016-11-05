@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "livedocument.h"
+
 #include <QObject>
 #include <QUuid>
 #include <QMetaType>
@@ -51,7 +53,7 @@ public:
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(int port READ port WRITE setPort NOTIFY portChanged)
-    Q_PROPERTY(QString currentFile READ currentFile WRITE setCurrentFile NOTIFY currentFileChanged)
+    Q_PROPERTY(LiveDocument currentFile READ currentFile WRITE setCurrentFile NOTIFY currentFileChanged)
     Q_PROPERTY(int xOffset READ xOffset WRITE setXOffset NOTIFY xOffsetChanged)
     Q_PROPERTY(int yOffset READ yOffset WRITE setYOffset NOTIFY yOffsetChanged)
     Q_PROPERTY(int rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
@@ -67,7 +69,7 @@ public:
     QString name() const;
     QString address() const;
     int port() const;
-    QString currentFile() const;
+    LiveDocument currentFile() const;
     int xOffset() const;
     int yOffset() const;
     int rotation() const;
@@ -88,7 +90,7 @@ signals:
     void nameChanged(QString arg);
     void addressChanged(QString arg);
     void portChanged(int arg);
-    void currentFileChanged(QString arg);
+    void currentFileChanged(LiveDocument arg);
     void xOffsetChanged(int arg);
     void yOffsetChanged(int arg);
     void rotationChanged(int arg);
@@ -102,7 +104,7 @@ public slots:
     void setName(QString arg);
     void setAddress(QString arg);
     void setPort(int arg);
-    void setCurrentFile(QString arg);
+    void setCurrentFile(LiveDocument arg);
     void setXOffset(int arg);
     void setYOffset(int arg);
     void setRotation(int arg);
@@ -117,7 +119,7 @@ private:
     QString m_name;
     QString m_address;
     int m_port;
-    QString m_currentFile;
+    LiveDocument m_currentFile;
     int m_xOffset;
     int m_yOffset;
     int m_rotation;

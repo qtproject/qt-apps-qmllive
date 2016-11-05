@@ -31,6 +31,7 @@
 
 #include "remotepublisher.h"
 #include "ipc/ipcclient.h"
+#include "livedocument.h"
 #include "livehubengine.h"
 
 #ifdef QMLLIVE_DEBUG
@@ -91,9 +92,9 @@ void RemotePublisher::registerHub(LiveHubEngine *hub)
         disconnect(m_hub);
     }
     m_hub = hub;
-    connect(hub, SIGNAL(activateDocument(QString)), this, SLOT(activateDocument(QString)));
-    connect(hub, SIGNAL(fileChanged(QString)), this, SLOT(sendDocument(QString)));
-    connect(hub, SIGNAL(publishFile(QString)), this, SLOT(sendDocument(QString)));
+    connect(hub, SIGNAL(activateDocument(LiveDocument)), this, SLOT(activateDocument(LiveDocument)));
+    connect(hub, SIGNAL(fileChanged(LiveDocument)), this, SLOT(sendDocument(LiveDocument)));
+    connect(hub, SIGNAL(publishFile(LiveDocument)), this, SLOT(sendDocument(LiveDocument)));
     connect(this, SIGNAL(needsPublishWorkspace()), hub, SLOT(publishWorkspace()));
     connect(hub, SIGNAL(beginPublishWorkspace()), this, SLOT(beginBulkSend()));
     connect(hub, SIGNAL(endPublishWorkspace()), this, SLOT(endBulkSend()));
@@ -137,12 +138,12 @@ void RemotePublisher::disconnectFromServer()
  * Send "activateDocument(QString)" to IPC-server on activate document.
  * \a document defines the Document which should be activated
  */
-QUuid RemotePublisher::activateDocument(const QString &document)
+QUuid RemotePublisher::activateDocument(const LiveDocument &document)
 {
     DEBUG << "RemotePublisher::activateDocument" << document;
     QByteArray bytes;
     QDataStream out(&bytes, QIODevice::WriteOnly);
-    out << document;
+    out << document.relativeFilePath();
     return m_ipc->send("activateDocument(QString)", bytes);
 }
 
@@ -165,10 +166,10 @@ QUuid RemotePublisher::endBulkSend()
 }
 
 /*!
- * Sends "sendDocument(QString)" using \a document as path to the document to be
+ * Sends "sendDocument(QString)" using \a document to identify the document to be
  *send to via IPC.
  */
-QUuid RemotePublisher::sendDocument(const QString& document)
+QUuid RemotePublisher::sendDocument(const LiveDocument& document)
 {
     DEBUG << "RemotePublisher::sendDocument" << document;
     return sendWholeDocument(document);
@@ -224,10 +225,10 @@ QUuid RemotePublisher::setRotation(int rotation)
 /*!
   Sends the \e sendWholeDocument with \a document as argument via IPC
  */
-QUuid RemotePublisher::sendWholeDocument(const QString& document)
+QUuid RemotePublisher::sendWholeDocument(const LiveDocument& document)
 {
     DEBUG << "RemotePublisher::sendWholeDocument" << document;
-    QFile file(document);
+    QFile file(document.absoluteFilePathIn(m_workspace));
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << "ERROR: can't open file: " << document;
         return QUuid();
@@ -236,7 +237,7 @@ QUuid RemotePublisher::sendWholeDocument(const QString& document)
 
     QByteArray bytes;
     QDataStream out(&bytes, QIODevice::WriteOnly);
-    out << m_workspace.relativeFilePath(document);
+    out << document.relativeFilePath();
     out << data;
     return m_ipc->send("sendDocument(QString,QByteArray)", bytes);
 }

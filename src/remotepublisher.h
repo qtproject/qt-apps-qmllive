@@ -36,6 +36,7 @@
 
 #include "qmllive_global.h"
 
+class LiveDocument;
 class LiveHubEngine;
 class IpcClient;
 
@@ -64,10 +65,10 @@ Q_SIGNALS:
 public Q_SLOTS:
     void setWorkspace(const QString &path);
     void disconnectFromServer();
-    QUuid activateDocument(const QString& document);
+    QUuid activateDocument(const LiveDocument& document);
     QUuid beginBulkSend();
     QUuid endBulkSend();
-    QUuid sendDocument(const QString& document);
+    QUuid sendDocument(const LiveDocument& document);
     QUuid checkPin(const QString& pin);
     QUuid setXOffset(int offset);
     QUuid setYOffset(int offset);
@@ -75,7 +76,7 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void handleCall(const QString &method, const QByteArray &content);
-    QUuid sendWholeDocument(const QString &document);
+    QUuid sendWholeDocument(const LiveDocument &document);
 
     void onSentSuccessfully(const QUuid& uuid);
     void onSendingError(const QUuid& uuid, QAbstractSocket::SocketError socketError);

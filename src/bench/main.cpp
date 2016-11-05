@@ -273,7 +273,7 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
                 parser.showHelp(-1);
             }
             options->setWorkspace(fi.absolutePath());
-            options->setActiveDocument(fi.absoluteFilePath());
+            options->setActiveDocument(LiveDocument(fi.absoluteFilePath()));
         } else {
             qDebug() << "First argument does not ending with \".qml\". Assuming it is a workspace.";
             if (!fi.exists() || !fi.isDir()) {
@@ -288,11 +288,12 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
         QFileInfo fi(argument);
         if (argument.endsWith(".qml")) {
             qDebug() << "Second argument ends with \".qml\". Assuming it is a file.";
-            if (!fi.exists() || !fi.isFile()) {
-                qWarning() << "Document does not exist or is not a file: " << fi.absoluteFilePath();
+            LiveDocument document = LiveDocument::resolve(options->workspace(), argument);
+            if (document.isNull() || !document.isFileIn(options->workspace())) {
+                qWarning() << document.errorString();
                 parser.showHelp(-1);
             }
-            options->setActiveDocument(fi.absoluteFilePath());
+            options->setActiveDocument(document);
         } else {
             qWarning() << "If second argument is present it needs to be a QML document: " << fi.absoluteFilePath();
             parser.showHelp(-1);
@@ -399,7 +400,7 @@ void MasterApplication::applyOptions(const Options &options)
             qDebug() << "Ignoring attempt to set import paths after initialization.";
     }
 
-    if (!options.activeDocument().isEmpty()) {
+    if (!options.activeDocument().isNull()) {
         m_window->activateDocument(options.activeDocument());
     }
 

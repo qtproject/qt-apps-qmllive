@@ -227,13 +227,13 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
         QDataStream in(content);
         in >> document;
         in >> data;
-        emit updateDocument(document, data);
+        emit updateDocument(LiveDocument(document), data);
     } else if (method == "activateDocument(QString)") {
         QString document;
         QDataStream in(content);
         in >> document;
         qDebug() << "\tactivate document: " << document;
-        emit activateDocument(document);
+        emit activateDocument(LiveDocument(document));
     } else if (method == "ping()") {
         if (m_client)
             m_client->send("pong()", QByteArray());
@@ -249,8 +249,8 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
     m_node = node;
     connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
     connect(m_node, SIGNAL(clearLog()), this, SLOT(clearLog()));
-    connect(this, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
-    connect(this, SIGNAL(updateDocument(QString,QByteArray)), m_node, SLOT(updateDocument(QString,QByteArray)));
+    connect(this, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(setActiveDocument(LiveDocument)));
+    connect(this, SIGNAL(updateDocument(LiveDocument,QByteArray)), m_node, SLOT(updateDocument(LiveDocument,QByteArray)));
     connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
     connect(this, SIGNAL(yOffsetChanged(int)), m_node, SLOT(setYOffset(int)));
     connect(this, SIGNAL(rotationChanged(int)), m_node, SLOT(setRotation(int)));
@@ -341,7 +341,7 @@ void RemoteReceiver::clearLog()
 }
 
 /*!
- * \fn void RemoteReceiver::activateDocument(const QString& document)
+ * \fn void RemoteReceiver::activateDocument(const LiveDocument& document)
  *
  * This signal is emitted when the remote active document \a document has changed
  */
@@ -410,7 +410,7 @@ void RemoteReceiver::clearLog()
  */
 
 /*!
- * \fn void RemoteReceiver::updateDocument(const QString &document, const QByteArray &content)
+ * \fn void RemoteReceiver::updateDocument(const LiveDocument &document, const QByteArray &content)
  *
  * This signal is emitted to notify that a \a document has changed its \a content
  */

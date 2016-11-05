@@ -119,12 +119,12 @@ public:
 
     QDir overlay() const { return m_overlay; }
 
-    QString reserve(const QString &document)
+    QString reserve(const LiveDocument &document)
     {
         QWriteLocker locker(&m_lock);
 
-        QString overlayingPath = m_overlay.absoluteFilePath(document);
-        m_mappings.insert(QUrl::fromLocalFile(m_base.absoluteFilePath(document)),
+        QString overlayingPath = document.absoluteFilePathIn(m_overlay);
+        m_mappings.insert(QUrl::fromLocalFile(document.absoluteFilePathIn(m_base)),
                           QUrl::fromLocalFile(overlayingPath));
         return overlayingPath;
     }
@@ -285,14 +285,14 @@ int LiveNodeEngine::rotation() const
 }
 
 /*!
- * Loads the given \a url onto the QML view. Clears any caches.
+ * Loads the given \a document onto the QML view. Clears any caches.
  */
-void LiveNodeEngine::loadDocument(const QUrl& url)
+void LiveNodeEngine::loadDocument(const LiveDocument& document)
 {
-    DEBUG << "LiveNodeEngine::loadDocument: " << url;
-    m_activeFile = url;
+    DEBUG << "LiveNodeEngine::loadDocument: " << document;
+    m_activeFile = document;
 
-    if (!m_activeFile.isEmpty())
+    if (!m_activeFile.isNull())
         reloadDocument();
 }
 
@@ -362,7 +362,8 @@ void LiveNodeEngine::reloadDocument()
 
     emit clearLog();
 
-    const QUrl url = queryDocumentViewer(m_activeFile);
+    const QUrl originalUrl = QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace));
+    const QUrl url = queryDocumentViewer(originalUrl);
 
     QScopedPointer<QQmlComponent> component(new QQmlComponent(m_qmlEngine, url));
     m_object = component->create();
@@ -371,7 +372,7 @@ void LiveNodeEngine::reloadDocument()
         if (component->isLoading()) {
             qCritical() << "Component did not load synchronously."
                         << "URL:" << url.toString()
-                        << "(original URL:" << m_activeFile.toString() << ")";
+                        << "(original URL:" << originalUrl.toString() << ")";
         } else {
             emit logErrors(component->errors());
             delete m_object;
@@ -444,7 +445,7 @@ void LiveNodeEngine::reloadDocument()
  *
  * The behavior of this function is controlled by WorkspaceOptions passed to setWorkspace().
  */
-void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &content)
+void LiveNodeEngine::updateDocument(const LiveDocument &document, const QByteArray &content)
 {
     if (!(m_workspaceOptions & AllowUpdates)) {
         return;
@@ -452,7 +453,7 @@ void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &c
 
     QString filePath = (m_workspaceOptions & UpdatesAsOverlay)
         ? m_overlayUrlInterceptor->reserve(document)
-        : m_workspace.absoluteFilePath(document);
+        : document.absoluteFilePathIn(m_workspace);
 
     QString dirPath = QFileInfo(filePath).absoluteDir().absolutePath();
     QDir().mkpath(dirPath);
@@ -464,7 +465,7 @@ void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &c
     file.write(content);
     file.close();
 
-    if (!m_activeFile.isEmpty())
+    if (!m_activeFile.isNull())
         delayReload();
 }
 
@@ -495,14 +496,9 @@ QUrl LiveNodeEngine::queryDocumentViewer(const QUrl& url)
 /*!
  * Sets the document \a document to be shown
  */
-void LiveNodeEngine::setActiveDocument(const QString &document)
+void LiveNodeEngine::setActiveDocument(const LiveDocument &document)
 {
-    QUrl url;
-    if (!document.isEmpty()) {
-        url = QUrl::fromLocalFile(m_workspace.absoluteFilePath(document));
-    }
-
-    loadDocument(url);
+    loadDocument(document);
     emit activateDocument(document);
 }
 
@@ -597,9 +593,9 @@ QString LiveNodeEngine::pluginPath() const
 }
 
 /*!
- * Returns the current active document url.
+ * Returns the current active document.
  */
-QUrl LiveNodeEngine::activeDocument() const
+LiveDocument LiveNodeEngine::activeDocument() const
 {
     return m_activeFile;
 }
@@ -650,7 +646,7 @@ void LiveNodeEngine::onSizeChanged()
 }
 
 /*!
- * \fn void LiveNodeEngine::activateDocument(const QString& document)
+ * \fn void LiveNodeEngine::activateDocument(const LiveDocument& document)
  *
  * The document \a document was activated
  */

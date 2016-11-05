@@ -105,15 +105,6 @@ void Watcher::addDirectoriesRecursively(const QString &path)
 
 }
 
-/*!
-  Returns the given path relative to the watcher's Directory
-  /sa setDirectory, directory()
-  */
-QString Watcher::relativeFilePath(const QString &path)
-{
-    return m_rootDir.relativeFilePath(path);
-}
-
 void Watcher::recordChange(const QString &path)
 {
 //    qDebug() << "Watcher::recordChange: " << path;

@@ -31,6 +31,7 @@
 
 #include "allhostswidget.h"
 
+#include "livedocument.h"
 
 AllHostsWidget::AllHostsWidget(QWidget *parent) :
     QWidget(parent)
@@ -95,6 +96,6 @@ void AllHostsWidget::dropEvent(QDropEvent *event)
     QUrl url(event->mimeData()->text());
 
     if (url.isLocalFile())
-        emit currentFileChanged(url.toLocalFile());
+        emit currentFileChanged(LiveDocument::resolve(m_workspace, url.toLocalFile()));
     event->acceptProposedAction();
 }

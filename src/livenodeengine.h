@@ -35,6 +35,7 @@
 #include <QtQuick>
 
 #include "contentadapterinterface.h"
+#include "livedocument.h"
 #include "qmllive_global.h"
 
 class LiveRuntime;
@@ -79,7 +80,7 @@ public:
     void setPluginPath(const QString& path);
     QString pluginPath() const;
 
-    QUrl activeDocument() const;
+    LiveDocument activeDocument() const;
     ContentAdapterInterface *activePlugin() const;
     QQuickWindow *activeWindow() const;
 
@@ -87,14 +88,14 @@ public Q_SLOTS:
     void setXOffset(int offset);
     void setYOffset(int offset);
     void setRotation(int rotation);
-    void setActiveDocument(const QString& document);
-    void loadDocument(const QUrl& url);
+    void setActiveDocument(const LiveDocument& document);
+    void loadDocument(const LiveDocument& document);
     void delayReload();
     virtual void reloadDocument();
-    void updateDocument(const QString &document, const QByteArray &content);
+    void updateDocument(const LiveDocument &document, const QByteArray &content);
 
 Q_SIGNALS:
-    void activateDocument(const QString& document);
+    void activateDocument(const LiveDocument& document);
     void clearLog();
     void logIgnoreMessages(bool on);
     void documentLoaded();
@@ -105,7 +106,7 @@ Q_SIGNALS:
 protected:
     virtual void initPlugins();
     QList<ContentAdapterInterface*> m_plugins;
-    QUrl m_activeFile;
+    LiveDocument m_activeFile;
     LiveRuntime *m_runtime;
 
 private Q_SLOTS:

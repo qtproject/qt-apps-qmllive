@@ -85,12 +85,12 @@ void Options::setPing(bool ping)
     m_ping = ping;
 }
 
-QString Options::activeDocument() const
+LiveDocument Options::activeDocument() const
 {
     return m_activeDocument;
 }
 
-void Options::setActiveDocument(const QString &activeDocument)
+void Options::setActiveDocument(const LiveDocument &activeDocument)
 {
     m_activeDocument = activeDocument;
 }

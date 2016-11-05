@@ -104,7 +104,7 @@ void HostModel::addHost(Host *host)
     connect(host, SIGNAL(addressChanged(QString)), this, SLOT(onHostChanged()));
     connect(host, SIGNAL(portChanged(int)), this, SLOT(onHostChanged()));
     connect(host, SIGNAL(followTreeSelectionChanged(bool)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(currentFileChanged(QString)), this, SLOT(onHostChanged()));
+    connect(host, SIGNAL(currentFileChanged(LiveDocument)), this, SLOT(onHostChanged()));
     connect(host, SIGNAL(xOffsetChanged(int)), this, SLOT(onHostChanged()));
     connect(host, SIGNAL(yOffsetChanged(int)), this, SLOT(onHostChanged()));
     connect(host, SIGNAL(rotationChanged(int)), this, SLOT(onHostChanged()));

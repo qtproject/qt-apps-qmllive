@@ -35,6 +35,7 @@
 #include <remotepublisher.h>
 
 class Host;
+class LiveDocument;
 
 class HostWidget : public QWidget
 {
@@ -45,7 +46,7 @@ public:
 
     void setHost(Host* host);
     void setLiveHubEngine(LiveHubEngine* engine);
-    void setCurrentFile(const QString currentFile);
+    void setCurrentFile(const LiveDocument &currentFile);
     bool followTreeSelection() const;
 
 signals:
@@ -68,8 +69,9 @@ private slots:
     void updateName(const QString& name);
     void updateIp(const QString& ip);
     void updatePort(int port);
-    void updateFile(const QString& file);
-    void setUpdateFile(const QString& file);
+    void updateFile(const LiveDocument& file);
+    void setUpdateFile(const LiveDocument& file);
+    void refreshDocumentLabel();
     void updateOnlineState(bool online);
     void updateFollowTreeSelection(bool follow);
 
@@ -80,7 +82,7 @@ private slots:
     void onDisconnected();
     void onConnectionError(QAbstractSocket::SocketError error);
 
-    void sendDocument(const QString &document);
+    void sendDocument(const LiveDocument &document);
 
     void sendXOffset(int offset);
     void sendYOffset(int offset);

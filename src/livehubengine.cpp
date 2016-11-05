@@ -78,18 +78,18 @@ QString LiveHubEngine::workspace() const
 
 /*!
  * Sets the active document path to \a path.
- * Emits activateDocument() with the workspace relative path.
+ * Emits activateDocument() with this path.
  */
-void LiveHubEngine::setActivePath(const QString &path)
+void LiveHubEngine::setActivePath(const LiveDocument &path)
 {
     m_activePath = path;
-    emit activateDocument(m_watcher->relativeFilePath(path));
+    emit activateDocument(m_activePath);
 }
 
 /*!
  * Returns the active Document
  */
-QString LiveHubEngine::activePath() const
+LiveDocument LiveHubEngine::activePath() const
 {
     return m_activePath;
 }
@@ -106,7 +106,7 @@ void LiveHubEngine::directoriesChanged(const QStringList &changes)
         }
     }
 
-    emit activateDocument(m_watcher->relativeFilePath(m_activePath));
+    emit activateDocument(m_activePath);
 }
 
 /*!
@@ -132,10 +132,11 @@ void LiveHubEngine::publishDirectory(const QString& dirPath, bool fileChange)
     if (!m_filePublishingActive) { return; }
     QDirIterator iter(dirPath, QDir::Files);
     while (iter.hasNext()) {
+        LiveDocument document = LiveDocument::resolve(m_watcher->directory(), iter.next());
         if (fileChange)
-            emit fileChanged(iter.next());
+            emit fileChanged(document);
         else
-            emit publishFile(iter.next());
+            emit publishFile(document);
     }
 }
 
@@ -162,21 +163,21 @@ void LiveHubEngine::setFilePublishingActive(bool on)
  */
 
 /*!
- * \fn void LiveHubEngine::publishFile(const QString& document)
+ * \fn void LiveHubEngine::publishFile(const LiveDocument& document)
  *
  * This signal is emitted during publishing the directory to inform a connected
  * node to publish the \a document to the remote device form the hub
  */
 
 /*!
- * \fn void LiveHubEngine::fileChanged(const QString& document)
+ * \fn void LiveHubEngine::fileChanged(const LiveDocument& document)
  *
  * This signal is emitted during publishing a directory to inform a connected
  * node that \a document has changed on the hub.
  */
 
 /*!
- * \fn void LiveHubEngine::activateDocument(const QString& document)
+ * \fn void LiveHubEngine::activateDocument(const LiveDocument& document)
  * The signal is emitted when the document identified by \a document has been activated
  */
 

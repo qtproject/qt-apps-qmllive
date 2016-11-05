@@ -136,7 +136,7 @@ void HostWidget::setHost(Host *host)
     connect(host, SIGNAL(yOffsetChanged(int)), this, SLOT(sendYOffset(int)));
     connect(host, SIGNAL(rotationChanged(int)), this, SLOT(sendRotation(int)));
     connect(host, SIGNAL(followTreeSelectionChanged(bool)),
-            m_followTreeSelectionAction, SLOT(setChecked(bool)));
+            this, SLOT(updateFollowTreeSelection(bool)));
 
     connect(m_followTreeSelectionAction, SIGNAL(triggered(bool)), host, SLOT(setFollowTreeSelection(bool)));
 }
@@ -217,6 +217,14 @@ void HostWidget::updateOnlineState(bool online)
         QTimer::singleShot(0, this, SLOT(connectToServer()));
     else
         onDisconnected();
+}
+
+void HostWidget::updateFollowTreeSelection(bool follow)
+{
+    m_followTreeSelectionAction->setChecked(follow);
+
+    if (follow)
+        m_host->setCurrentFile(m_engine->activePath());
 }
 
 void HostWidget::connectToServer()

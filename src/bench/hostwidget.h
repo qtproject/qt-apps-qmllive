@@ -71,6 +71,7 @@ private slots:
     void updateFile(const QString& file);
     void setUpdateFile(const QString& file);
     void updateOnlineState(bool online);
+    void updateFollowTreeSelection(bool follow);
 
     void connectToServer();
     void connectAndSendFile();

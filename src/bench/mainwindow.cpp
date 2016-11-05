@@ -216,7 +216,7 @@ void MainWindow::init()
     restoreGeometry(s.value("geometry").toByteArray());
     //Only set the workspace if we didn't already set it by command line
     if (m_workspacePath.isEmpty()) {
-        setWorkspace(s.value("workspace", QDir::currentPath()).toString());
+        setWorkspace(s.value("workspace", QDir::currentPath()).toString(), false);
     }
 
     if (s.value("http_proxy/enabled").toBool()) {
@@ -338,13 +338,15 @@ void MainWindow::slowDownAnimations(bool enable)
 }
 
 
-void MainWindow::setWorkspace(const QString& path)
+void MainWindow::setWorkspace(const QString& path, bool activateRootPath)
 {
     m_workspacePath = path;
     m_workspace->setRootPath(path);
     m_node->setWorkspace(path);
     m_hub->setWorkspace(path);
     m_allHosts->setWorkspace(path);
+    if (activateRootPath)
+        m_workspace->activateRootPath();
     updateRecentFolder(path);
 }
 

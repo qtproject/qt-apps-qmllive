@@ -383,7 +383,7 @@ void MasterApplication::listenForArguments()
 void MasterApplication::applyOptions(const Options &options)
 {
     if (!options.workspace().isEmpty())
-        m_window->setWorkspace(QDir(options.workspace()).absolutePath());
+        m_window->setWorkspace(QDir(options.workspace()).absolutePath(), false);
 
     if (!options.pluginPath().isEmpty()) {
         if (!m_window->isInitialized())

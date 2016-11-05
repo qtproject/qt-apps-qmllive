@@ -58,7 +58,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void activateDocument(const QString path);
-    void setWorkspace(const QString& path);
+    void setWorkspace(const QString& path, bool activateRootPath = true);
     void setPluginPath(const QString& path);
     void setImportPaths(const QStringList& pathList);
     void setStaysOnTop(bool enabled);

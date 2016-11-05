@@ -194,17 +194,23 @@ void HostWidget::updatePort(int port)
 
 void HostWidget::updateFile(const QString &file)
 {
-    QString relFile = QDir(m_engine->workspace()).relativeFilePath(file);
-    setUpdateFile(relFile);
-    m_documentLabel->setToolTip(relFile);
+    setUpdateFile(file);
 
     connectAndSendFile();
 }
 
 void HostWidget::setUpdateFile(const QString &file)
 {
+    if (file.isEmpty()) {
+        m_documentLabel->setText(tr("&lt;none&gt;"));
+        m_documentLabel->setToolTip(tr("No active document. Drop one."));
+        return;
+    }
+
+    QString relFile = QDir(m_engine->workspace()).relativeFilePath(file);
     QFontMetrics metrics(font());
-    m_documentLabel->setText(metrics.elidedText(file, Qt::ElideLeft, m_documentLabel->width()));
+    m_documentLabel->setText(metrics.elidedText(relFile, Qt::ElideLeft, m_documentLabel->width()));
+    m_documentLabel->setToolTip(relFile);
 }
 
 void HostWidget::updateOnlineState(bool online)
@@ -415,7 +421,8 @@ void HostWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    setUpdateFile(m_documentLabel->toolTip());
+    if (m_host)
+        setUpdateFile(m_host->currentFile());
 }
 
 void HostWidget::showPinDialog()

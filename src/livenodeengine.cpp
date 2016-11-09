@@ -346,10 +346,8 @@ void LiveNodeEngine::reloadDocument()
     }
 
     // Do this unconditionally!
-    if (m_fallbackView) {
+    if (m_fallbackView)
         m_fallbackView->setSource(QUrl());
-        m_fallbackView->close();
-    }
 
     m_activeWindow = 0;
 
@@ -432,6 +430,9 @@ void LiveNodeEngine::reloadDocument()
 
     emit documentLoaded();
     emit activeWindowChanged(m_activeWindow);
+
+    if (m_fallbackView && m_fallbackView != m_activeWindow)
+        m_fallbackView->close();
 
     // Delay showing the window after activeWindowChanged is handled by
     // WindowWidget::setHostedWindow() - it would be destroyed there anyway.

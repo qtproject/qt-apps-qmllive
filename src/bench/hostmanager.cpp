@@ -36,9 +36,10 @@
 #include "livehubengine.h"
 #include "logreceiver.h"
 #include "widgets/logview.h"
-#include <QDockWidget>
 
+#include <QDockWidget>
 #include <QDebug>
+#include <QFileInfo>
 
 HostManager::HostManager(QWidget *parent) :
     QListView(parent)
@@ -83,6 +84,9 @@ void HostManager::setLiveHubEngine(LiveHubEngine *engine)
 
 void HostManager::followTreeSelection(const QString &currentFile)
 {
+    if (!QFileInfo(currentFile).isFile())
+        return;
+
     for (int i=0; i < m_model->rowCount(); i++) {
         HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget && widget->followTreeSelection())
@@ -92,6 +96,9 @@ void HostManager::followTreeSelection(const QString &currentFile)
 
 void HostManager::setCurrentFile(const QString &currentFile)
 {
+    if (!QFileInfo(currentFile).isFile())
+        return;
+
     for (int i=0; i < m_model->rowCount(); i++) {
         HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget)

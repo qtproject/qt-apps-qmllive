@@ -122,17 +122,18 @@ void HostWidget::setHost(Host *host)
 {
     m_host = host;
 
-    updateName(m_host->name());
-    updateIp(m_host->address());
+    updateTitle();
     updateFile(m_host->currentFile());
     updateOnlineState(m_host->online());
     m_followTreeSelectionAction->setChecked(m_host->followTreeSelection());
 
-    connect(host, SIGNAL(addressChanged(QString)), this, SLOT(updateIp(QString)));
-    connect(host, SIGNAL(portChanged(int)), this, SLOT(updatePort(int)));
+    connect(host, SIGNAL(addressChanged(QString)), this, SLOT(updateTitle()));
+    connect(host, SIGNAL(addressChanged(QString)), this, SLOT(scheduleConnectToServer()));
+    connect(host, SIGNAL(portChanged(int)), this, SLOT(updateTitle()));
+    connect(host, SIGNAL(portChanged(int)), this, SLOT(scheduleConnectToServer()));
     connect(host, SIGNAL(onlineChanged(bool)), this, SLOT(updateOnlineState(bool)));
     connect(host, SIGNAL(currentFileChanged(LiveDocument)), this, SLOT(updateFile(LiveDocument)));
-    connect(host, SIGNAL(nameChanged(QString)), this, SLOT(updateName(QString)));
+    connect(host, SIGNAL(nameChanged(QString)), this, SLOT(updateTitle()));
     connect(host, SIGNAL(xOffsetChanged(int)), this, SLOT(sendXOffset(int)));
     connect(host, SIGNAL(yOffsetChanged(int)), this, SLOT(sendYOffset(int)));
     connect(host, SIGNAL(rotationChanged(int)), this, SLOT(sendRotation(int)));
@@ -166,32 +167,12 @@ bool HostWidget::followTreeSelection() const
     return m_followTreeSelectionAction->isChecked();
 }
 
-void HostWidget::updateName(const QString &name)
+void HostWidget::updateTitle()
 {
-    Q_UNUSED(name)
-    if(m_host) {
-        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
-    }
-}
-
-void HostWidget::updateIp(const QString &ip)
-{
-    Q_UNUSED(ip)
-    if(m_host) {
-        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
-    }
-
-    scheduleConnectToServer();
-}
-
-void HostWidget::updatePort(int port)
-{
-    Q_UNUSED(port)
-    if(m_host) {
-        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
-    }
-
-    scheduleConnectToServer();
+    m_groupBox->setTitle(QString("%1 (%2:%3)")
+                         .arg(m_host->name())
+                         .arg(m_host->address())
+                         .arg(m_host->port()));
 }
 
 void HostWidget::updateFile(const LiveDocument &file)

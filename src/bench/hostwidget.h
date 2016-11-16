@@ -67,9 +67,7 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private slots:
-    void updateName(const QString& name);
-    void updateIp(const QString& ip);
-    void updatePort(int port);
+    void updateTitle();
     void updateFile(const LiveDocument& file);
     void setUpdateFile(const LiveDocument& file);
     void refreshDocumentLabel();

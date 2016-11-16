@@ -285,12 +285,91 @@ int LiveNodeEngine::rotation() const
 }
 
 /*!
- * Loads the given \a document onto the QML view. Clears any caches.
+ * Allows to initialize active document with an instance preloaded beyond
+ * LiveNodeEngine's control.
+ *
+ * This can be called at most once and only before a document has been loaded
+ * with loadDocument().
+ *
+ * \a document is the source of the component that was used to instantiate the
+ * \a object. \a window should be either the \a object itself or the
+ * fallbackView(). \a errors (if any) will be added to log.
+ *
+ * Note that \a window will be destroyed on next loadDocument() call unless it
+ * is the fallbackView(). \a object will be destroyed unconditionally.
+ */
+void LiveNodeEngine::usePreloadedDocument(const LiveDocument &document, QObject *object,
+                                          QQuickWindow *window, const QList<QQmlError> &errors)
+{
+    LIVE_ASSERT(m_activeFile.isNull(), return);
+    LIVE_ASSERT(!document.isNull(), return);
+
+    m_activeFile = document;
+
+    if (!m_activeFile.existsIn(m_workspace)) {
+        QQmlError error;
+        error.setUrl(QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace)));
+        error.setDescription(tr("File not found"));
+        emit logErrors(QList<QQmlError>() << error);
+    }
+
+    m_object = object;
+    m_activeWindow = window;
+
+    if (m_activeWindow) {
+        m_activeWindowConnections << connect(m_activeWindow.data(), &QWindow::widthChanged,
+                                             this, &LiveNodeEngine::onSizeChanged);
+        m_activeWindowConnections << connect(m_activeWindow.data(), &QWindow::heightChanged,
+                                             this, &LiveNodeEngine::onSizeChanged);
+        onSizeChanged();
+    }
+
+    emit activeDocumentChanged(m_activeFile);
+    emit documentLoaded();
+    emit activeWindowChanged(m_activeWindow);
+    emit logErrors(errors);
+}
+
+/*!
+ * This is an overloaded function provided for convenience. It is suitable for
+ * use with QQmlApplicationEngine.
+ *
+ * Tries to resolve \a document against current workspace(). \a window is the
+ * root object. \a errors (if any) will be added to log.
+ */
+void LiveNodeEngine::usePreloadedDocument(const QString &document, QQuickWindow *window,
+                                          const QList<QQmlError> &errors)
+{
+    LIVE_ASSERT(m_activeFile.isNull(), return);
+
+    LiveDocument resolved = LiveDocument::resolve(workspace(), document);
+    if (resolved.isNull()) {
+        qWarning() << "Failed to resolve preloaded document path:" << document
+                   << "Workspace: " << workspace();
+        return;
+    }
+
+    usePreloadedDocument(resolved, window, window, errors);
+}
+
+/*!
+ * Loads or reloads the given \a document onto the QML view. Clears any caches.
+ *
+ * The activeDocumentChanged() signal is emitted when this results in change of
+ * the activeDocument().
+ *
+ * \sa documentLoaded()
  */
 void LiveNodeEngine::loadDocument(const LiveDocument& document)
 {
     DEBUG << "LiveNodeEngine::loadDocument: " << document;
+
+    LiveDocument oldActiveFile = m_activeFile;
+
     m_activeFile = document;
+
+    if (m_activeFile != oldActiveFile)
+        emit activeDocumentChanged(m_activeFile);
 
     if (!m_activeFile.isNull())
         reloadDocument();
@@ -495,15 +574,6 @@ QUrl LiveNodeEngine::queryDocumentViewer(const QUrl& url)
 }
 
 /*!
- * Sets the document \a document to be shown
- */
-void LiveNodeEngine::setActiveDocument(const LiveDocument &document)
-{
-    loadDocument(document);
-    emit activeDocumentChanged(document);
-}
-
-/*!
  * Returns the current workspace path.
  */
 QString LiveNodeEngine::workspace() const
@@ -649,7 +719,11 @@ void LiveNodeEngine::onSizeChanged()
 /*!
  * \fn void LiveNodeEngine::activeDocumentChanged(const LiveDocument& document)
  *
- * The document \a document was activated
+ * The document \a document was loaded with loadDocument() and is now the
+ * activeDocument(). This signal is only emitted when the new document differs
+ * from the previously loaded one.
+ *
+ * \sa documentLoaded()
  */
 
 /*!

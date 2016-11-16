@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_workspace, SIGNAL(pathActivated(LiveDocument)), m_hub, SLOT(setActivePath(LiveDocument)));
     connect(m_workspace, SIGNAL(pathActivated(LiveDocument)), m_hostManager, SLOT(followTreeSelection(LiveDocument)));
     connect(m_hub, SIGNAL(activateDocument(LiveDocument)), this, SLOT(updateWindowTitle()));
-    connect(m_hub, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(setActiveDocument(LiveDocument)));
+    connect(m_hub, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(loadDocument(LiveDocument)));
     connect(m_node, SIGNAL(activeWindowChanged(QQuickWindow*)), this, SLOT(onActiveWindowChanged(QQuickWindow*)));
     connect(m_node->qmlEngine(), SIGNAL(quit()), this, SLOT(logQuitEvent()));
     connect(m_allHosts, SIGNAL(publishAll()), m_hostManager, SLOT(publishAll()));

@@ -252,7 +252,7 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
     connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
     connect(m_node, SIGNAL(clearLog()), this, SLOT(clearLog()));
     connect(m_node, SIGNAL(activeDocumentChanged(LiveDocument)), this, SLOT(onActiveDocumentChanged(LiveDocument)));
-    connect(this, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(setActiveDocument(LiveDocument)));
+    connect(this, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(loadDocument(LiveDocument)));
     connect(this, SIGNAL(updateDocument(LiveDocument,QByteArray)), m_node, SLOT(updateDocument(LiveDocument,QByteArray)));
     connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
     connect(this, SIGNAL(yOffsetChanged(int)), m_node, SLOT(setYOffset(int)));
@@ -363,6 +363,9 @@ void RemoteReceiver::clearLog()
     m_log.clear();
     m_logSentPosition = 0;
 
+    if (!m_client)
+        return;
+
     m_client->send("clearLog()", QByteArray());
 }
 
@@ -371,6 +374,9 @@ void RemoteReceiver::clearLog()
  */
 void RemoteReceiver::onActiveDocumentChanged(const LiveDocument &document)
 {
+    if (!m_client)
+        return;
+
     QByteArray bytes;
     QDataStream out(&bytes, QIODevice::WriteOnly);
     out << document.relativeFilePath();

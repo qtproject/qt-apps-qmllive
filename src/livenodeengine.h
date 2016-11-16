@@ -84,11 +84,15 @@ public:
     ContentAdapterInterface *activePlugin() const;
     QQuickWindow *activeWindow() const;
 
+    void usePreloadedDocument(const LiveDocument &document, QObject *object, QQuickWindow *window,
+                              const QList<QQmlError> &errors);
+    void usePreloadedDocument(const QString &document, QQuickWindow *window,
+                              const QList<QQmlError> &errors);
+
 public Q_SLOTS:
     void setXOffset(int offset);
     void setYOffset(int offset);
     void setRotation(int rotation);
-    void setActiveDocument(const LiveDocument& document);
     void loadDocument(const LiveDocument& document);
     void delayReload();
     virtual void reloadDocument();

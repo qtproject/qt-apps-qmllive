@@ -144,6 +144,8 @@ void Host::setOnline(bool arg)
     if (m_online != arg) {
         m_online = arg;
         emit onlineChanged(arg);
+        if (m_type == AutoDiscovery)
+            emit availableChanged(arg);
     }
 }
 
@@ -189,6 +191,11 @@ Host::Type Host::type() const
 bool Host::online() const
 {
     return m_online;
+}
+
+bool Host::available() const
+{
+    return m_type == Manual || m_online;
 }
 
 bool Host::followTreeSelection() const

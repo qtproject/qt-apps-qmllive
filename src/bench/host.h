@@ -58,6 +58,7 @@ public:
     Q_PROPERTY(int yOffset READ yOffset WRITE setYOffset NOTIFY yOffsetChanged)
     Q_PROPERTY(int rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
     Q_PROPERTY(bool online READ online WRITE setOnline NOTIFY onlineChanged)
+    Q_PROPERTY(bool available READ available NOTIFY availableChanged)
     Q_PROPERTY(bool followTreeSelection READ followTreeSelection WRITE setFollowTreeSelection NOTIFY followTreeSelectionChanged)
     Q_PROPERTY(QUuid autoDiscoveryId READ autoDiscoveryId WRITE setAutoDiscoveryId NOTIFY autoDiscoveryIdChanged)
     Q_PROPERTY(QString productVersion READ productVersion WRITE setProductVersion)
@@ -76,6 +77,7 @@ public:
     Type type() const;
 
     bool online() const;
+    bool available() const;
     bool followTreeSelection() const;
     QUuid autoDiscoveryId() const;
     QString productVersion() const;
@@ -95,6 +97,7 @@ signals:
     void yOffsetChanged(int arg);
     void rotationChanged(int arg);
     void onlineChanged(bool arg);
+    void availableChanged(bool arg);
     void followTreeSelectionChanged(bool arg);
     void autoDiscoveryIdChanged(QUuid arg);
 

@@ -124,14 +124,14 @@ void HostWidget::setHost(Host *host)
 
     updateTitle();
     updateFile(m_host->currentFile());
-    updateOnlineState(m_host->online());
+    updateAvailableState(m_host->available());
     m_followTreeSelectionAction->setChecked(m_host->followTreeSelection());
 
     connect(host, SIGNAL(addressChanged(QString)), this, SLOT(updateTitle()));
     connect(host, SIGNAL(addressChanged(QString)), this, SLOT(scheduleConnectToServer()));
     connect(host, SIGNAL(portChanged(int)), this, SLOT(updateTitle()));
     connect(host, SIGNAL(portChanged(int)), this, SLOT(scheduleConnectToServer()));
-    connect(host, SIGNAL(onlineChanged(bool)), this, SLOT(updateOnlineState(bool)));
+    connect(host, SIGNAL(availableChanged(bool)), this, SLOT(updateAvailableState(bool)));
     connect(host, SIGNAL(currentFileChanged(LiveDocument)), this, SLOT(updateFile(LiveDocument)));
     connect(host, SIGNAL(nameChanged(QString)), this, SLOT(updateTitle()));
     connect(host, SIGNAL(xOffsetChanged(int)), this, SLOT(sendXOffset(int)));
@@ -220,11 +220,9 @@ void HostWidget::refreshDocumentLabel()
     setUpdateFile(m_host->currentFile());
 }
 
-void HostWidget::updateOnlineState(bool online)
+void HostWidget::updateAvailableState(bool available)
 {
-    qDebug() << "updateOnline";
-
-    bool available = online || m_host->type() == Host::Manual;
+    qDebug() << "updateAvailableState";
 
     if (available)
         scheduleConnectToServer();
@@ -253,7 +251,7 @@ void HostWidget::connectToServer()
         return;
     }
 
-    if (m_host->online() || m_host->type() == Host::Manual) {
+    if (m_host->available()) {
         m_publisher.connectToServer(m_host->address(), m_host->port());
         m_activateId = QUuid();
         m_rotationId = QUuid();
@@ -450,10 +448,11 @@ void HostWidget::showPinDialog()
 
 void HostWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasFormat("text/uri-list") && (m_host->online() || m_host->type() == Host::Manual)) {
+    if (!m_host->available())
+        return;
 
+    if (event->mimeData()->hasFormat("text/uri-list"))
         event->acceptProposedAction();
-    }
 }
 
 void HostWidget::dropEvent(QDropEvent *event)

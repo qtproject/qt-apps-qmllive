@@ -71,7 +71,7 @@ private slots:
     void updateFile(const LiveDocument& file);
     void setUpdateFile(const LiveDocument& file);
     void refreshDocumentLabel();
-    void updateOnlineState(bool online);
+    void updateAvailableState(bool available);
     void updateFollowTreeSelection(bool follow);
 
     void scheduleConnectToServer();

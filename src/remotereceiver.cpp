@@ -82,6 +82,7 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
     , m_client(0)
     , m_bulkUpdateInProgress(false)
     , m_updateDocumentsOnConnectState(UpdateNotStarted)
+    , m_logSentPosition(0)
 {
     connect(m_server, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
     connect(m_server, SIGNAL(clientConnected(QTcpSocket*)), this, SLOT(onClientConnected(QTcpSocket*)));
@@ -216,6 +217,7 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
             emit endBulkUpdate();
             if (m_updateDocumentsOnConnectState == UpdateStarted) {
                 m_updateDocumentsOnConnectState = UpdateFinished;
+                finishConnectionInitialization();
                 emit updateDocumentsOnConnectFinished(true);
             }
         } else {
@@ -293,13 +295,19 @@ void RemoteReceiver::onClientDisconnected(QTcpSocket *socket)
 }
 void RemoteReceiver::maybeStartUpdateDocumentsOnConnect()
 {
-    if (!(m_connectionOptions & UpdateDocumentsOnConnect))
-        return;
-
-    if (m_updateDocumentsOnConnectState == UpdateNotStarted) {
+    if (m_connectionOptions & UpdateDocumentsOnConnect
+            && m_updateDocumentsOnConnectState == UpdateNotStarted) {
         m_client->send("needsPublishWorkspace()", QByteArray());
         m_updateDocumentsOnConnectState = UpdateRequested;
+    } else {
+        finishConnectionInitialization();
     }
+}
+
+void RemoteReceiver::finishConnectionInitialization()
+{
+    m_logSentPosition = 0;
+    flushLog();
 }
 
 /*!
@@ -307,7 +315,18 @@ void RemoteReceiver::maybeStartUpdateDocumentsOnConnect()
  */
 void RemoteReceiver::appendToLog(const QList<QQmlError> &errors)
 {
-    foreach (const QQmlError &err, errors) {
+    m_log.append(errors);
+
+    if (!m_client)
+        return;
+
+    flushLog();
+}
+
+void RemoteReceiver::flushLog()
+{
+    for (; m_logSentPosition < m_log.count(); ++m_logSentPosition) {
+        const QQmlError &err = m_log.at(m_logSentPosition);
         if (!err.isValid())
             continue;
 
@@ -337,6 +356,9 @@ void RemoteReceiver::appendToLog(const QList<QQmlError> &errors)
  */
 void RemoteReceiver::clearLog()
 {
+    m_log.clear();
+    m_logSentPosition = 0;
+
     m_client->send("clearLog()", QByteArray());
 }
 

@@ -103,6 +103,10 @@ private Q_SLOTS:
     void onClientConnected(QTcpSocket *socket);
     void onClientDisconnected(QTcpSocket *socket);
     void maybeStartUpdateDocumentsOnConnect();
+    void finishConnectionInitialization();
+
+private:
+    void flushLog();
 
 private:
     IpcServer *m_server;
@@ -117,6 +121,9 @@ private:
     ConnectionOptions m_connectionOptions;
     bool m_bulkUpdateInProgress;
     UpdateState m_updateDocumentsOnConnectState;
+
+    QList<QQmlError> m_log;
+    int m_logSentPosition;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(RemoteReceiver::ConnectionOptions)

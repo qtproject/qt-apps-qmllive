@@ -64,6 +64,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     bool eventFilter(QObject *, QEvent *);
+    void timerEvent(QTimerEvent *event);
 
 private slots:
     void updateName(const QString& name);
@@ -75,6 +76,7 @@ private slots:
     void updateOnlineState(bool online);
     void updateFollowTreeSelection(bool follow);
 
+    void scheduleConnectToServer();
     void connectToServer();
     void connectAndSendFile();
 
@@ -119,6 +121,7 @@ private:
 
     RemotePublisher m_publisher;
     QPointer<LiveHubEngine> m_engine;
+    QBasicTimer m_connectToServerTimer;
 
     QUuid m_activateId;
     QList<QUuid> m_changeIds;

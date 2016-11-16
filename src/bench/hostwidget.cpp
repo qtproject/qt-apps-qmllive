@@ -181,7 +181,7 @@ void HostWidget::updateIp(const QString &ip)
         m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
     }
 
-    QTimer::singleShot(0, this, SLOT(connectToServer()));
+    scheduleConnectToServer();
 }
 
 void HostWidget::updatePort(int port)
@@ -191,7 +191,7 @@ void HostWidget::updatePort(int port)
         m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
     }
 
-    QTimer::singleShot(0, this, SLOT(connectToServer()));
+    scheduleConnectToServer();
 }
 
 void HostWidget::updateFile(const LiveDocument &file)
@@ -246,7 +246,7 @@ void HostWidget::updateOnlineState(bool online)
     bool available = online || m_host->type() == Host::Manual;
 
     if (available)
-        QTimer::singleShot(0, this, SLOT(connectToServer()));
+        scheduleConnectToServer();
     else
         onDisconnected();
 }
@@ -257,6 +257,11 @@ void HostWidget::updateFollowTreeSelection(bool follow)
 
     if (follow)
         m_host->setCurrentFile(m_engine->activePath());
+}
+
+void HostWidget::scheduleConnectToServer()
+{
+    m_connectToServerTimer.start(0, this);
 }
 
 void HostWidget::connectToServer()
@@ -497,4 +502,12 @@ bool HostWidget::eventFilter(QObject *object, QEvent *event)
     }
 
     return false;
+}
+
+void HostWidget::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == m_connectToServerTimer.timerId()) {
+        m_connectToServerTimer.stop();
+        connectToServer();
+    }
 }

@@ -500,7 +500,7 @@ QUrl LiveNodeEngine::queryDocumentViewer(const QUrl& url)
 void LiveNodeEngine::setActiveDocument(const LiveDocument &document)
 {
     loadDocument(document);
-    emit activateDocument(document);
+    emit activeDocumentChanged(document);
 }
 
 /*!
@@ -647,7 +647,7 @@ void LiveNodeEngine::onSizeChanged()
 }
 
 /*!
- * \fn void LiveNodeEngine::activateDocument(const LiveDocument& document)
+ * \fn void LiveNodeEngine::activeDocumentChanged(const LiveDocument& document)
  *
  * The document \a document was activated
  */

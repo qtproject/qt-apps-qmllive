@@ -58,6 +58,7 @@ Q_SIGNALS:
     void connectionError(QAbstractSocket::SocketError error);
     void needsPinAuthentication();
     void needsPublishWorkspace();
+    void activeDocumentChanged(const LiveDocument &document);
     void pinOk(bool ok);
     void remoteLog(int type, const QString &msg, const QUrl &url = QUrl(), int line = -1, int column = -1);
     void clearLog();

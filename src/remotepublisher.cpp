@@ -296,6 +296,19 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
         emit remoteLog(msgType, description, url, line, column);
     } else if (method == "clearLog()") {
         emit clearLog();
+    } else if (method == "activeDocumentChanged(QString)") {
+        QString path;
+
+        QDataStream in(content);
+        in >> path;
+
+        if (path.isEmpty() || !QDir::isRelativePath(path)) {
+            qCritical() << "Invalid argument to remote call activeDocumentChanged."
+                        << "Relative file path expected:" << path;
+            return;
+        }
+
+        emit activeDocumentChanged(LiveDocument(path));
     }
 }
 
@@ -350,6 +363,13 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
  *
  * The signal is emitted after receiving the needsPublishWorkspace IPC call,
  * to indicate the client asks for (re)sending all workspace documents.
+ */
+
+/*!
+ * \fn RemotePublisher::activeDocumentChanged(const LiveDocument &document)
+ *
+ * The signal is emitted after receiving the activeDocumentChanged IPC call,
+ * to indicate the client's active \a document has changed.
  */
 
 /*! \fn RemotePublisher::sentSuccessfully(const QUuid& uuid)

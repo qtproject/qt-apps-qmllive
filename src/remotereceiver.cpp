@@ -251,6 +251,7 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
     m_node = node;
     connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
     connect(m_node, SIGNAL(clearLog()), this, SLOT(clearLog()));
+    connect(m_node, SIGNAL(activeDocumentChanged(LiveDocument)), this, SLOT(onActiveDocumentChanged(LiveDocument)));
     connect(this, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(setActiveDocument(LiveDocument)));
     connect(this, SIGNAL(updateDocument(LiveDocument,QByteArray)), m_node, SLOT(updateDocument(LiveDocument,QByteArray)));
     connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
@@ -306,6 +307,9 @@ void RemoteReceiver::maybeStartUpdateDocumentsOnConnect()
 
 void RemoteReceiver::finishConnectionInitialization()
 {
+    if (!m_node->activeDocument().isNull())
+        onActiveDocumentChanged(m_node->activeDocument());
+
     m_logSentPosition = 0;
     flushLog();
 }
@@ -360,6 +364,18 @@ void RemoteReceiver::clearLog()
     m_logSentPosition = 0;
 
     m_client->send("clearLog()", QByteArray());
+}
+
+/*!
+ * Called to notify bench about active document change
+ */
+void RemoteReceiver::onActiveDocumentChanged(const LiveDocument &document)
+{
+    QByteArray bytes;
+    QDataStream out(&bytes, QIODevice::WriteOnly);
+    out << document.relativeFilePath();
+
+    m_client->send("activeDocumentChanged(QString)", bytes);
 }
 
 /*!

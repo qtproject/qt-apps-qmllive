@@ -69,14 +69,13 @@ protected:
 private slots:
     void updateTitle();
     void updateFile(const LiveDocument& file);
-    void setUpdateFile(const LiveDocument& file);
     void refreshDocumentLabel();
     void updateAvailableState(bool available);
     void updateFollowTreeSelection(bool follow);
+    void updateRemoteActions();
 
     void scheduleConnectToServer();
     void connectToServer();
-    void connectAndSendFile();
 
     void onConnected();
     void onDisconnected();

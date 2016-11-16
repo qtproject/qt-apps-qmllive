@@ -215,7 +215,6 @@ void Host::saveToSettings(QSettings *s)
     s->setValue("xOffset", xOffset());
     s->setValue("yOffset", yOffset());
     s->setValue("rotation", rotation());
-    s->setValue("currentFile", currentFile().relativeFilePath());
     s->setValue("autoDiscoveryId", autoDiscoveryId().toString());
     s->setValue("systemName", systemName());
     s->setValue("productVersion", productVersion());
@@ -233,7 +232,6 @@ void Host::restoreFromSettings(QSettings *s)
     setXOffset(s->value("xOffset").toInt());
     setYOffset(s->value("yOffset").toInt());
     setRotation(s->value("rotation").toInt());
-    setCurrentFile(LiveDocument(s->value("currentFile").toString()));
     setAutoDiscoveryId(QUuid(s->value("autoDiscoveryId").toString()));
     setSystemName(s->value("systemName").toString());
     setProductVersion(s->value("productVersion").toString());

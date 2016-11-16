@@ -95,7 +95,7 @@ public Q_SLOTS:
     void updateDocument(const LiveDocument &document, const QByteArray &content);
 
 Q_SIGNALS:
-    void activateDocument(const LiveDocument& document);
+    void activeDocumentChanged(const LiveDocument& document);
     void clearLog();
     void logIgnoreMessages(bool on);
     void documentLoaded();

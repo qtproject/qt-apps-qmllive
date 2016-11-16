@@ -99,6 +99,7 @@ private Q_SLOTS:
 
     void appendToLog(const QList<QQmlError> &errors);
     void clearLog();
+    void onActiveDocumentChanged(const LiveDocument &document);
 
     void onClientConnected(QTcpSocket *socket);
     void onClientDisconnected(QTcpSocket *socket);

@@ -482,7 +482,7 @@ void HostWidget::dragEnterEvent(QDragEnterEvent *event)
     if (m_publisher.state() != QAbstractSocket::ConnectedState)
         return;
 
-    if (event->mimeData()->hasFormat("text/uri-list"))
+    if (event->mimeData()->hasUrls())
         event->acceptProposedAction();
 }
 
@@ -493,7 +493,7 @@ void HostWidget::dropEvent(QDropEvent *event)
 
     event->acceptProposedAction();
 
-    QUrl url(event->mimeData()->text());
+    QUrl url(event->mimeData()->urls().first());
     if (url.isLocalFile()) {
         LiveDocument document = LiveDocument::resolve(m_engine->workspace(), url.toLocalFile());
         if (!document.isNull() && document.isFileIn(m_engine->workspace())) {

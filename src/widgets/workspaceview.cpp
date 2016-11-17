@@ -57,7 +57,15 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     m_view->hideColumn(2); // type
     m_view->hideColumn(3); // modified time
 
-    m_view->setItemDelegate(new WorkspaceDelegate(m_model, this));
+    // Prevent view highlighting background of a selected row. Only the
+    // active-document's row should be highlighted. See also
+    // WorkspaceDelegate::initStyleOption()
+    QPalette noHighlightPalette = palette();
+    noHighlightPalette.setColor(QPalette::Highlight, palette().color(QPalette::Base));
+    noHighlightPalette.setColor(QPalette::HighlightedText, palette().color(QPalette::Text));
+    m_view->setPalette(noHighlightPalette);
+
+    m_view->setItemDelegate(new WorkspaceDelegate(this));
     connect(m_view, SIGNAL(activated(QModelIndex)), this, SLOT(indexActivated(QModelIndex)));
 
     m_model->setAllowedTypesFilter(QStringList() << "*.qml" << "*.png" << "*.otf" << "*.ttf");
@@ -67,7 +75,6 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     layout->addWidget(m_view);
     layout->setMargin(1);
     setLayout(layout);
-
 
     m_view->setDragEnabled(true);
     m_view->setDragDropMode(QAbstractItemView::DragOnly);
@@ -140,8 +147,14 @@ void WorkspaceView::indexActivated(const QModelIndex &index)
 
     QString path = m_model->filePath(index);
 
+    LiveDocument oldDocument = m_currentDocument;
+
     m_currentDocument = LiveDocument::resolve(m_model->rootDirectory(), path);
     emit pathActivated(m_currentDocument);
+    m_view->update(index);
+
+    if (!oldDocument.isNull())
+        m_view->update(m_model->index(oldDocument.absoluteFilePathIn(rootPath())));
 }
 
 void WorkspaceView::selectIndex(const QModelIndex &index)

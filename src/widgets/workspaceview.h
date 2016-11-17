@@ -43,6 +43,7 @@ class WorkspaceView : public QWidget
     Q_OBJECT
 public:
     explicit WorkspaceView(QWidget *parent = 0);
+    FileSystemModel *model() const { return m_model; }
     LiveDocument activeDocument() const;
     QString rootPath() const;
     void setDirectoriesSelectable(bool enabled);

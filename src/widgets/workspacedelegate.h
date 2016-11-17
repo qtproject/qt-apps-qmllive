@@ -32,18 +32,19 @@
 #pragma once
 
 #include <QStyledItemDelegate>
-#include "filesystemmodel.h"
+
+class WorkspaceView;
 
 class WorkspaceDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit WorkspaceDelegate(FileSystemModel* model, QObject *parent = 0);
+    explicit WorkspaceDelegate(WorkspaceView *view);
 
     virtual void initStyleOption(QStyleOptionViewItem * option, const QModelIndex & index )const;
 
 private:
 
-    FileSystemModel* m_model;
+    WorkspaceView* m_view;
 };
 

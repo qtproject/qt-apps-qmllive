@@ -193,7 +193,6 @@ void LiveNodeEngine::setQmlEngine(QQmlEngine *qmlEngine)
     m_qmlEngine = qmlEngine;
 
     connect(m_qmlEngine.data(), &QQmlEngine::warnings, this, &LiveNodeEngine::logErrors);
-    qmlEngine->setOutputWarningsToStandardError(false);
 
     m_qmlEngine->rootContext()->setContextProperty("livert", m_runtime);
 }

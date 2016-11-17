@@ -168,6 +168,7 @@ void Application::setDarkStyle()
     palette.setColor(QPalette::Text, QColor("#F0F0F0"));
     palette.setColor(QPalette::Button, QColor("#353535"));
     palette.setColor(QPalette::ButtonText, QColor("#FFFFFF"));
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#A0A0A0"));
     palette.setColor(QPalette::BrightText, QColor("#D0021B"));
     palette.setColor(QPalette::Highlight, QColor("#F19300"));
     palette.setColor(QPalette::HighlightedText, QColor("#1C1C1C"));

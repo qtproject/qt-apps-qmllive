@@ -37,39 +37,50 @@
 #include "livenodeengine.h"
 #include "remotereceiver.h"
 
-class CustomQmlEngine : public QQmlEngine
+class MyQmlApplicationEngine : public QQmlApplicationEngine
 {
     Q_OBJECT
 
 public:
-    CustomQmlEngine(); // Perform some setup here
+    MyQmlApplicationEngine(const QString &mainQml); // Perform some setup here
 };
 
 int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
+    MyQmlApplicationEngine engine(QStringLiteral("qml/window.qml"));
 
-    CustomQmlEngine qmlEngine;
-    QQuickView fallbackView(&qmlEngine, 0);
+    if (!qEnvironmentVariableIsSet("MY_APP_ENABLE_QMLLIVE"))
+        return app.exec();
 
+#if defined(QT_NO_DEBUG)
+    qWarning() << "QmlLive support was disabled at compile time";
+#else
     LiveNodeEngine node;
+
     // Let QmlLive know your runtime
-    node.setQmlEngine(&qmlEngine);
+    node.setQmlEngine(&engine);
+
     // Allow it to display QML components with non-QQuickWindow root object
+    QQuickView fallbackView(&engine, 0);
     node.setFallbackView(&fallbackView);
+
     // Tell it where file updates should be stored relative to
     node.setWorkspace(app.applicationDirPath(),
                       LiveNodeEngine::AllowUpdates | LiveNodeEngine::UpdatesAsOverlay);
+
     // Listen to IPC call from remote QmlLive Bench
     RemoteReceiver receiver;
     receiver.registerNode(&node);
     receiver.listen(10234);
 
+#endif
+
     return app.exec();
 }
 //![0]
 
-CustomQmlEngine::CustomQmlEngine()
+MyQmlApplicationEngine::MyQmlApplicationEngine(const QString &mainQml)
 {
     QStringList colors;
     colors.append(QStringLiteral("red"));
@@ -77,6 +88,8 @@ CustomQmlEngine::CustomQmlEngine()
     colors.append(QStringLiteral("blue"));
     colors.append(QStringLiteral("black"));
     rootContext()->setContextProperty("myColors", colors);
+
+    load(QDir(qApp->applicationDirPath()).absoluteFilePath(mainQml));
 };
 
 #include "main.moc"

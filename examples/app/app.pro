@@ -1,5 +1,6 @@
 TEMPLATE = app
 TARGET = app
+CONFIG += c++11
 
 macx*: CONFIG -= app_bundle
 QT *= quick

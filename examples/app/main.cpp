@@ -43,6 +43,12 @@ class MyQmlApplicationEngine : public QQmlApplicationEngine
 
 public:
     MyQmlApplicationEngine(const QString &mainQml); // Perform some setup here
+
+    QString mainQml() const;
+    QQuickWindow *mainWindow();
+    QList<QQmlError> warnings() const;
+
+    // ...
 };
 
 int main(int argc, char **argv)
@@ -74,14 +80,27 @@ int main(int argc, char **argv)
     receiver.registerNode(&node);
     receiver.listen(10234);
 
+    // Advanced use: let it know the initially loaded QML component (do this
+    // only after registering to receiver!)
+    node.usePreloadedDocument(engine.mainQml(), engine.mainWindow(), engine.warnings());
 #endif
 
     return app.exec();
 }
 //![0]
 
+// Keep the snippet simple!
+static QString MyQmlApplicationEngine_mainQml;
+static QList<QQmlError> MyQmlApplicationEngine_warnings;
+
 MyQmlApplicationEngine::MyQmlApplicationEngine(const QString &mainQml)
 {
+    // Would be nice to have this in QQmlApplicationEngine
+    MyQmlApplicationEngine_mainQml = mainQml;
+    connect(this, &QQmlEngine::warnings, [](const QList<QQmlError> &warnings) {
+        MyQmlApplicationEngine_warnings.append(warnings);
+    });
+
     QStringList colors;
     colors.append(QStringLiteral("red"));
     colors.append(QStringLiteral("green"));
@@ -91,5 +110,23 @@ MyQmlApplicationEngine::MyQmlApplicationEngine(const QString &mainQml)
 
     load(QDir(qApp->applicationDirPath()).absoluteFilePath(mainQml));
 };
+
+QString MyQmlApplicationEngine::mainQml() const
+{
+    return MyQmlApplicationEngine_mainQml;
+}
+
+QQuickWindow *MyQmlApplicationEngine::mainWindow()
+{
+    if (rootObjects().isEmpty())
+        return nullptr;
+
+    return qobject_cast<QQuickWindow *>(rootObjects().first());
+}
+
+QList<QQmlError> MyQmlApplicationEngine::warnings() const
+{
+    return MyQmlApplicationEngine_warnings;
+}
 
 #include "main.moc"

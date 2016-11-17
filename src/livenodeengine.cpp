@@ -441,8 +441,32 @@ void LiveNodeEngine::reloadDocument()
     const QUrl originalUrl = QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace));
     const QUrl url = queryDocumentViewer(originalUrl);
 
-    QScopedPointer<QQmlComponent> component(new QQmlComponent(m_qmlEngine, url));
-    m_object = component->create();
+    auto showErrorScreen = [this] {
+        Q_ASSERT(m_fallbackView);
+        m_fallbackView->setResizeMode(QQuickView::SizeRootObjectToView);
+        m_fallbackView->setSource(errorScreenUrl());
+        m_activeWindow = m_fallbackView;
+    };
+
+    auto logError = [this, url](const QString &description) {
+        QQmlError error;
+        error.setObject(m_object);
+        error.setUrl(url);
+        error.setLine(0);
+        error.setColumn(0);
+        error.setDescription(description);
+        emit logErrors(QList<QQmlError>() << error);
+    };
+
+    QScopedPointer<QQmlComponent> component(new QQmlComponent(m_qmlEngine));
+    if (url.path().endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)) {
+        component->loadUrl(url);
+        m_object = component->create();
+    } else if (url == originalUrl) {
+        logError(tr("LiveNodeEngine: Cannot display this file type"));
+    } else {
+        logError(tr("LiveNodeEngine: Internal error: Cannot display this file type"));
+    }
 
     if (!component->isReady()) {
         if (component->isLoading()) {
@@ -452,11 +476,8 @@ void LiveNodeEngine::reloadDocument()
         } else {
             emit logErrors(component->errors());
             delete m_object;
-            if (m_fallbackView) {
-                m_fallbackView->setResizeMode(QQuickView::SizeRootObjectToView);
-                m_fallbackView->setSource(errorScreenUrl());
-                m_activeWindow = m_fallbackView;
-            }
+            if (m_fallbackView)
+                showErrorScreen();
         }
     } else if (QQuickWindow *window = qobject_cast<QQuickWindow *>(m_object)) {
         // TODO (why) is this needed?
@@ -473,29 +494,14 @@ void LiveNodeEngine::reloadDocument()
             m_fallbackView->setContent(url, component.take(), m_object);
             m_activeWindow = m_fallbackView;
         } else {
-            QQmlError error;
-            error.setObject(m_object);
-            error.setUrl(url);
-            error.setLine(0);
-            error.setColumn(0);
-            error.setDescription(tr("LiveNodeEngine: Cannot display this component: "
-                                    "Root object is not a QQuickWindow and no LiveNodeEngine::fallbackView set."));
-            emit logErrors(QList<QQmlError>() << error);
+            logError(tr("LiveNodeEngine: Cannot display this component: "
+                        "Root object is not a QQuickWindow and no LiveNodeEngine::fallbackView set."));
         }
     } else {
-        QQmlError error;
-        error.setObject(m_object);
-        error.setUrl(url);
-        error.setLine(0);
-        error.setColumn(0);
-        error.setDescription(tr("LiveNodeEngine: Cannot display this component: "
-                                "Root object is not a QQuickWindow nor a QQuickItem."));
-        emit logErrors(QList<QQmlError>() << error);
-        if (m_fallbackView) {
-            m_fallbackView->setResizeMode(QQuickView::SizeRootObjectToView);
-            m_fallbackView->setSource(errorScreenUrl());
-            m_activeWindow = m_fallbackView;
-        }
+        logError(tr("LiveNodeEngine: Cannot display this component: "
+                    "Root object is not a QQuickWindow nor a QQuickItem."));
+        if (m_fallbackView)
+            showErrorScreen();
     }
 
     if (m_activeWindow) {

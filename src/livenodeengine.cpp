@@ -436,6 +436,9 @@ void LiveNodeEngine::reloadDocument()
 
     checkQmlFeatures();
 
+    qInfo() << "----------------------------------------";
+    qInfo() << "QmlLive: (Re)loading" << m_activeFile;
+
     emit clearLog();
 
     const QUrl originalUrl = QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace));

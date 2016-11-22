@@ -45,6 +45,7 @@
 #endif
 
 #if defined(QMLLIVE_SOURCE)
+
 #  if !defined(QT_NO_DEBUG) || defined(QT_FORCE_ASSERTS)
 #    define LIVE_ASSERT(cond, action) Q_ASSERT(cond)
 #  else
@@ -54,6 +55,13 @@
         action;                                                         \
     } do {} while (0)
 #  endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
+#  define QtInfoMsg QtWarningMsg
+#  define qInfo qWarning
+#  define qCInfo qCWarning
 #endif
+
+#endif // defined(QMLLIVE_SOURCE)
 
 #endif // QMLLIVELIB_GLOBAL_H

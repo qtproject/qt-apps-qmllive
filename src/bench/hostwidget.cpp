@@ -37,7 +37,7 @@
 #include <QMessageBox>
 
 Q_DECLARE_LOGGING_CATEGORY(csLog)
-Q_LOGGING_CATEGORY(csLog, "QmlLive.Bench.ConnectionState", QtWarningMsg)
+Q_LOGGING_CATEGORY(csLog, "QmlLive.Bench.ConnectionState", QtInfoMsg)
 
 const int LABEL_STACK_INDEX=0;
 const int PROGRESS_STACK_INDEX=1;

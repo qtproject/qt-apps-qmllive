@@ -106,11 +106,7 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
     m_server->listen(port);
 
     if (m_connectionOptions & BlockingConnect) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
-        qWarning() << "Waiting for connection from QmlLive Bench…";
-#else
         qInfo() << "Waiting for connection from QmlLive Bench…";
-#endif
 
         QEventLoop loop;
 

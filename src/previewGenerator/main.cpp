@@ -89,7 +89,7 @@ private:
 };
 
 Q_DECLARE_LOGGING_CATEGORY(pg)
-Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtWarningMsg)
+Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtInfoMsg)
 
 int main (int argc, char** argv)
 {

@@ -48,9 +48,9 @@ ImportPathOptionPage::ImportPathOptionPage(QWidget *parent) :
     }
     s.endArray();
 
-    connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addItem()));
-    connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeItem()));
-    connect(ui->editButton, SIGNAL(clicked()), this, SLOT(editItem()));
+    connect(ui->addButton, &QAbstractButton::clicked, this, &ImportPathOptionPage::addItem);
+    connect(ui->removeButton, &QAbstractButton::clicked, this, &ImportPathOptionPage::removeItem);
+    connect(ui->editButton, &QAbstractButton::clicked, this, &ImportPathOptionPage::editItem);
 }
 
 ImportPathOptionPage::~ImportPathOptionPage()

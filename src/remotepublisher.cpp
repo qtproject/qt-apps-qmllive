@@ -58,19 +58,16 @@ RemotePublisher::RemotePublisher(QObject *parent)
     , m_ipc(new IpcClient(this))
     , m_hub(0)
 {
-    connect(m_ipc, SIGNAL(sentSuccessfully(QUuid)), this, SIGNAL(sentSuccessfully(QUuid)));
-    connect(m_ipc, SIGNAL(sendingError(QUuid,QAbstractSocket::SocketError)),
-            this, SIGNAL(sendingError(QUuid,QAbstractSocket::SocketError)));
-    connect(m_ipc, SIGNAL(connectionError(QAbstractSocket::SocketError)),
-            this, SIGNAL(connectionError(QAbstractSocket::SocketError)));
-    connect(m_ipc, SIGNAL(connected()), this, SIGNAL(connected()));
-    connect(m_ipc, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    connect(m_ipc, &IpcClient::sentSuccessfully, this, &RemotePublisher::sentSuccessfully);
+    connect(m_ipc, &IpcClient::sendingError, this, &RemotePublisher::sendingError);
+    connect(m_ipc, &IpcClient::connectionError, this, &RemotePublisher::connectionError);
+    connect(m_ipc, &IpcClient::connected, this, &RemotePublisher::connected);
+    connect(m_ipc, &IpcClient::disconnected, this, &RemotePublisher::disconnected);
 
-    connect(m_ipc, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
+    connect(m_ipc, &IpcClient::received, this, &RemotePublisher::handleCall);
 
-    connect(m_ipc, SIGNAL(sentSuccessfully(QUuid)), this, SLOT(onSentSuccessfully(QUuid)));
-    connect(m_ipc, SIGNAL(sendingError(QUuid,QAbstractSocket::SocketError)),
-            this, SLOT(onSendingError(QUuid,QAbstractSocket::SocketError)));
+    connect(m_ipc, &IpcClient::sentSuccessfully, this, &RemotePublisher::onSentSuccessfully);
+    connect(m_ipc, &IpcClient::sendingError, this, &RemotePublisher::onSendingError);
 }
 
 /*!
@@ -92,12 +89,12 @@ void RemotePublisher::registerHub(LiveHubEngine *hub)
         disconnect(m_hub);
     }
     m_hub = hub;
-    connect(hub, SIGNAL(activateDocument(LiveDocument)), this, SLOT(activateDocument(LiveDocument)));
-    connect(hub, SIGNAL(fileChanged(LiveDocument)), this, SLOT(sendDocument(LiveDocument)));
-    connect(hub, SIGNAL(publishFile(LiveDocument)), this, SLOT(sendDocument(LiveDocument)));
-    connect(this, SIGNAL(needsPublishWorkspace()), hub, SLOT(publishWorkspace()));
-    connect(hub, SIGNAL(beginPublishWorkspace()), this, SLOT(beginBulkSend()));
-    connect(hub, SIGNAL(endPublishWorkspace()), this, SLOT(endBulkSend()));
+    connect(hub, &LiveHubEngine::activateDocument, this, &RemotePublisher::activateDocument);
+    connect(hub, &LiveHubEngine::fileChanged, this, &RemotePublisher::sendDocument);
+    connect(hub, &LiveHubEngine::publishFile, this, &RemotePublisher::sendDocument);
+    connect(this, &RemotePublisher::needsPublishWorkspace, hub, &LiveHubEngine::publishWorkspace);
+    connect(hub, &LiveHubEngine::beginPublishWorkspace, this, &RemotePublisher::beginBulkSend);
+    connect(hub, &LiveHubEngine::endPublishWorkspace, this, &RemotePublisher::endBulkSend);
 }
 
 /*!

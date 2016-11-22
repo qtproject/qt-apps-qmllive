@@ -66,7 +66,7 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     m_view->setPalette(noHighlightPalette);
 
     m_view->setItemDelegate(new WorkspaceDelegate(this));
-    connect(m_view, SIGNAL(activated(QModelIndex)), this, SLOT(indexActivated(QModelIndex)));
+    connect(m_view, &QTreeView::activated, this, &WorkspaceView::indexActivated);
 
     m_model->setAllowedTypesFilter(QStringList() << "*.qml" << "*.png" << "*.otf" << "*.ttf");
 

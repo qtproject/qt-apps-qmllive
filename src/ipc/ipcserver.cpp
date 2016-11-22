@@ -49,10 +49,7 @@
  *
  * \code{.cpp}
  * m_server = new IpcServer(this);
- * connect(
- *   m_server, SIGNAL(received(QString,QByteArray)),
- *   this, SLOT(handleCall(QString, QByteArray))
- * );
+ * connect(m_server, &IpcServer::received, this, &MyHandler::handleCall);
  * m_server->listen(10234);
  *
  * ...
@@ -75,7 +72,7 @@ IpcServer::IpcServer(QObject *parent)
     : QObject(parent)
     , m_server(new QTcpServer(this))
 {
-    connect(m_server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+    connect(m_server, &QTcpServer::newConnection, this, &IpcServer::newConnection);
 }
 
 /*!
@@ -98,8 +95,8 @@ void IpcServer::newConnection()
         emit clientConnected(socket->peerAddress());
         emit clientConnected(socket);
         IpcConnection *connection = new IpcConnection(socket, this);
-        connect(connection, SIGNAL(connectionClosed()), this, SLOT(onConnectionClosed()));
-        connect(connection, SIGNAL(received(QString,QByteArray)), this, SIGNAL(received(QString,QByteArray)));
+        connect(connection, &IpcConnection::connectionClosed, this, &IpcServer::onConnectionClosed);
+        connect(connection, &IpcConnection::received, this, &IpcServer::received);
     }
 }
 

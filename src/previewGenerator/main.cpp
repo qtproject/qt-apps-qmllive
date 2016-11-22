@@ -54,7 +54,7 @@ public:
     PreviewServer()
         : m_server(new QLocalServer())
     {
-        connect(m_server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
+        connect(m_server, &QLocalServer::newConnection, this, &PreviewServer::onNewConnection);
     }
 
     bool listen()

@@ -39,11 +39,11 @@ AllHostsWidget::AllHostsWidget(QWidget *parent) :
     setContentsMargins(0,0,0,0);
     m_publishAction = new QAction("Publish", this);
     m_publishAction->setIcon(QIcon(":images/publish.svg"));
-    connect(m_publishAction, SIGNAL(triggered(bool)), this, SLOT(onPublishTriggered()));
+    connect(m_publishAction, &QAction::triggered, this, &AllHostsWidget::onPublishTriggered);
 
     m_refreshAction = new QAction("Refresh", this);
     m_refreshAction->setIcon(QIcon(":images/refresh.svg"));
-    connect(m_refreshAction, SIGNAL(triggered(bool)), this, SIGNAL(refreshAll()));
+    connect(m_refreshAction, &QAction::triggered, this, &AllHostsWidget::refreshAll);
 
 
     setAcceptDrops(true);

@@ -163,7 +163,7 @@ LiveNodeEngine::LiveNodeEngine(QObject *parent)
 {
     m_delayReload->setInterval(250);
     m_delayReload->setSingleShot(true);
-    connect(m_delayReload, SIGNAL(timeout()), this, SLOT(reloadDocument()));
+    connect(m_delayReload, &QTimer::timeout, this, &LiveNodeEngine::reloadDocument);
 }
 
 /*!

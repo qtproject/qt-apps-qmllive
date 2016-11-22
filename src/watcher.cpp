@@ -48,8 +48,8 @@ Watcher::Watcher(QObject *parent)
     , m_watcher(new QFileSystemWatcher(this))
     , m_waitTimer(new QTimer(this))
 {
-    connect(m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(recordChange(QString)));
-    connect(m_waitTimer, SIGNAL(timeout()), this, SLOT(notifyChanges()));
+    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, &Watcher::recordChange);
+    connect(m_waitTimer, &QTimer::timeout, this, &Watcher::notifyChanges);
     m_waitTimer->setInterval(100);
     m_waitTimer->setSingleShot(true);
 }

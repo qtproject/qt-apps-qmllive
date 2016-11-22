@@ -55,7 +55,7 @@ LiveHubEngine::LiveHubEngine(QObject *parent)
     , m_watcher(new Watcher(this))
     , m_filePublishingActive(false)
 {
-    connect(m_watcher, SIGNAL(directoriesChanged(QStringList)), this, SLOT(directoriesChanged(QStringList)));
+    connect(m_watcher, &Watcher::directoriesChanged, this, &LiveHubEngine::directoriesChanged);
 }
 
 /*!

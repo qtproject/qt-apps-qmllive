@@ -50,7 +50,7 @@ LogReceiver::LogReceiver(QObject *parent) :
     m_socket(new QUdpSocket(this))
 {
     setPort(45454);
-    connect(m_socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
+    connect(m_socket, &QAbstractSocket::readyRead, this, &LogReceiver::processPendingDatagrams);
 }
 
 /*!

@@ -53,7 +53,7 @@ public slots:
     void setIgnoreMessages(bool ignoreMessages);
     void clear();
     void appendToLog(int type, const QString &msg, const QUrl &url = QUrl(), int line = -1, int column = -1);
-    void appendToLog(const QList<QQmlError> &errors);
+    void appendAllToLog(const QList<QQmlError> &errors);
 
 private:
     QPlainTextEdit *m_log;

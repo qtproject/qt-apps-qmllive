@@ -60,21 +60,21 @@ private Q_SLOTS:
     void call() {
         IpcServer peer1;
         peer1.listen(10234);
-        connect(&peer1, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
+        connect(&peer1, &IpcServer::received, this, &TestIpc::handleCall);
         IpcClient peer2;
         peer2.connectToServer("127.0.0.1", 10234);
         QByteArray bytes;
         QDataStream stream(&bytes, QIODevice::ReadWrite);
         stream << QString("Hello IPC!");
         peer2.send("echo(QString)", bytes);
-        QSignalSpy received(&peer1, SIGNAL(received(QString,QByteArray)));
+        QSignalSpy received(&peer1, &IpcServer::received);
         QTRY_COMPARE(received.count(), 1);
     }
 
     void sendFile() {
         IpcServer peer1;
         peer1.listen(10234);
-        connect(&peer1, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
+        connect(&peer1, &IpcServer::received, this, &TestIpc::handleCall);
         IpcClient peer2;
         peer2.connectToServer("127.0.0.1", 10234);
         QByteArray bytes;
@@ -83,7 +83,7 @@ private Q_SLOTS:
         stream << filePath;
         stream << QString("hello").toLatin1();
         peer2.send("sendFile(QString,QByteArray)", bytes);
-        QSignalSpy received(&peer1, SIGNAL(received(QString,QByteArray)));
+        QSignalSpy received(&peer1, &IpcServer::received);
         QTRY_COMPARE(received.count(), 1);
     }
 };

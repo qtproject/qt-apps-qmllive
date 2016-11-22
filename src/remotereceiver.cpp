@@ -84,10 +84,14 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
     , m_updateDocumentsOnConnectState(UpdateNotStarted)
     , m_logSentPosition(0)
 {
-    connect(m_server, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
-    connect(m_server, SIGNAL(clientConnected(QTcpSocket*)), this, SLOT(onClientConnected(QTcpSocket*)));
-    connect(m_server, SIGNAL(clientConnected(QHostAddress)), this, SIGNAL(clientConnected(QHostAddress)));
-    connect(m_server, SIGNAL(clientDisconnected(QHostAddress)), this, SIGNAL(clientDisconnected(QHostAddress)));
+    void (IpcServer::*IpcServer__clientConnected_socket)(QTcpSocket*) = &IpcServer::clientConnected;
+    void (IpcServer::*IpcServer__clientConnected_address)(const QHostAddress &) = &IpcServer::clientConnected;
+    void (IpcServer::*IpcServer__clientDisconnected_address)(const QHostAddress &) = &IpcServer::clientDisconnected;
+
+    connect(m_server, &IpcServer::received, this, &RemoteReceiver::handleCall);
+    connect(m_server, IpcServer__clientConnected_socket, this, &RemoteReceiver::onClientConnected);
+    connect(m_server, IpcServer__clientConnected_address, this, &RemoteReceiver::clientConnected);
+    connect(m_server, IpcServer__clientDisconnected_address, this, &RemoteReceiver::clientDisconnected);
 }
 
 /*!
@@ -249,14 +253,14 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
 {
     if (m_node) { disconnect(m_node); }
     m_node = node;
-    connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
-    connect(m_node, SIGNAL(clearLog()), this, SLOT(clearLog()));
-    connect(m_node, SIGNAL(activeDocumentChanged(LiveDocument)), this, SLOT(onActiveDocumentChanged(LiveDocument)));
-    connect(this, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(loadDocument(LiveDocument)));
-    connect(this, SIGNAL(updateDocument(LiveDocument,QByteArray)), m_node, SLOT(updateDocument(LiveDocument,QByteArray)));
-    connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
-    connect(this, SIGNAL(yOffsetChanged(int)), m_node, SLOT(setYOffset(int)));
-    connect(this, SIGNAL(rotationChanged(int)), m_node, SLOT(setRotation(int)));
+    connect(m_node, &LiveNodeEngine::logErrors, this, &RemoteReceiver::appendToLog);
+    connect(m_node, &LiveNodeEngine::clearLog, this, &RemoteReceiver::clearLog);
+    connect(m_node, &LiveNodeEngine::activeDocumentChanged, this, &RemoteReceiver::onActiveDocumentChanged);
+    connect(this, &RemoteReceiver::activateDocument, m_node, &LiveNodeEngine::loadDocument);
+    connect(this, &RemoteReceiver::updateDocument, m_node, &LiveNodeEngine::updateDocument);
+    connect(this, &RemoteReceiver::xOffsetChanged, m_node, &LiveNodeEngine::setXOffset);
+    connect(this, &RemoteReceiver::yOffsetChanged, m_node, &LiveNodeEngine::setYOffset);
+    connect(this, &RemoteReceiver::rotationChanged, m_node, &LiveNodeEngine::setRotation);
 }
 
 /*!

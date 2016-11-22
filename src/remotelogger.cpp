@@ -48,7 +48,7 @@ RemoteLogger::RemoteLogger(QObject *parent) :
     m_socket(new QUdpSocket(this)) ,
     m_port(45454)
 {
-    connect(this, SIGNAL(message(int,QString)), this, SLOT(broadcast(int,QString)));
+    connect(this, &Logger::message, this, &RemoteLogger::broadcast);
 }
 
 /*!

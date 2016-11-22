@@ -77,17 +77,17 @@ MainWindow::MainWindow(QWidget *parent)
     m_hub->setFilePublishingActive(true);
     m_node->setWorkspaceView(m_workspace);
 
-    connect(m_workspace, SIGNAL(pathActivated(LiveDocument)), m_hub, SLOT(setActivePath(LiveDocument)));
-    connect(m_workspace, SIGNAL(pathActivated(LiveDocument)), m_hostManager, SLOT(followTreeSelection(LiveDocument)));
-    connect(m_hub, SIGNAL(activateDocument(LiveDocument)), this, SLOT(updateWindowTitle()));
-    connect(m_hub, SIGNAL(activateDocument(LiveDocument)), m_node, SLOT(loadDocument(LiveDocument)));
-    connect(m_node, SIGNAL(activeWindowChanged(QQuickWindow*)), this, SLOT(onActiveWindowChanged(QQuickWindow*)));
-    connect(m_node->qmlEngine(), SIGNAL(quit()), this, SLOT(logQuitEvent()));
-    connect(m_allHosts, SIGNAL(publishAll()), m_hostManager, SLOT(publishAll()));
-    connect(m_allHosts, SIGNAL(currentFileChanged(LiveDocument)), m_hostManager, SLOT(setCurrentFile(LiveDocument)));
-    connect(m_allHosts, SIGNAL(refreshAll()), m_hostManager, SLOT(refreshAll()));
-    connect(m_hostManager, SIGNAL(logWidgetAdded(QDockWidget*)), this, SLOT(onLogWidgetAdded(QDockWidget*)));
-    connect(m_hostManager, SIGNAL(openHostConfig(Host*)), this, SLOT(openPreferences(Host*)));
+    connect(m_workspace, &WorkspaceView::pathActivated, m_hub, &LiveHubEngine::setActivePath);
+    connect(m_workspace, &WorkspaceView::pathActivated, m_hostManager, &HostManager::followTreeSelection);
+    connect(m_hub, &LiveHubEngine::activateDocument, this, &MainWindow::updateWindowTitle);
+    connect(m_hub, &LiveHubEngine::activateDocument, m_node, &LiveNodeEngine::loadDocument);
+    connect(m_node, &LiveNodeEngine::activeWindowChanged, this, &MainWindow::onActiveWindowChanged);
+    connect(m_node->qmlEngine(), &QQmlEngine::quit, this, &MainWindow::logQuitEvent);
+    connect(m_allHosts, &AllHostsWidget::publishAll, m_hostManager, &HostManager::publishAll);
+    connect(m_allHosts, &AllHostsWidget::currentFileChanged, m_hostManager, &HostManager::setCurrentFile);
+    connect(m_allHosts, &AllHostsWidget::refreshAll, m_hostManager, &HostManager::refreshAll);
+    connect(m_hostManager, &HostManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
+    connect(m_hostManager, &HostManager::openHostConfig, this, &MainWindow::openPreferences);
 
     m_qmlDefaultimportList = m_node->qmlEngine()->importPathList();
 }
@@ -168,34 +168,78 @@ void MainWindow::setupLogView()
     m_logDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
     addDockWidget(Qt::BottomDockWidgetArea, m_logDock);
 
-    connect(m_node, SIGNAL(clearLog()), m_log, SLOT(clear()));
-    connect(m_node, SIGNAL(logIgnoreMessages(bool)), m_log, SLOT(setIgnoreMessages(bool)));
-    connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), m_log, SLOT(appendToLog(QList<QQmlError>)));
+    connect(m_node, &LiveNodeEngine::clearLog, m_log, &LogView::clear);
+    connect(m_node, &LiveNodeEngine::logIgnoreMessages, m_log, &LogView::setIgnoreMessages);
+    connect(m_node, &LiveNodeEngine::logErrors, m_log, &LogView::appendAllToLog);
 }
 
 void MainWindow::setupMenuBar()
 {
     QMenu *file = menuBar()->addMenu(tr("&File"));
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."), this, SLOT(openWorkspace()), QKeySequence::Open);
+#else
+    m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."),
+                                      this, &MainWindow::openWorkspace, QKeySequence::Open);
+#endif
     m_recentMenu = file->addMenu(QIcon::fromTheme("document-open-recent"), "&Recent");
     m_recentMenu->setEnabled(false);
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     file->addAction(tr("Preferences..."), this, SLOT(openPreferences()), QKeySequence::Preferences);
+#else
+    file->addAction(tr("Preferences..."), this, [this] { openPreferences(); },
+                    QKeySequence::Preferences);
+#endif
     file->addSeparator();
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     file->addAction(QIcon::fromTheme("application-exit"), tr("&Quit"), this, SLOT(close()), QKeySequence::Quit);
+#else
+    file->addAction(QIcon::fromTheme("application-exit"), tr("&Quit"),
+                    this, &MainWindow::close, QKeySequence::Quit);
+#endif
 
     QMenu *view = menuBar()->addMenu(tr("&View"));
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     view->addAction(tr("Take Snapshot"), this, SLOT(takeSnapshot()), QKeySequence("Ctrl+F3"));
+#else
+    view->addAction(tr("Take Snapshot"), this, &MainWindow::takeSnapshot, QKeySequence("Ctrl+F3"));
+#endif
     view->addSeparator();
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     QAction *slow = view->addAction(tr("Slow Down Animations"), this, SLOT(slowDownAnimations(bool)), QKeySequence(tr("Ctrl+.")));
+#else
+    QAction *slow = view->addAction(tr("Slow Down Animations"),
+                                    this, &MainWindow::slowDownAnimations,
+                                    QKeySequence(tr("Ctrl+.")));
+#endif
     slow->setCheckable(true);
     view->addSeparator();
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     m_refresh = view->addAction(QIcon::fromTheme("view-refresh"), tr("Refresh"), m_node, SLOT(refresh()), QKeySequence::Refresh);
+#else
+    m_refresh = view->addAction(QIcon::fromTheme("view-refresh"), tr("Refresh"),
+                                m_node, &BenchLiveNodeEngine::refresh, QKeySequence::Refresh);
+#endif
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     m_resizeFit = view->addAction(QIcon::fromTheme("zoom-fit-best"), tr("Resize to Fit"), this, SLOT(resizeToFit()));
+#else
+    m_resizeFit = view->addAction(QIcon::fromTheme("zoom-fit-best"), tr("Resize to Fit"),
+                                  this, &MainWindow::resizeToFit);
+#endif
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     view->addAction(tr("Show Containing Folder"), m_workspace, SLOT(goUp()), QKeySequence("Ctrl+Esc"));
+#else
+    view->addAction(tr("Show Containing Folder"), m_workspace, &WorkspaceView::goUp,
+                    QKeySequence("Ctrl+Esc"));
+#endif
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     m_stayOnTop = view->addAction(tr("Stay on Top"), this, SLOT(stayOnTop()));
+#else
+    m_stayOnTop = view->addAction(tr("Stay on Top"), this, &MainWindow::stayOnTop);
+#endif
     m_stayOnTop->setCheckable(true);
 
     view->addSeparator();
@@ -448,11 +492,19 @@ void MainWindow::updateRecentFolder(const QString& path)
 
     m_recentMenu->clear();
     foreach (const QString file, m_recentFolder) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
         m_recentMenu->addAction(file, this, SLOT(openRecentFolder()));
+#else
+        m_recentMenu->addAction(file, this, &MainWindow::openRecentFolder);
+#endif
     }
 
     m_recentMenu->addSeparator();
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     m_recentMenu->addAction("Clear Menu", this, SLOT(clearRecentFolder()));
+#else
+    m_recentMenu->addAction("Clear Menu", this, &MainWindow::clearRecentFolder);
+#endif
 }
 
 void MainWindow::stayOnTop()

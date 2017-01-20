@@ -62,7 +62,7 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
     }
 
     static const QString program = QCoreApplication::applicationDirPath() +
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN
         QStringLiteral("/previewGenerator.exe");
 #else
         QStringLiteral("/../libexec/qmllive/previewGenerator");

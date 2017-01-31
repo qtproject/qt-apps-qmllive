@@ -41,7 +41,7 @@
 AboutDialog::AboutDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("About Qt QML Live"));
+    setWindowTitle(tr("About Qt QmlLive"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     QVBoxLayout *layout = new QVBoxLayout(this);

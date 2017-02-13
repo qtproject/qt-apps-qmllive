@@ -54,6 +54,9 @@ protected:
     QString serverName() const;
     void setDarkStyle();
     void parseArguments(const QStringList &arguments, Options *options);
+
+private:
+    static QString userName();
 };
 
 class MasterApplication : public Application
@@ -119,9 +122,10 @@ bool Application::isMaster()
     if (lock != 0)
         return retv;
 
-    const QString key = QString::fromLatin1("%1.%2-lock")
+    const QString key = QString::fromLatin1("%1.%2-%3-lock")
         .arg(organizationDomain().isEmpty() ? organizationName() : organizationDomain())
-        .arg(applicationName());
+        .arg(applicationName())
+        .arg(userName());
 
     lock = new QSharedMemory(key, qApp);
 
@@ -146,9 +150,10 @@ QString Application::serverName() const
     Q_ASSERT(!applicationName().isEmpty());
     Q_ASSERT(!organizationDomain().isEmpty() || !organizationName().isEmpty());
 
-    return QString::fromLatin1("%1.%2-app")
+    return QString::fromLatin1("%1.%2-%3-app")
         .arg(organizationDomain().isEmpty() ? organizationName() : organizationDomain())
-        .arg(applicationName());
+        .arg(applicationName())
+        .arg(userName());
 }
 
 void Application::setDarkStyle()
@@ -301,6 +306,22 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
             parser.showHelp(-1);
         }
     }
+}
+
+QString Application::userName()
+{
+    QString retv;
+
+#if defined(Q_OS_UNIX)
+    retv = QString::fromLocal8Bit(qgetenv("USER"));
+#elif defined(Q_OS_WIN)
+    retv = QString::fromLocal8Bit(qgetenv("USERNAME"));
+#endif
+
+    if (retv.isEmpty())
+        qWarning("Failed to determine system user name");
+
+    return retv;
 }
 
 /*

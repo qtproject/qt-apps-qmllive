@@ -1,5 +1,5 @@
 !CONFIG(skip-bench): requires(qtHaveModule(widgets))
-requires(!winrt)
+requires(!winrt|*-msvc2013)
 
 load(configure)
 load(config-output)

@@ -1,5 +1,5 @@
 !CONFIG(skip-bench): requires(qtHaveModule(widgets))
-requires(!winrt:!*-msvc2013)
+requires(!winrt)
 
 load(configure)
 load(config-output)
@@ -18,4 +18,5 @@ SUBDIRS += src
 OTHER_FILES += \
     README.md \
     INSTALL.md \
-    CONTRIBUTORS.md
+    CONTRIBUTORS.md \
+    .qmake.conf \

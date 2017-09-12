@@ -34,10 +34,14 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(QMLLIVE_LIBRARY)
-#  define QMLLIVESHARED_EXPORT Q_DECL_EXPORT
+#if !defined(QT_STATIC)
+#  if defined(QMLLIVE_LIBRARY)
+#    define QMLLIVESHARED_EXPORT Q_DECL_EXPORT
+#  else
+#    define QMLLIVESHARED_EXPORT Q_DECL_IMPORT
+#  endif
 #else
-#  define QMLLIVESHARED_EXPORT Q_DECL_IMPORT
+#  define QMLLIVESHARED_EXPORT
 #endif
 
 #endif // QMLLIVELIB_GLOBAL_H

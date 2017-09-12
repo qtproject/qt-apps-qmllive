@@ -3,7 +3,6 @@ android|ios|qnx {
     CONFIG += skip-bench skip-examples static-link-runtime
 }
 
-VERSION = 0.1.0
 isEmpty(PREFIX): PREFIX = $$[QT_INSTALL_PREFIX]
 isEmpty(EXAMPLES_PREFIX): EXAMPLES_PREFIX = $$[QT_INSTALL_LIBS]/qmllive/examples
 

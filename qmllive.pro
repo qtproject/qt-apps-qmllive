@@ -1,5 +1,5 @@
 !CONFIG(skip-bench): requires(qtHaveModule(widgets))
-requires(!winrt)
+requires(!winrt:!integrity)
 
 load(configure)
 load(config-output)

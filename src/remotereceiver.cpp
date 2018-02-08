@@ -117,8 +117,10 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
                 loop.quit();
             });
             loop.exec();
-            if (!pinOk)
+            if (!pinOk) {
+                qWarning() << "Refused connection from QmlLive Bench: Wrong pin";
                 return false;
+            }
         }
 
         if (m_connectionOptions & UpdateDocumentsOnConnect) {
@@ -128,9 +130,13 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
                 loop.quit();
             });
             loop.exec();
-            if (!finishedOk)
+            if (!finishedOk) {
+                qWarning() << "Initial workspace synchronization with QmlLive Bench failed";
                 return false;
+            }
         }
+
+        qInfo() << "QmlLive Bench connected";
     }
 
     return true;
@@ -179,6 +185,7 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
         } else if (m_client) {
             emit pinOk(false);
             m_client->send("pinOK(bool)", QByteArray::number(0));
+            return;
         }
     }
 

@@ -45,6 +45,10 @@
 
 #include <signal.h>
 
+#ifdef Q_OS_MACOS
+#include "cocoahelper.h"
+#endif
+
 class Application : public QApplication
 {
     Q_OBJECT
@@ -125,6 +129,11 @@ Application *Application::create(int &argc, char **argv)
 
     // Cannot instantiate the actual application yet
     parseArguments(QCoreApplication(argc, argv).arguments(), s_options = new Options);
+
+#ifdef Q_OS_MACOS
+    if (isMaster() && !s_options->remoteOnly() && !s_options->hasNoninteractiveOptions())
+        transformToForegroundApplication();
+#endif
 
     if (isMaster())
         return new MasterApplication(argc, argv);

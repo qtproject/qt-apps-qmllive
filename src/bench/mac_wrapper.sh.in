@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "$(dirname "$0")/%TARGET%.app/Contents/MacOS/%TARGET%" "$@"

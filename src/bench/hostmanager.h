@@ -68,6 +68,8 @@ private slots:
     void addHost(int index);
 
 private:
+    using QListView::setModel;
+
     QPointer<LiveHubEngine> m_engine;
 
     HostModel* m_model;

@@ -49,6 +49,46 @@
 #include "hostdiscoverymanager.h"
 #include "options.h"
 
+class ErrorBar : public QFrame
+{
+    Q_OBJECT
+
+public:
+    ErrorBar(QWidget *parent = 0)
+        : QFrame(parent)
+    {
+        setFrameShape(QFrame::StyledPanel);
+        setAutoFillBackground(true);
+        QPalette p = palette();
+        p.setColor(QPalette::Window, Qt::red);
+        setPalette(p);
+
+        auto layout = new QHBoxLayout(this);
+        layout->setContentsMargins(4, 4, 4, 4);
+
+        m_label = new QLabel;
+        m_label->setWordWrap(true);
+        layout->addWidget(m_label);
+
+        auto button = new QToolButton;
+        button->setAutoRaise(true);
+        button->setIcon(QIcon(":images/refresh.svg"));
+        connect(button, &QAbstractButton::clicked, this, &ErrorBar::retry);
+        layout->addWidget(button);
+    }
+
+    void setError(const QString &errorString)
+    {
+        m_label->setText(errorString);
+        setVisible(!errorString.isEmpty());
+    }
+
+signals:
+    void retry();
+
+private:
+    QLabel *m_label;
+};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -132,9 +172,42 @@ void MainWindow::setupWorkspaceView()
 {
     m_workspaceDock = new QDockWidget("Workspace", this);
     m_workspaceDock->setObjectName("workspace");
-    m_workspaceDock->setWidget(m_workspace);
     m_workspaceDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     m_workspaceDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+
+    auto contents = new QWidget;
+    auto layout = new QVBoxLayout(contents);
+    layout->setContentsMargins(1, 1, 1, 1);
+    layout->setSpacing(1);
+
+    auto errorBar = new ErrorBar;
+    layout->addWidget(errorBar);
+
+    auto updateErrorBar = [this, errorBar]() {
+        QString error;
+        switch (m_hub->error()) {
+        case LiveHubEngine::NoError:
+            break;
+        case LiveHubEngine::WatcherMaximumReached:
+            error = tr("Unable to monitor file changes: The configured limit of %1 directories was exceeded.")
+                .arg(LiveHubEngine::maximumWatches());
+            break;
+        case LiveHubEngine::WatcherSystemError:
+            error = tr("Unable to monitor file changes. System limit exceeded?");
+            break;
+        }
+        errorBar->setError(error);
+    };
+    updateErrorBar();
+    connect(m_hub, &LiveHubEngine::errorChanged, errorBar, updateErrorBar);
+
+    connect(errorBar, &ErrorBar::retry, this, [this]() {
+        m_hub->setWorkspace(m_hub->workspace());
+    });
+
+    layout->addWidget(m_workspace);
+
+    m_workspaceDock->setWidget(contents);
     addDockWidget(Qt::LeftDockWidgetArea, m_workspaceDock);
 }
 
@@ -517,3 +590,5 @@ void MainWindow::stayOnTop()
     }
     show();
 }
+
+#include "mainwindow.moc"

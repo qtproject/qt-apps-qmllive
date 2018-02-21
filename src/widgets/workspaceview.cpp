@@ -73,7 +73,7 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     // setup layout
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_view);
-    layout->setMargin(1);
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     m_view->setDragEnabled(true);

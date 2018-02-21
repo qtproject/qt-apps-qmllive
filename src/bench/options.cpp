@@ -37,6 +37,7 @@ Options::Options(QObject *parent)
     , m_remoteOnly(false)
     , m_ping(false)
     , m_stayOnTop(false)
+    , m_maximumWatches(100)
 {
 
 }
@@ -173,4 +174,14 @@ QStringList Options::hostsToProbe() const
 void Options::setHostsToProbe(const QStringList &hostNames)
 {
     m_hostsToProbe = hostNames;
+}
+
+int Options::maximumWatches() const
+{
+    return m_maximumWatches;
+}
+
+void Options::setMaximumWatches(int maximumWatches)
+{
+    m_maximumWatches = maximumWatches;
 }

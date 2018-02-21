@@ -43,11 +43,23 @@ class QMLLIVESHARED_EXPORT LiveHubEngine : public QObject
 {
     Q_OBJECT
 public:
+    enum Error {
+        NoError,
+        WatcherMaximumReached,
+        WatcherSystemError,
+    };
+
     explicit LiveHubEngine(QObject *parent = 0);
     void setWorkspace(const QString& path);
     QString workspace() const;
 
     LiveDocument activePath() const;
+
+    bool hasError();
+    Error error();
+
+    static int maximumWatches();
+    static void setMaximumWatches(int maximumWatches);
 public Q_SLOTS:
     void setActivePath(const LiveDocument& path);
     void setFilePublishingActive(bool on);
@@ -59,13 +71,16 @@ Q_SIGNALS:
     void fileChanged(const LiveDocument& document);
     void activateDocument(const LiveDocument& document);
     void workspaceChanged(const QString& workspace);
+    void errorChanged();
 private Q_SLOTS:
     void directoriesChanged(const QStringList& changes);
+    void watcherErrorChanged();
 private:
     void publishDirectory(const QString& dirPath, bool fileChange);
 private:
     Watcher *m_watcher;
     bool m_filePublishingActive;
     LiveDocument m_activePath;
+    Error m_error = NoError;
 };
 

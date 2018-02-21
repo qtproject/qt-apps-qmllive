@@ -86,6 +86,9 @@ public:
     QStringList hostsToProbe() const;
     void setHostsToProbe(const QStringList &hostNames);
 
+    int maximumWatches() const;
+    void setMaximumWatches(int maximumWatches);
+
 private:
     bool m_noRemote;
     bool m_remoteOnly;
@@ -98,5 +101,6 @@ private:
     QList<HostOptions> m_hostsToAdd;
     QStringList m_hostsToRemove;
     QStringList m_hostsToProbe;
+    int m_maximumWatches;
 };
 

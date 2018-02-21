@@ -36,6 +36,7 @@
 
 #include "hostmanager.h"
 #include "hostmodel.h"
+#include "livehubengine.h"
 #include "options.h"
 #include "mainwindow.h"
 #include "qmllive_version.h"
@@ -211,6 +212,8 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addOption(remoteOnlyOption);
     QCommandLineOption pingOption("ping", "just check if there is a bench running and accepting remote connections.");
     parser.addOption(pingOption);
+    QCommandLineOption maxWatchesOption("maxdirwatch", "limit the number of directories to watch for changes", "number", QString::number(options->maximumWatches()));
+    parser.addOption(maxWatchesOption);
 
     parser.process(arguments);
 
@@ -237,6 +240,15 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
         parser.showHelp(-1);
     }
 
+    if (parser.isSet(maxWatchesOption)) {
+        bool ok;
+        int value = parser.value(maxWatchesOption).toInt(&ok);
+        if (!ok) {
+            qWarning() << "Invalid argument to --maxdirwatch option";
+            parser.showHelp(-1);
+        }
+        options->setMaximumWatches(value);
+    }
 
     options->setPluginPath(parser.value(pluginPathOption));
     options->setImportPaths(parser.values(importPathOption));
@@ -417,6 +429,8 @@ void MasterApplication::listenForArguments()
 
 void MasterApplication::applyOptions(const Options &options)
 {
+    LiveHubEngine::setMaximumWatches(options.maximumWatches());
+
     if (!options.workspace().isEmpty())
         m_window->setWorkspace(QDir(options.workspace()).absolutePath(), false);
 

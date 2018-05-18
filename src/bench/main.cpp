@@ -47,6 +47,7 @@ class Application : public QApplication
 
 public:
     static Application *create(int &argc, char **argv);
+    ~Application() override;
 
 protected:
     Application(int &argc, char **argv);
@@ -54,10 +55,14 @@ protected:
 
     QString serverName() const;
     void setDarkStyle();
-    void parseArguments(const QStringList &arguments, Options *options);
+    static void parseArguments(const QStringList &arguments, Options *options);
+    static const Options *options() { return s_options; }
 
 private:
     static QString userName();
+
+private:
+    static Options *s_options;
 };
 
 class MasterApplication : public Application
@@ -88,16 +93,18 @@ private:
     void forwardArguments();
 };
 
+Options *Application::s_options = 0;
+
 Application *Application::create(int &argc, char **argv)
 {
     setApplicationName("QmlLiveBench");
     setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 
-    // Workaround: Cannot use QCoreApplication::arguments before app is instantiated
-    const bool hasNoRemoteOption = argc >= 2 && QString::fromLocal8Bit(argv[1]) == QLatin1String("--noremote");
+    // Cannot instantiate the actual application yet
+    parseArguments(QCoreApplication(argc, argv).arguments(), s_options = new Options);
 
-    if (hasNoRemoteOption || isMaster())
+    if (isMaster())
         return new MasterApplication(argc, argv);
     else
         return new SlaveApplication(argc, argv);
@@ -112,10 +119,19 @@ Application::Application(int &argc, char **argv)
     setDarkStyle();
 }
 
+Application::~Application()
+{
+    delete s_options, s_options = 0;
+}
+
 bool Application::isMaster()
 {
     Q_ASSERT(!applicationName().isEmpty());
     Q_ASSERT(!organizationDomain().isEmpty() || !organizationName().isEmpty());
+    Q_ASSERT(s_options);
+
+    if (s_options->noRemote())
+        return true;
 
     static QSharedMemory *lock = 0;
     static bool retv = false;
@@ -206,7 +222,7 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
                                        "(implies --remoteonly)", "name");
     parser.addOption(probeHostOption);
     QCommandLineOption noRemoteOption("noremote", "do not try to talk to a running bench, do not listen for remote "
-                                      "connections. It MUST BE the VERY FIRST argument on command line.");
+                                      "connections.");
     parser.addOption(noRemoteOption);
     QCommandLineOption remoteOnlyOption("remoteonly", "talk to a running bench, do nothing if none is running.");
     parser.addOption(remoteOnlyOption);
@@ -344,27 +360,24 @@ MasterApplication::MasterApplication(int &argc, char **argv)
     : Application(argc, argv)
     , m_window(new MainWindow)
 {
-    Options options;
-    parseArguments(arguments(), &options);
-
-    if (options.ping()) {
+    if (options()->ping()) {
         QTimer::singleShot(0, [] { QCoreApplication::exit(1); });
         return;
     }
 
-    if (options.remoteOnly()) {
+    if (options()->remoteOnly()) {
         QTimer::singleShot(0, this, &QCoreApplication::quit);
         return;
     }
 
-    applyOptions(options);
+    applyOptions(*options());
 
-    if (options.hasNoninteractiveOptions()) {
+    if (options()->hasNoninteractiveOptions()) {
         QTimer::singleShot(0, this, &QCoreApplication::quit);
     } else {
         m_window->init();
         m_window->show();
-        if (!options.noRemote())
+        if (!options()->noRemote())
             listenForArguments();
     }
 }
@@ -515,18 +528,15 @@ void MasterApplication::applyOptions(const Options &options)
 SlaveApplication::SlaveApplication(int &argc, char **argv)
     : Application(argc, argv)
 {
-    Options options;
-    parseArguments(arguments(), &options);
-
-    if (options.ping()) {
+    if (options()->ping()) {
         QTimer::singleShot(0, &QCoreApplication::quit);
         return;
     }
 
-    if (!options.remoteOnly() && !options.hasNoninteractiveOptions())
+    if (!options()->remoteOnly() && !options()->hasNoninteractiveOptions())
         qInfo() << "Another instance running. Activating...";
 
-    warnAboutIgnoredOptions(options);
+    warnAboutIgnoredOptions(*options());
     forwardArguments();
 }
 

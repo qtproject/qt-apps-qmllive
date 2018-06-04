@@ -31,6 +31,7 @@
 
 #include "remotepublisher.h"
 #include "ipc/ipcclient.h"
+#include "livedocument.h"
 #include "livehubengine.h"
 
 #ifdef QMLLIVE_DEBUG
@@ -57,19 +58,16 @@ RemotePublisher::RemotePublisher(QObject *parent)
     , m_ipc(new IpcClient(this))
     , m_hub(0)
 {
-    connect(m_ipc, SIGNAL(sentSuccessfully(QUuid)), this, SIGNAL(sentSuccessfully(QUuid)));
-    connect(m_ipc, SIGNAL(sendingError(QUuid,QAbstractSocket::SocketError)),
-            this, SIGNAL(sendingError(QUuid,QAbstractSocket::SocketError)));
-    connect(m_ipc, SIGNAL(connectionError(QAbstractSocket::SocketError)),
-            this, SIGNAL(connectionError(QAbstractSocket::SocketError)));
-    connect(m_ipc, SIGNAL(connected()), this, SIGNAL(connected()));
-    connect(m_ipc, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    connect(m_ipc, &IpcClient::sentSuccessfully, this, &RemotePublisher::sentSuccessfully);
+    connect(m_ipc, &IpcClient::sendingError, this, &RemotePublisher::sendingError);
+    connect(m_ipc, &IpcClient::connectionError, this, &RemotePublisher::connectionError);
+    connect(m_ipc, &IpcClient::connected, this, &RemotePublisher::connected);
+    connect(m_ipc, &IpcClient::disconnected, this, &RemotePublisher::disconnected);
 
-    connect(m_ipc, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
+    connect(m_ipc, &IpcClient::received, this, &RemotePublisher::handleCall);
 
-    connect(m_ipc, SIGNAL(sentSuccessfully(QUuid)), this, SLOT(onSentSuccessfully(QUuid)));
-    connect(m_ipc, SIGNAL(sendingError(QUuid,QAbstractSocket::SocketError)),
-            this, SLOT(onSendingError(QUuid,QAbstractSocket::SocketError)));
+    connect(m_ipc, &IpcClient::sentSuccessfully, this, &RemotePublisher::onSentSuccessfully);
+    connect(m_ipc, &IpcClient::sendingError, this, &RemotePublisher::onSendingError);
 }
 
 /*!
@@ -91,12 +89,12 @@ void RemotePublisher::registerHub(LiveHubEngine *hub)
         disconnect(m_hub);
     }
     m_hub = hub;
-    connect(hub, SIGNAL(activateDocument(QString)), this, SLOT(activateDocument(QString)));
-    connect(hub, SIGNAL(fileChanged(QString)), this, SLOT(sendDocument(QString)));
-    connect(hub, SIGNAL(publishFile(QString)), this, SLOT(sendDocument(QString)));
-    connect(this, SIGNAL(needsPublishWorkspace()), hub, SLOT(publishWorkspace()));
-    connect(hub, SIGNAL(beginPublishWorkspace()), this, SLOT(beginBulkSend()));
-    connect(hub, SIGNAL(endPublishWorkspace()), this, SLOT(endBulkSend()));
+    connect(hub, &LiveHubEngine::activateDocument, this, &RemotePublisher::activateDocument);
+    connect(hub, &LiveHubEngine::fileChanged, this, &RemotePublisher::sendDocument);
+    connect(hub, &LiveHubEngine::publishFile, this, &RemotePublisher::sendDocument);
+    connect(this, &RemotePublisher::needsPublishWorkspace, hub, &LiveHubEngine::publishWorkspace);
+    connect(hub, &LiveHubEngine::beginPublishWorkspace, this, &RemotePublisher::beginBulkSend);
+    connect(hub, &LiveHubEngine::endPublishWorkspace, this, &RemotePublisher::endBulkSend);
 }
 
 /*!
@@ -134,15 +132,15 @@ void RemotePublisher::disconnectFromServer()
 }
 
 /*!
- * Send "activateDocument(QString)" to ipc-server on activate document.
+ * Send "activateDocument(QString)" to IPC-server on activate document.
  * \a document defines the Document which should be activated
  */
-QUuid RemotePublisher::activateDocument(const QString &document)
+QUuid RemotePublisher::activateDocument(const LiveDocument &document)
 {
     DEBUG << "RemotePublisher::activateDocument" << document;
     QByteArray bytes;
     QDataStream out(&bytes, QIODevice::WriteOnly);
-    out << document;
+    out << document.relativeFilePath();
     return m_ipc->send("activateDocument(QString)", bytes);
 }
 
@@ -165,10 +163,10 @@ QUuid RemotePublisher::endBulkSend()
 }
 
 /*!
- * Sends "sendDocument(QString)" using \a document as path to the document to be
+ * Sends "sendDocument(QString)" using \a document to identify the document to be
  *send to via IPC.
  */
-QUuid RemotePublisher::sendDocument(const QString& document)
+QUuid RemotePublisher::sendDocument(const LiveDocument& document)
 {
     DEBUG << "RemotePublisher::sendDocument" << document;
     return sendWholeDocument(document);
@@ -224,10 +222,10 @@ QUuid RemotePublisher::setRotation(int rotation)
 /*!
   Sends the \e sendWholeDocument with \a document as argument via IPC
  */
-QUuid RemotePublisher::sendWholeDocument(const QString& document)
+QUuid RemotePublisher::sendWholeDocument(const LiveDocument& document)
 {
     DEBUG << "RemotePublisher::sendWholeDocument" << document;
-    QFile file(document);
+    QFile file(document.absoluteFilePathIn(m_workspace));
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << "ERROR: can't open file: " << document;
         return QUuid();
@@ -236,7 +234,7 @@ QUuid RemotePublisher::sendWholeDocument(const QString& document)
 
     QByteArray bytes;
     QDataStream out(&bytes, QIODevice::WriteOnly);
-    out << m_workspace.relativeFilePath(document);
+    out << document.relativeFilePath();
     out << data;
     return m_ipc->send("sendDocument(QString,QByteArray)", bytes);
 }
@@ -295,6 +293,19 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
         emit remoteLog(msgType, description, url, line, column);
     } else if (method == "clearLog()") {
         emit clearLog();
+    } else if (method == "activeDocumentChanged(QString)") {
+        QString path;
+
+        QDataStream in(content);
+        in >> path;
+
+        if (path.isEmpty() || !QDir::isRelativePath(path)) {
+            qCritical() << "Invalid argument to remote call activeDocumentChanged."
+                        << "Relative file path expected:" << path;
+            return;
+        }
+
+        emit activeDocumentChanged(LiveDocument(path));
     }
 }
 
@@ -349,6 +360,13 @@ void RemotePublisher::handleCall(const QString &method, const QByteArray &conten
  *
  * The signal is emitted after receiving the needsPublishWorkspace IPC call,
  * to indicate the client asks for (re)sending all workspace documents.
+ */
+
+/*!
+ * \fn RemotePublisher::activeDocumentChanged(const LiveDocument &document)
+ *
+ * The signal is emitted after receiving the activeDocumentChanged IPC call,
+ * to indicate the client's active \a document has changed.
  */
 
 /*! \fn RemotePublisher::sentSuccessfully(const QUuid& uuid)

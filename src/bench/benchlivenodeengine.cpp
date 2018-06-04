@@ -108,7 +108,11 @@ void BenchLiveNodeEngine::initPlugins()
     DirectoryPreviewAdapter *adapter = new DirectoryPreviewAdapter(this);
     if (m_workspaceView) {
         //This needs to be QueuedConnection because Qt5 doesn't like it to destruct it's object while it is in a signalHandler
-        connect(adapter, SIGNAL(loadDocument(QString)), m_workspaceView, SLOT(activateDocument(QString)), Qt::QueuedConnection);
+        connect(adapter, &DirectoryPreviewAdapter::loadDocument,
+                this, [this](const QString &document) {
+                    m_workspaceView->activateDocument(LiveDocument(document));
+                },
+                Qt::QueuedConnection);
     }
 
     QmlPreviewAdapter *previewAdapter = new QmlPreviewAdapter(this);

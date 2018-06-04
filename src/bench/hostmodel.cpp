@@ -100,15 +100,15 @@ void HostModel::addHost(Host *host)
 
     beginInsertRows(QModelIndex(), m_hosts.count(), m_hosts.count());
     m_hosts.append(host);
-    connect(host, SIGNAL(nameChanged(QString)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(addressChanged(QString)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(portChanged(int)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(followTreeSelectionChanged(bool)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(currentFileChanged(QString)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(xOffsetChanged(int)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(yOffsetChanged(int)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(rotationChanged(int)), this, SLOT(onHostChanged()));
-    connect(host, SIGNAL(onlineChanged(bool)), this, SLOT(onHostChanged()));
+    connect(host, &Host::nameChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::addressChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::portChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::followTreeSelectionChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::currentFileChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::xOffsetChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::yOffsetChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::rotationChanged, this, &HostModel::onHostChanged);
+    connect(host, &Host::onlineChanged, this, &HostModel::onHostChanged);
 
     endInsertRows();
 }

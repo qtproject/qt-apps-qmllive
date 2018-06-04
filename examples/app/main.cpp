@@ -37,46 +37,96 @@
 #include "livenodeengine.h"
 #include "remotereceiver.h"
 
-class CustomQmlEngine : public QQmlEngine
+class MyQmlApplicationEngine : public QQmlApplicationEngine
 {
     Q_OBJECT
 
 public:
-    CustomQmlEngine(); // Perform some setup here
+    MyQmlApplicationEngine(const QString &mainQml); // Perform some setup here
+
+    QString mainQml() const;
+    QQuickWindow *mainWindow();
+    QList<QQmlError> warnings() const;
+
+    // ...
 };
 
 int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
+    MyQmlApplicationEngine engine(QStringLiteral("qml/window.qml"));
 
-    CustomQmlEngine qmlEngine;
-    QQuickView fallbackView(&qmlEngine, 0);
+    if (!qEnvironmentVariableIsSet("MY_APP_ENABLE_QMLLIVE"))
+        return app.exec();
 
+#if defined(QT_NO_DEBUG)
+    qWarning() << "QmlLive support was disabled at compile time";
+#else
     LiveNodeEngine node;
-    // Let qml live know your runtime
-    node.setQmlEngine(&qmlEngine);
+
+    // Let QmlLive know your runtime
+    node.setQmlEngine(&engine);
+
     // Allow it to display QML components with non-QQuickWindow root object
+    QQuickView fallbackView(&engine, 0);
     node.setFallbackView(&fallbackView);
+
     // Tell it where file updates should be stored relative to
     node.setWorkspace(app.applicationDirPath(),
                       LiveNodeEngine::AllowUpdates | LiveNodeEngine::UpdatesAsOverlay);
-    // Listen to ipc call from remote QmlLiveBench
+
+    // Listen to IPC call from remote QmlLive Bench
     RemoteReceiver receiver;
     receiver.registerNode(&node);
     receiver.listen(10234);
+
+    // Advanced use: let it know the initially loaded QML component (do this
+    // only after registering to receiver!)
+    node.usePreloadedDocument(engine.mainQml(), engine.mainWindow(), engine.warnings());
+#endif
 
     return app.exec();
 }
 //![0]
 
-CustomQmlEngine::CustomQmlEngine()
+// Keep the snippet simple!
+static QString MyQmlApplicationEngine_mainQml;
+static QList<QQmlError> MyQmlApplicationEngine_warnings;
+
+MyQmlApplicationEngine::MyQmlApplicationEngine(const QString &mainQml)
 {
+    // Would be nice to have this in QQmlApplicationEngine
+    MyQmlApplicationEngine_mainQml = mainQml;
+    connect(this, &QQmlEngine::warnings, [](const QList<QQmlError> &warnings) {
+        MyQmlApplicationEngine_warnings.append(warnings);
+    });
+
     QStringList colors;
     colors.append(QStringLiteral("red"));
     colors.append(QStringLiteral("green"));
     colors.append(QStringLiteral("blue"));
     colors.append(QStringLiteral("black"));
     rootContext()->setContextProperty("myColors", colors);
+
+    load(QDir(qApp->applicationDirPath()).absoluteFilePath(mainQml));
 };
+
+QString MyQmlApplicationEngine::mainQml() const
+{
+    return MyQmlApplicationEngine_mainQml;
+}
+
+QQuickWindow *MyQmlApplicationEngine::mainWindow()
+{
+    if (rootObjects().isEmpty())
+        return nullptr;
+
+    return qobject_cast<QQuickWindow *>(rootObjects().first());
+}
+
+QList<QQmlError> MyQmlApplicationEngine::warnings() const
+{
+    return MyQmlApplicationEngine_warnings;
+}
 
 #include "main.moc"

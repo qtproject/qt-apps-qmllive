@@ -36,9 +36,10 @@
 #include "livehubengine.h"
 #include "logreceiver.h"
 #include "widgets/logview.h"
-#include <QDockWidget>
 
+#include <QDockWidget>
 #include <QDebug>
+#include <QFileInfo>
 
 HostManager::HostManager(QWidget *parent) :
     QListView(parent)
@@ -67,7 +68,7 @@ void HostManager::setModel(HostModel *model)
     m_model = model;
     QListView::setModel(model);
 
-    connect(model, SIGNAL(modelReset()), this, SLOT(modelReseted()));
+    connect(model, &HostModel::modelReset, this, &HostManager::modelReseted);
 }
 
 void HostManager::setLiveHubEngine(LiveHubEngine *engine)
@@ -81,8 +82,11 @@ void HostManager::setLiveHubEngine(LiveHubEngine *engine)
     }
 }
 
-void HostManager::followTreeSelection(const QString &currentFile)
+void HostManager::followTreeSelection(const LiveDocument &currentFile)
 {
+    if (!currentFile.isFileIn(m_engine->workspace()))
+        return;
+
     for (int i=0; i < m_model->rowCount(); i++) {
         HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget && widget->followTreeSelection())
@@ -90,8 +94,11 @@ void HostManager::followTreeSelection(const QString &currentFile)
     }
 }
 
-void HostManager::setCurrentFile(const QString &currentFile)
+void HostManager::setCurrentFile(const LiveDocument &currentFile)
 {
+    if (!currentFile.isFileIn(m_engine->workspace()))
+        return;
+
     for (int i=0; i < m_model->rowCount(); i++) {
         HostWidget *widget = qobject_cast<HostWidget*>(indexWidget(m_model->index(i, 0)));
         if (widget)
@@ -147,14 +154,15 @@ void HostManager::addHost(int index)
     widget->setLiveHubEngine(m_engine.data());
     widget->setHost(host);
     setIndexWidget(m_model->index(index,0), widget);
-    connect(widget, SIGNAL(openHostConfig(Host*)), this, SIGNAL(openHostConfig(Host*)));
+    connect(widget, &HostWidget::openHostConfig, this, &HostManager::openHostConfig);
 
     QDockWidget *dock = new QDockWidget(host->name());
     dock->setObjectName(host->name() + "LogDock");
-    connect(host, SIGNAL(nameChanged(QString)), dock, SLOT(setWindowTitle(QString)));
+    connect(host, &Host::nameChanged, dock, &QDockWidget::setWindowTitle);
     LogView *view = new LogView(false, dock);
-    connect(widget, SIGNAL(remoteLog(int,QString,QUrl,int,int)), view, SLOT(appendToLog(int,QString,QUrl,int,int)));
-    connect(widget, SIGNAL(clearLog()), view, SLOT(clear()));
+    connect(widget, &HostWidget::remoteLog, view, &LogView::appendToLog);
+    connect(widget, &HostWidget::clearLog, view, &LogView::clear);
+    connect(widget, &HostWidget::connected, view, &LogView::clear);
     dock->setWidget(view);
     m_logList.append(dock);
     emit logWidgetAdded(dock);

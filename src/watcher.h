@@ -40,7 +40,6 @@ public:
     explicit Watcher(QObject *parent = 0);
     void setDirectory(const QString& path);
     QString directory() const;
-    QString relativeFilePath(const QString& path);
 private Q_SLOTS:
     void recordChange(const QString &path);
     void notifyChanges();

@@ -54,7 +54,7 @@ public:
     PreviewServer()
         : m_server(new QLocalServer())
     {
-        connect(m_server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
+        connect(m_server, &QLocalServer::newConnection, this, &PreviewServer::onNewConnection);
     }
 
     bool listen()
@@ -89,7 +89,7 @@ private:
 };
 
 Q_DECLARE_LOGGING_CATEGORY(pg)
-Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtWarningMsg)
+Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtInfoMsg)
 
 int main (int argc, char** argv)
 {

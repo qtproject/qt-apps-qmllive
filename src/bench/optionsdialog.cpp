@@ -60,8 +60,8 @@ OptionsDialog::OptionsDialog(QWidget *parent)
     item->setData(Qt::UserRole, index);
     ui->optionsView->addItem(item);
 
-    connect(ui->optionsView, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            this, SLOT(optionSelected(QListWidgetItem*)));
+    connect(ui->optionsView, &QListWidget::currentItemChanged,
+            this, &OptionsDialog::optionSelected);
 }
 
 OptionsDialog::~OptionsDialog()

@@ -34,7 +34,7 @@
 
 /*!
  * \class QmlHelper
- * \brief Provides a set of helper functions to setup your qml viewer
+ * \brief Provides a set of helper functions to setup your QML viewer
  * \inmodule qmllive
  */
 
@@ -66,11 +66,7 @@ void QmlHelper::loadDummyData(QQmlEngine *engine, const QString &workspace)
             }
         }
         if (obj) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
             qInfo() << "loaded dummy data: " << dir.filePath(entry);
-#else
-            qWarning() << "loaded dummy data: " << dir.filePath(entry);
-#endif
             entry.chop(4);
             engine->rootContext()->setContextProperty(entry, obj);
             obj->setParent(engine);

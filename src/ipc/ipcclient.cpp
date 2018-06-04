@@ -84,13 +84,14 @@ IpcClient::IpcClient(QObject *parent)
     , m_written(0)
     , m_connection(new IpcConnection(m_socket))
 {
-    connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
-    connect(m_socket, SIGNAL(connected()), this, SLOT(processQueue()));
-    connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
-    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)));
-    connect(m_socket, SIGNAL(bytesWritten(qint64)), this , SLOT(onBytesWritten(qint64)));
+    connect(m_socket, &QAbstractSocket::connected, this, &IpcClient::connected);
+    connect(m_socket, &QAbstractSocket::connected, this, &IpcClient::processQueue);
+    connect(m_socket, &QAbstractSocket::disconnected, this, &IpcClient::disconnected);
+    void (QAbstractSocket::*QAbstractSocket__error)(QAbstractSocket::SocketError) = &QAbstractSocket::error;
+    connect(m_socket, QAbstractSocket__error, this, &IpcClient::onError);
+    connect(m_socket, &QAbstractSocket::bytesWritten, this, &IpcClient::onBytesWritten);
 
-    connect(m_connection, SIGNAL(received(QString,QByteArray)), this, SIGNAL(received(QString,QByteArray)));
+    connect(m_connection, &IpcConnection::received, this, &IpcClient::received);
 }
 
 IpcClient::IpcClient(QTcpSocket *socket, QObject *parent)
@@ -100,10 +101,11 @@ IpcClient::IpcClient(QTcpSocket *socket, QObject *parent)
     , m_written(0)
     , m_connection(0)
 {
-    connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
-    connect(m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
-    connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)));
-    connect(m_socket, SIGNAL(bytesWritten(qint64)), this , SLOT(onBytesWritten(qint64)));
+    connect(m_socket, &QAbstractSocket::connected, this, &IpcClient::connected);
+    connect(m_socket, &QAbstractSocket::disconnected, this, &IpcClient::disconnected);
+    void (QAbstractSocket::*QAbstractSocket__error)(QAbstractSocket::SocketError) = &QAbstractSocket::error;
+    connect(m_socket, QAbstractSocket__error, this, &IpcClient::onError);
+    connect(m_socket, &QAbstractSocket::bytesWritten, this, &IpcClient::onBytesWritten);
 }
 
 /*!
@@ -115,7 +117,7 @@ QAbstractSocket::SocketState IpcClient::state() const
 }
 
 /*!
- * Sets the Ip-Address to \a hostName and port to \a port to be used for a ipc call.
+ * Sets the Ip-Address to \a hostName and port to \a port to be used for a IPC call.
  */
 void IpcClient::connectToServer(const QString &hostName, int port)
 {
@@ -140,7 +142,11 @@ QUuid IpcClient::send(const QString &method, const QByteArray &data)
     pkg->m_tries = 0;
     m_queue.enqueue(pkg);
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
     QTimer::singleShot(0, this, SLOT(processQueue()));
+#else
+    QTimer::singleShot(0, this, &IpcClient::processQueue);
+#endif
 
     return pkg->m_uuid;
 }
@@ -295,7 +301,11 @@ void IpcClient::processQueue()
             DEBUG << "Tried to sent the package" << m_current->m_tries << "times, but didn't succeed";
             m_queue.dequeue();
             onError(QAbstractSocket::ConnectionRefusedError);
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
             QTimer::singleShot(0, this, SLOT(processQueue()));
+#else
+            QTimer::singleShot(0, this, &IpcClient::processQueue);
+#endif
             return;
         }
 
@@ -305,7 +315,11 @@ void IpcClient::processQueue()
             m_queue.dequeue();
             m_current->m_bytes = size;
         } else {
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
             QTimer::singleShot(1000, this, SLOT(processQueue()));
+#else
+            QTimer::singleShot(1000, this, &IpcClient::processQueue);
+#endif
             m_current = 0;
         }
     }
@@ -335,7 +349,11 @@ void IpcClient::onError(QAbstractSocket::SocketError socketError)
         delete m_current;
         m_current = 0;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
         QTimer::singleShot(0, this, SLOT(processQueue()));
+#else
+        QTimer::singleShot(0, this, &IpcClient::processQueue);
+#endif
     }
 
     if ((m_socket->state() != QAbstractSocket::ConnectedState &&

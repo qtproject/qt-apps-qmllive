@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "livedocument.h"
+
 #include <QtCore>
 
 class Options : public QObject
@@ -58,8 +60,8 @@ public:
     bool ping() const;
     void setPing(bool ping);
 
-    QString activeDocument() const;
-    void setActiveDocument(const QString &activeDocument);
+    LiveDocument activeDocument() const;
+    void setActiveDocument(const LiveDocument &activeDocument);
 
     QString workspace() const;
     void setWorkspace(const QString &workspace);
@@ -88,7 +90,7 @@ private:
     bool m_noRemote;
     bool m_remoteOnly;
     bool m_ping;
-    QString m_activeDocument;
+    LiveDocument m_activeDocument;
     QString m_workspace;
     QString m_pluginPath;
     QStringList m_importPaths;

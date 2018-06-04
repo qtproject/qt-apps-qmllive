@@ -33,6 +33,8 @@
 
 #include <QtWidgets>
 
+class LiveDocument;
+
 class AllHostsWidget : public QWidget
 {
     Q_OBJECT
@@ -44,7 +46,7 @@ public:
 signals:
     void refreshAll();
     void publishAll();
-    void currentFileChanged(const QString file);
+    void currentFileChanged(const LiveDocument &file);
 
 protected:
     void dropEvent(QDropEvent *event);

@@ -8,6 +8,7 @@ DEFINES += NO_LIBRSYNC
 
 SOURCES += \
     $$PWD/watcher.cpp \
+    $$PWD/livedocument.cpp \
     $$PWD/livehubengine.cpp \
     $$PWD/livenodeengine.cpp \
     $$PWD/qmlhelper.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
     $$PWD/fontadapter.cpp
 
 public_headers += \
+    $$PWD/livedocument.h \
     $$PWD/livehubengine.h \
     $$PWD/livenodeengine.h \
     $$PWD/qmlhelper.h \

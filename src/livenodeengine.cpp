@@ -57,14 +57,14 @@ const char OVERLAY_PATH_SEPARATOR = '-';
  * \brief The LiveNodeEngine class instantiates QML components in cooperation with LiveHubEngine.
  * \inmodule qmllive
  *
- * LiveNodeEngine provides ways to reload qml documents based incoming requests
+ * LiveNodeEngine provides ways to reload QML documents based incoming requests
  * from a hub. A hub can be connected via a RemotePublisher/RemoteReceiver pair.
  *
  * The primary use case is to allow loading of QML components instantiating
  * QQuickWindow, i.e., inheriting QML Window. A fallbackView can be set in order
  * to support also QML Item based components.
  *
- * In Addition to showing qml-Files the LiveNodeEngine can be extended by plugins to show any other datatype.
+ * In Addition to showing QML files the LiveNodeEngine can be extended by plugins to show any other filetype.
  * One need to set the Plugin path to the right destination and the LiveNodeEngine will load all the plugins
  * it finds there.
  *
@@ -119,12 +119,12 @@ public:
 
     QDir overlay() const { return m_overlay; }
 
-    QString reserve(const QString &document)
+    QString reserve(const LiveDocument &document)
     {
         QWriteLocker locker(&m_lock);
 
-        QString overlayingPath = m_overlay.absoluteFilePath(document);
-        m_mappings.insert(QUrl::fromLocalFile(m_base.absoluteFilePath(document)),
+        QString overlayingPath = document.absoluteFilePathIn(m_overlay);
+        m_mappings.insert(QUrl::fromLocalFile(document.absoluteFilePathIn(m_base)),
                           QUrl::fromLocalFile(overlayingPath));
         return overlayingPath;
     }
@@ -163,7 +163,7 @@ LiveNodeEngine::LiveNodeEngine(QObject *parent)
 {
     m_delayReload->setInterval(250);
     m_delayReload->setSingleShot(true);
-    connect(m_delayReload, SIGNAL(timeout()), this, SLOT(reloadDocument()));
+    connect(m_delayReload, &QTimer::timeout, this, &LiveNodeEngine::reloadDocument);
 }
 
 /*!
@@ -193,7 +193,6 @@ void LiveNodeEngine::setQmlEngine(QQmlEngine *qmlEngine)
     m_qmlEngine = qmlEngine;
 
     connect(m_qmlEngine.data(), &QQmlEngine::warnings, this, &LiveNodeEngine::logErrors);
-    qmlEngine->setOutputWarningsToStandardError(false);
 
     m_qmlEngine->rootContext()->setContextProperty("livert", m_runtime);
 }
@@ -285,14 +284,93 @@ int LiveNodeEngine::rotation() const
 }
 
 /*!
- * Loads the given \a url onto the qml view. Clears any caches.
+ * Allows to initialize active document with an instance preloaded beyond
+ * LiveNodeEngine's control.
+ *
+ * This can be called at most once and only before a document has been loaded
+ * with loadDocument().
+ *
+ * \a document is the source of the component that was used to instantiate the
+ * \a object. \a window should be either the \a object itself or the
+ * fallbackView(). \a errors (if any) will be added to log.
+ *
+ * Note that \a window will be destroyed on next loadDocument() call unless it
+ * is the fallbackView(). \a object will be destroyed unconditionally.
  */
-void LiveNodeEngine::loadDocument(const QUrl& url)
+void LiveNodeEngine::usePreloadedDocument(const LiveDocument &document, QObject *object,
+                                          QQuickWindow *window, const QList<QQmlError> &errors)
 {
-    DEBUG << "LiveNodeEngine::loadDocument: " << url;
-    m_activeFile = url;
+    LIVE_ASSERT(m_activeFile.isNull(), return);
+    LIVE_ASSERT(!document.isNull(), return);
 
-    if (!m_activeFile.isEmpty())
+    m_activeFile = document;
+
+    if (!m_activeFile.existsIn(m_workspace)) {
+        QQmlError error;
+        error.setUrl(QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace)));
+        error.setDescription(tr("File not found"));
+        emit logErrors(QList<QQmlError>() << error);
+    }
+
+    m_object = object;
+    m_activeWindow = window;
+
+    if (m_activeWindow) {
+        m_activeWindowConnections << connect(m_activeWindow.data(), &QWindow::widthChanged,
+                                             this, &LiveNodeEngine::onSizeChanged);
+        m_activeWindowConnections << connect(m_activeWindow.data(), &QWindow::heightChanged,
+                                             this, &LiveNodeEngine::onSizeChanged);
+        onSizeChanged();
+    }
+
+    emit activeDocumentChanged(m_activeFile);
+    emit documentLoaded();
+    emit activeWindowChanged(m_activeWindow);
+    emit logErrors(errors);
+}
+
+/*!
+ * This is an overloaded function provided for convenience. It is suitable for
+ * use with QQmlApplicationEngine.
+ *
+ * Tries to resolve \a document against current workspace(). \a window is the
+ * root object. \a errors (if any) will be added to log.
+ */
+void LiveNodeEngine::usePreloadedDocument(const QString &document, QQuickWindow *window,
+                                          const QList<QQmlError> &errors)
+{
+    LIVE_ASSERT(m_activeFile.isNull(), return);
+
+    LiveDocument resolved = LiveDocument::resolve(workspace(), document);
+    if (resolved.isNull()) {
+        qWarning() << "Failed to resolve preloaded document path:" << document
+                   << "Workspace: " << workspace();
+        return;
+    }
+
+    usePreloadedDocument(resolved, window, window, errors);
+}
+
+/*!
+ * Loads or reloads the given \a document onto the QML view. Clears any caches.
+ *
+ * The activeDocumentChanged() signal is emitted when this results in change of
+ * the activeDocument().
+ *
+ * \sa documentLoaded()
+ */
+void LiveNodeEngine::loadDocument(const LiveDocument& document)
+{
+    DEBUG << "LiveNodeEngine::loadDocument: " << document;
+
+    LiveDocument oldActiveFile = m_activeFile;
+
+    m_activeFile = document;
+
+    if (m_activeFile != oldActiveFile)
+        emit activeDocumentChanged(m_activeFile);
+
+    if (!m_activeFile.isNull())
         reloadDocument();
 }
 
@@ -330,7 +408,7 @@ QUrl LiveNodeEngine::errorScreenUrl() const
 }
 
 /*!
- * Reloads the active qml document.
+ * Reloads the active QML document.
  *
  * Emits documentLoaded() when finished.
  *
@@ -346,10 +424,8 @@ void LiveNodeEngine::reloadDocument()
     }
 
     // Do this unconditionally!
-    if (m_fallbackView) {
+    if (m_fallbackView)
         m_fallbackView->setSource(QUrl());
-        m_fallbackView->close();
-    }
 
     m_activeWindow = 0;
 
@@ -360,26 +436,51 @@ void LiveNodeEngine::reloadDocument()
 
     checkQmlFeatures();
 
+    qInfo() << "----------------------------------------";
+    qInfo() << "QmlLive: (Re)loading" << m_activeFile;
+
     emit clearLog();
 
-    const QUrl url = queryDocumentViewer(m_activeFile);
+    const QUrl originalUrl = QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace));
+    const QUrl url = queryDocumentViewer(originalUrl);
 
-    QScopedPointer<QQmlComponent> component(new QQmlComponent(m_qmlEngine, url));
-    m_object = component->create();
+    auto showErrorScreen = [this] {
+        Q_ASSERT(m_fallbackView);
+        m_fallbackView->setResizeMode(QQuickView::SizeRootObjectToView);
+        m_fallbackView->setSource(errorScreenUrl());
+        m_activeWindow = m_fallbackView;
+    };
+
+    auto logError = [this, url](const QString &description) {
+        QQmlError error;
+        error.setObject(m_object);
+        error.setUrl(url);
+        error.setLine(0);
+        error.setColumn(0);
+        error.setDescription(description);
+        emit logErrors(QList<QQmlError>() << error);
+    };
+
+    QScopedPointer<QQmlComponent> component(new QQmlComponent(m_qmlEngine));
+    if (url.path().endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)) {
+        component->loadUrl(url);
+        m_object = component->create();
+    } else if (url == originalUrl) {
+        logError(tr("LiveNodeEngine: Cannot display this file type"));
+    } else {
+        logError(tr("LiveNodeEngine: Internal error: Cannot display this file type"));
+    }
 
     if (!component->isReady()) {
         if (component->isLoading()) {
             qCritical() << "Component did not load synchronously."
                         << "URL:" << url.toString()
-                        << "(original URL:" << m_activeFile.toString() << ")";
+                        << "(original URL:" << originalUrl.toString() << ")";
         } else {
             emit logErrors(component->errors());
             delete m_object;
-            if (m_fallbackView) {
-                m_fallbackView->setResizeMode(QQuickView::SizeRootObjectToView);
-                m_fallbackView->setSource(errorScreenUrl());
-                m_activeWindow = m_fallbackView;
-            }
+            if (m_fallbackView)
+                showErrorScreen();
         }
     } else if (QQuickWindow *window = qobject_cast<QQuickWindow *>(m_object)) {
         // TODO (why) is this needed?
@@ -396,29 +497,14 @@ void LiveNodeEngine::reloadDocument()
             m_fallbackView->setContent(url, component.take(), m_object);
             m_activeWindow = m_fallbackView;
         } else {
-            QQmlError error;
-            error.setObject(m_object);
-            error.setUrl(url);
-            error.setLine(0);
-            error.setColumn(0);
-            error.setDescription(tr("LiveNodeEngine: Cannot display this component: "
-                                    "Root object is not a QQuickWindow and no LiveNodeEngine::fallbackView set."));
-            emit logErrors(QList<QQmlError>() << error);
+            logError(tr("LiveNodeEngine: Cannot display this component: "
+                        "Root object is not a QQuickWindow and no LiveNodeEngine::fallbackView set."));
         }
     } else {
-        QQmlError error;
-        error.setObject(m_object);
-        error.setUrl(url);
-        error.setLine(0);
-        error.setColumn(0);
-        error.setDescription(tr("LiveNodeEngine: Cannot display this component: "
-                                "Root object is not a QQuickWindow nor a QQuickItem."));
-        emit logErrors(QList<QQmlError>() << error);
-        if (m_fallbackView) {
-            m_fallbackView->setResizeMode(QQuickView::SizeRootObjectToView);
-            m_fallbackView->setSource(errorScreenUrl());
-            m_activeWindow = m_fallbackView;
-        }
+        logError(tr("LiveNodeEngine: Cannot display this component: "
+                    "Root object is not a QQuickWindow nor a QQuickItem."));
+        if (m_fallbackView)
+            showErrorScreen();
     }
 
     if (m_activeWindow) {
@@ -432,6 +518,9 @@ void LiveNodeEngine::reloadDocument()
     emit documentLoaded();
     emit activeWindowChanged(m_activeWindow);
 
+    if (m_fallbackView && m_fallbackView != m_activeWindow)
+        m_fallbackView->close();
+
     // Delay showing the window after activeWindowChanged is handled by
     // WindowWidget::setHostedWindow() - it would be destroyed there anyway.
     // (Applies when this is instantiated for the bench.)
@@ -444,7 +533,7 @@ void LiveNodeEngine::reloadDocument()
  *
  * The behavior of this function is controlled by WorkspaceOptions passed to setWorkspace().
  */
-void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &content)
+void LiveNodeEngine::updateDocument(const LiveDocument &document, const QByteArray &content)
 {
     if (!(m_workspaceOptions & AllowUpdates)) {
         return;
@@ -452,7 +541,7 @@ void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &c
 
     QString filePath = (m_workspaceOptions & UpdatesAsOverlay)
         ? m_overlayUrlInterceptor->reserve(document)
-        : m_workspace.absoluteFilePath(document);
+        : document.absoluteFilePathIn(m_workspace);
 
     QString dirPath = QFileInfo(filePath).absoluteDir().absolutePath();
     QDir().mkpath(dirPath);
@@ -464,13 +553,13 @@ void LiveNodeEngine::updateDocument(const QString &document, const QByteArray &c
     file.write(content);
     file.close();
 
-    if (!m_activeFile.isEmpty())
+    if (!m_activeFile.isNull())
         delayReload();
 }
 
 
 /*!
- * Allows to adapt a \a url to display not native qml documents (e.g. images).
+ * Allows to adapt a \a url to display not native QML documents (e.g. images).
  */
 QUrl LiveNodeEngine::queryDocumentViewer(const QUrl& url)
 {
@@ -490,20 +579,6 @@ QUrl LiveNodeEngine::queryDocumentViewer(const QUrl& url)
     m_activePlugin = 0;
 
     return url;
-}
-
-/*!
- * Sets the document \a document to be shown
- */
-void LiveNodeEngine::setActiveDocument(const QString &document)
-{
-    QUrl url;
-    if (!document.isEmpty()) {
-        url = QUrl::fromLocalFile(m_workspace.absoluteFilePath(document));
-    }
-
-    loadDocument(url);
-    emit activateDocument(document);
 }
 
 /*!
@@ -597,9 +672,9 @@ QString LiveNodeEngine::pluginPath() const
 }
 
 /*!
- * Returns the current active document url.
+ * Returns the current active document.
  */
-QUrl LiveNodeEngine::activeDocument() const
+LiveDocument LiveNodeEngine::activeDocument() const
 {
     return m_activeFile;
 }
@@ -650,9 +725,13 @@ void LiveNodeEngine::onSizeChanged()
 }
 
 /*!
- * \fn void LiveNodeEngine::activateDocument(const QString& document)
+ * \fn void LiveNodeEngine::activeDocumentChanged(const LiveDocument& document)
  *
- * The document \a document was activated
+ * The document \a document was loaded with loadDocument() and is now the
+ * activeDocument(). This signal is only emitted when the new document differs
+ * from the previously loaded one.
+ *
+ * \sa documentLoaded()
  */
 
 /*!

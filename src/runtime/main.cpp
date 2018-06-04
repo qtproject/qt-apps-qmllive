@@ -75,13 +75,13 @@ static void parseArguments(const QStringList &arguments)
 
     parser.addPositionalArgument("workspace", "workspace folder to watch");
 
-    QCommandLineOption ipcPortOption("ipcport", "the port the ipc shall listen on, default is 10234", "ipcport");
+    QCommandLineOption ipcPortOption("ipcport", "the port the IPC shall listen on, default is 10234", "ipcport");
     parser.addOption(ipcPortOption);
 
-    QCommandLineOption pluginPathOption("pluginpath", "path to qmllive plugins", "pluginpath");
+    QCommandLineOption pluginPathOption("pluginpath", "path to QmlLive plugins", "pluginpath");
     parser.addOption(pluginPathOption);
 
-    QCommandLineOption importPathOption("importpath", "path to qml import path. Can appear multiple times", "importpath");
+    QCommandLineOption importPathOption("importpath", "path to QML import path. Can appear multiple times", "importpath");
     parser.addOption(importPathOption);
 
     QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");
@@ -189,11 +189,12 @@ int main(int argc, char** argv)
     engine.setFallbackView(&fallbackView);
     engine.setWorkspace(options.workspace, workspaceOptions);
     engine.setPluginPath(options.pluginPath);
-    engine.loadDocument(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
     RemoteReceiver receiver;
     receiver.registerNode(&engine);
     if (!receiver.listen(options.ipcPort, connectionOptions))
         return EXIT_FAILURE;
+
+    fallbackView.setSource(QUrl("qrc:/qml/qmlsplash/splash-qt5.qml"));
 
     int ret = app.exec();
 

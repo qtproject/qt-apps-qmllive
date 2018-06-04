@@ -38,6 +38,7 @@
 
 #include "qmllive_global.h"
 
+class LiveDocument;
 class LiveNodeEngine;
 class IpcServer;
 class IpcClient;
@@ -80,7 +81,7 @@ public:
     void setMaxConnections(int max);
 
 Q_SIGNALS:
-    void activateDocument(const QString& document);
+    void activateDocument(const LiveDocument& document);
     void reload();
     void clientConnected(const QHostAddress& address);
     void clientDisconnected(const QHostAddress& address);
@@ -91,17 +92,22 @@ Q_SIGNALS:
     void beginBulkUpdate();
     void endBulkUpdate();
     void updateDocumentsOnConnectFinished(bool ok);
-    void updateDocument(const QString &document, const QByteArray &content);
+    void updateDocument(const LiveDocument &document, const QByteArray &content);
 
 private Q_SLOTS:
     void handleCall(const QString& method, const QByteArray& content);
 
     void appendToLog(const QList<QQmlError> &errors);
     void clearLog();
+    void onActiveDocumentChanged(const LiveDocument &document);
 
     void onClientConnected(QTcpSocket *socket);
     void onClientDisconnected(QTcpSocket *socket);
     void maybeStartUpdateDocumentsOnConnect();
+    void finishConnectionInitialization();
+
+private:
+    void flushLog();
 
 private:
     IpcServer *m_server;
@@ -116,6 +122,9 @@ private:
     ConnectionOptions m_connectionOptions;
     bool m_bulkUpdateInProgress;
     UpdateState m_updateDocumentsOnConnectState;
+
+    QList<QQmlError> m_log;
+    int m_logSentPosition;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(RemoteReceiver::ConnectionOptions)

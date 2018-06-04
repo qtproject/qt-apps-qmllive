@@ -35,6 +35,7 @@
 #include <remotepublisher.h>
 
 class Host;
+class LiveDocument;
 
 class HostWidget : public QWidget
 {
@@ -45,7 +46,7 @@ public:
 
     void setHost(Host* host);
     void setLiveHubEngine(LiveHubEngine* engine);
-    void setCurrentFile(const QString currentFile);
+    void setCurrentFile(const LiveDocument &currentFile);
     bool followTreeSelection() const;
 
 signals:
@@ -63,23 +64,24 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     bool eventFilter(QObject *, QEvent *);
+    void timerEvent(QTimerEvent *event);
 
 private slots:
-    void updateName(const QString& name);
-    void updateIp(const QString& ip);
-    void updatePort(int port);
-    void updateFile(const QString& file);
-    void setUpdateFile(const QString& file);
-    void updateOnlineState(bool online);
+    void updateTitle();
+    void updateFile(const LiveDocument& file);
+    void refreshDocumentLabel();
+    void updateAvailableState(bool available);
+    void updateFollowTreeSelection(bool follow);
+    void updateRemoteActions();
 
+    void scheduleConnectToServer();
     void connectToServer();
-    void connectAndSendFile();
 
     void onConnected();
     void onDisconnected();
     void onConnectionError(QAbstractSocket::SocketError error);
 
-    void sendDocument(const QString &document);
+    void sendDocument(const LiveDocument &document);
 
     void sendXOffset(int offset);
     void sendYOffset(int offset);
@@ -116,6 +118,7 @@ private:
 
     RemotePublisher m_publisher;
     QPointer<LiveHubEngine> m_engine;
+    QBasicTimer m_connectToServerTimer;
 
     QUuid m_activateId;
     QList<QUuid> m_changeIds;

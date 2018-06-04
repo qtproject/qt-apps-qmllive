@@ -48,20 +48,26 @@ HostsOptionsPage::HostsOptionsPage(QWidget *parent) :
 
     ui->hostUI->setVisible(false);
 
-    connect(ui->nameField, SIGNAL(textEdited(QString)), this, SLOT(updateName(QString)));
-    connect(ui->ipField, SIGNAL(textEdited(QString)), this, SLOT(updateAddress(QString)));
-    connect(ui->portField, SIGNAL(valueChanged(int)), this, SLOT(updatePort(int)));
-    connect(ui->followTreeSelectionField, SIGNAL(clicked(bool)), this, SLOT(updateFollowTreeSelection(bool)));
-    connect(ui->xField, SIGNAL(valueChanged(int)), this, SLOT(updateXOffset(int)));
-    connect(ui->yField, SIGNAL(valueChanged(int)), this, SLOT(updateYOffset(int)));
-    connect(ui->rotationField, SIGNAL(valueChanged(int)), this, SLOT(updateRotation(int)));
+    connect(ui->nameField, &QLineEdit::textEdited, this, &HostsOptionsPage::updateName);
+    connect(ui->ipField, &QLineEdit::textEdited, this, &HostsOptionsPage::updateAddress);
+    void (QSpinBox::*QSpinBox__valueChanged)(int)  = &QSpinBox::valueChanged;
+    connect(ui->portField, QSpinBox__valueChanged, this, &HostsOptionsPage::updatePort);
+    connect(ui->followTreeSelectionField, &QCheckBox::clicked, this, &HostsOptionsPage::updateFollowTreeSelection);
+    connect(ui->xField, QSpinBox__valueChanged, this, &HostsOptionsPage::updateXOffset);
+    connect(ui->yField, QSpinBox__valueChanged, this, &HostsOptionsPage::updateYOffset);
+    connect(ui->rotationField, QSpinBox__valueChanged, this, &HostsOptionsPage::updateRotation);
 
     QMenu *menu = new QMenu(ui->addHostButton);
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     menu->addAction("Auto Discovery...", this, SLOT(showAutoDiscoveryDialog()));
     menu->addAction("Manual", this, SLOT(addHost()));
+#else
+    menu->addAction("Auto Discovery...", this, &HostsOptionsPage::showAutoDiscoveryDialog);
+    menu->addAction("Manual", this, [this] { addHost(); });
+#endif
     ui->addHostButton->setMenu(menu);
 
-    connect(ui->removeHostButton, SIGNAL(clicked()), this, SLOT(removeHost()));
+    connect(ui->removeHostButton, &QAbstractButton::clicked, this, &HostsOptionsPage::removeHost);
 }
 
 HostsOptionsPage::~HostsOptionsPage()
@@ -74,8 +80,8 @@ void HostsOptionsPage::setHostModel(HostModel *model)
     m_model = model;
     m_currentIndex = -1;
 
-    connect(ui->hostsWidget->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(onCurrentRowChanged(QModelIndex,QModelIndex)));
+    connect(ui->hostsWidget->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &HostsOptionsPage::onCurrentRowChanged);
 
     for (int i=0; i< m_model->rowCount(); i++) {
         Host *host = m_model->hostAt(i);

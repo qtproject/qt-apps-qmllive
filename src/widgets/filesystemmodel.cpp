@@ -62,6 +62,7 @@ Qt::ItemFlags FileSystemModel::flags(const QModelIndex &index) const
     Qt::ItemFlags f = QFileSystemModel::flags(index);
 
     if (isDir(index)) {
+        f &= ~Qt::ItemIsDragEnabled;
         if (m_dirSelectable)
             return f;
         else

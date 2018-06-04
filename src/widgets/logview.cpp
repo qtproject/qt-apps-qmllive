@@ -47,7 +47,7 @@ LogView::LogView(bool createLogger, QWidget *parent)
 
     if (createLogger) {
         m_logger = new Logger(this);
-        connect(m_logger, SIGNAL(message(int,QString)), this, SLOT(appendToLog(int,QString)));
+        connect(m_logger, &Logger::message, this, &LogView::appendToLog);
     }
 }
 
@@ -104,7 +104,7 @@ void LogView::appendToLog(int type, const QString &msg, const QUrl &url, int lin
     m_log->appendHtml(s);
 }
 
-void LogView::appendToLog(const QList<QQmlError> &errors)
+void LogView::appendAllToLog(const QList<QQmlError> &errors)
 {
     foreach (const QQmlError &err, errors) {
         if (!err.isValid())

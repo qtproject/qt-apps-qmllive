@@ -34,6 +34,10 @@
 #include "host.h"
 #include "livehubengine.h"
 
+#include <QMessageBox>
+
+Q_DECLARE_LOGGING_CATEGORY(csLog)
+Q_LOGGING_CATEGORY(csLog, "QmlLive.Bench.ConnectionState", QtInfoMsg)
 
 const int LABEL_STACK_INDEX=0;
 const int PROGRESS_STACK_INDEX=1;
@@ -46,15 +50,15 @@ HostWidget::HostWidget(QWidget *parent) :
 
     m_connectDisconnectAction = new QAction("Offline", this);
     m_connectDisconnectAction->setIcon(QIcon(":images/error_ball.svg"));
-    connect(m_connectDisconnectAction, SIGNAL(triggered(bool)), this, SLOT(connectAndSendFile()));
+    connect(m_connectDisconnectAction, &QAction::triggered, this, &HostWidget::connectToServer);
 
     m_refreshAction = new QAction("Refresh", this);
     m_refreshAction->setIcon(QIcon(":images/refresh.svg"));
-    connect(m_refreshAction, SIGNAL(triggered(bool)), this, SLOT(refresh()));
+    connect(m_refreshAction, &QAction::triggered, this, &HostWidget::refresh);
 
     m_publishAction = new QAction("Publish", this);
     m_publishAction->setIcon(QIcon(":/images/publish.svg"));
-    connect(m_publishAction, SIGNAL(triggered(bool)), this, SLOT(publishAll()));
+    connect(m_publishAction, &QAction::triggered, this, &HostWidget::publishAll);
 
     m_followTreeSelectionAction = new QAction("Follow", this);
     m_followTreeSelectionAction->setIcon(QIcon(":images/linked.svg"));
@@ -62,7 +66,7 @@ HostWidget::HostWidget(QWidget *parent) :
 
     m_editHostAction = new QAction("Setup", this);
     m_editHostAction->setIcon(QIcon(":images/edit.svg"));
-    connect(m_editHostAction, SIGNAL(triggered(bool)), this, SLOT(onEditHost()));
+    connect(m_editHostAction, &QAction::triggered, this, &HostWidget::onEditHost);
 
     QGridLayout *layout = new QGridLayout(this);
     layout->setContentsMargins(0,0,0,0);
@@ -99,46 +103,43 @@ HostWidget::HostWidget(QWidget *parent) :
 
     vbox->addWidget(toolBar);;
 
-    connect(&m_publisher, SIGNAL(connected()), this, SIGNAL(connected()));
-    connect(&m_publisher, SIGNAL(connected()), this, SLOT(onConnected()));
-    connect(&m_publisher, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
-    connect(&m_publisher, SIGNAL(connectionError(QAbstractSocket::SocketError)),
-            this, SLOT(onConnectionError(QAbstractSocket::SocketError)));
-    connect(&m_publisher, SIGNAL(sendingError(QUuid,QAbstractSocket::SocketError)),
-            this, SLOT(onSendingError(QUuid,QAbstractSocket::SocketError)));
-    connect(&m_publisher, SIGNAL(sentSuccessfully(QUuid)),
-            this, SLOT(onSentSuccessfully(QUuid)));
-    connect(&m_publisher, SIGNAL(needsPinAuthentication()), this, SLOT(showPinDialog()));
-    connect(&m_publisher, SIGNAL(pinOk(bool)), this, SLOT(onPinOk(bool)));
-    connect(&m_publisher, SIGNAL(remoteLog(int,QString,QUrl,int,int)),
-            this, SIGNAL(remoteLog(int,QString,QUrl,int,int)));
-    connect(&m_publisher, SIGNAL(clearLog()), this, SIGNAL(clearLog()));
-
-    onDisconnected();
+    connect(&m_publisher, &RemotePublisher::connected, this, &HostWidget::connected);
+    connect(&m_publisher, &RemotePublisher::connected, this, &HostWidget::onConnected);
+    connect(&m_publisher, &RemotePublisher::disconnected, this, &HostWidget::onDisconnected);
+    connect(&m_publisher, &RemotePublisher::connectionError, this, &HostWidget::onConnectionError);
+    connect(&m_publisher, &RemotePublisher::sendingError, this, &HostWidget::onSendingError);
+    connect(&m_publisher, &RemotePublisher::sentSuccessfully, this, &HostWidget::onSentSuccessfully);
+    connect(&m_publisher, &RemotePublisher::needsPinAuthentication, this, &HostWidget::showPinDialog);
+    connect(&m_publisher, &RemotePublisher::pinOk, this, &HostWidget::onPinOk);
+    connect(&m_publisher, &RemotePublisher::remoteLog, this, &HostWidget::remoteLog);
+    connect(&m_publisher, &RemotePublisher::clearLog, this, &HostWidget::clearLog);
 }
 
 void HostWidget::setHost(Host *host)
 {
     m_host = host;
 
-    updateName(m_host->name());
-    updateIp(m_host->address());
+    updateTitle();
     updateFile(m_host->currentFile());
-    updateOnlineState(m_host->online());
     m_followTreeSelectionAction->setChecked(m_host->followTreeSelection());
 
-    connect(host, SIGNAL(addressChanged(QString)), this, SLOT(updateIp(QString)));
-    connect(host, SIGNAL(portChanged(int)), this, SLOT(updatePort(int)));
-    connect(host, SIGNAL(onlineChanged(bool)), this, SLOT(updateOnlineState(bool)));
-    connect(host, SIGNAL(currentFileChanged(QString)), this, SLOT(updateFile(QString)));
-    connect(host, SIGNAL(nameChanged(QString)), this, SLOT(updateName(QString)));
-    connect(host, SIGNAL(xOffsetChanged(int)), this, SLOT(sendXOffset(int)));
-    connect(host, SIGNAL(yOffsetChanged(int)), this, SLOT(sendYOffset(int)));
-    connect(host, SIGNAL(rotationChanged(int)), this, SLOT(sendRotation(int)));
-    connect(host, SIGNAL(followTreeSelectionChanged(bool)),
-            m_followTreeSelectionAction, SLOT(setChecked(bool)));
+    connect(host, &Host::addressChanged, this, &HostWidget::updateTitle);
+    connect(host, &Host::addressChanged, this, &HostWidget::scheduleConnectToServer);
+    connect(host, &Host::portChanged, this, &HostWidget::updateTitle);
+    connect(host, &Host::portChanged, this, &HostWidget::scheduleConnectToServer);
+    connect(host, &Host::availableChanged, this, &HostWidget::updateAvailableState);
+    connect(host, &Host::currentFileChanged, this, &HostWidget::updateFile);
+    connect(host, &Host::nameChanged, this, &HostWidget::updateTitle);
+    connect(host, &Host::xOffsetChanged, this, &HostWidget::sendXOffset);
+    connect(host, &Host::yOffsetChanged, this, &HostWidget::sendYOffset);
+    connect(host, &Host::rotationChanged, this, &HostWidget::sendRotation);
+    connect(host, &Host::followTreeSelectionChanged, this, &HostWidget::updateFollowTreeSelection);
 
-    connect(m_followTreeSelectionAction, SIGNAL(triggered(bool)), host, SLOT(setFollowTreeSelection(bool)));
+    connect(m_followTreeSelectionAction, &QAction::triggered, host, &Host::setFollowTreeSelection);
+    connect(&m_publisher, &RemotePublisher::activeDocumentChanged, host, &Host::setCurrentFile);
+
+    updateAvailableState(m_host->available());
+    updateRemoteActions();
 }
 
 void HostWidget::setLiveHubEngine(LiveHubEngine *engine)
@@ -147,16 +148,20 @@ void HostWidget::setLiveHubEngine(LiveHubEngine *engine)
 
     m_publisher.setWorkspace(m_engine->workspace());
 
-    connect(m_engine.data(), SIGNAL(workspaceChanged(QString)), &m_publisher, SLOT(setWorkspace(QString)));
-    connect(m_engine.data(), SIGNAL(fileChanged(QString)), this, SLOT(sendDocument(QString)));
-    connect(m_engine.data(), SIGNAL(beginPublishWorkspace()), &m_publisher, SLOT(beginBulkSend()));
-    connect(m_engine.data(), SIGNAL(endPublishWorkspace()), &m_publisher, SLOT(endBulkSend()));
-    connect(&m_publisher, SIGNAL(needsPublishWorkspace()), this, SLOT(publishWorkspace()));
+    connect(m_engine.data(), &LiveHubEngine::workspaceChanged, &m_publisher, &RemotePublisher::setWorkspace);
+    connect(m_engine.data(), &LiveHubEngine::workspaceChanged, this, &HostWidget::refreshDocumentLabel);
+    connect(m_engine.data(), &LiveHubEngine::fileChanged, this, &HostWidget::sendDocument);
+    connect(m_engine.data(), &LiveHubEngine::beginPublishWorkspace, &m_publisher, &RemotePublisher::beginBulkSend);
+    connect(m_engine.data(), &LiveHubEngine::endPublishWorkspace, &m_publisher, &RemotePublisher::endBulkSend);
+    connect(&m_publisher, &RemotePublisher::needsPublishWorkspace, this, &HostWidget::publishWorkspace);
 }
 
-void HostWidget::setCurrentFile(const QString currentFile)
+void HostWidget::setCurrentFile(const LiveDocument &currentFile)
 {
-    m_host->setCurrentFile(currentFile);
+    if (m_publisher.state() != QAbstractSocket::ConnectedState)
+        return;
+
+    m_publisher.activateDocument(currentFile);
 }
 
 bool HostWidget::followTreeSelection() const
@@ -164,70 +169,104 @@ bool HostWidget::followTreeSelection() const
     return m_followTreeSelectionAction->isChecked();
 }
 
-void HostWidget::updateName(const QString &name)
+void HostWidget::updateTitle()
 {
-    Q_UNUSED(name)
-    if(m_host) {
-        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
+    m_groupBox->setTitle(QString("%1 (%2:%3)")
+                         .arg(m_host->name())
+                         .arg(m_host->address())
+                         .arg(m_host->port()));
+}
+
+void HostWidget::updateFile(const LiveDocument &file)
+{
+    QFont font(this->font());
+    QPalette palette(this->palette());
+    QString text;
+    QString toolTip;
+
+    if (file.isNull()) {
+        if (m_publisher.state() != QAbstractSocket::ConnectedState) {
+            text = tr("Host offline");
+        } else {
+            text = tr("No active document");
+            toolTip = tr("No active document. Drop one.");
+        }
+        font.setItalic(true);
+    } else {
+        text = file.relativeFilePath();
+
+        if (file.isFileIn(m_engine->workspace())) {
+            toolTip = file.absoluteFilePathIn(m_engine->workspace());
+        } else {
+            // red color from http://clrs.cc
+            palette.setColor(QPalette::Text, QColor(0xff, 0x41, 0x36));
+            toolTip = file.errorString();
+        }
     }
-}
 
-void HostWidget::updateIp(const QString &ip)
-{
-    Q_UNUSED(ip)
-    if(m_host) {
-        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
+    QFontMetrics metrics(font);
+    m_documentLabel->setFont(font);
+    m_documentLabel->setPalette(palette);
+    m_documentLabel->setText(metrics.elidedText(text, Qt::ElideLeft,
+                                                m_documentLabel->width()));
+    m_documentLabel->setToolTip(toolTip);
+
+    if (m_host->followTreeSelection() && !file.isNull() && file != m_engine->activePath()) {
+        if (m_publisher.state() == QAbstractSocket::ConnectedState)
+            m_publisher.activateDocument(m_engine->activePath());
     }
 
-    QTimer::singleShot(0, this, SLOT(connectToServer()));
+    updateRemoteActions();
 }
 
-void HostWidget::updatePort(int port)
+void HostWidget::refreshDocumentLabel()
 {
-    Q_UNUSED(port)
-    if(m_host) {
-        m_groupBox->setTitle(QString("%1 (%2:%3)").arg(m_host->name(), m_host->address(), QString::number(m_host->port())));
-    }
-
-    QTimer::singleShot(0, this, SLOT(connectToServer()));
+    updateFile(m_host->currentFile());
 }
 
-void HostWidget::updateFile(const QString &file)
+void HostWidget::updateAvailableState(bool available)
 {
-    QString relFile = QDir(m_engine->workspace()).relativeFilePath(file);
-    setUpdateFile(relFile);
-    m_documentLabel->setToolTip(relFile);
-
-    connectAndSendFile();
-}
-
-void HostWidget::setUpdateFile(const QString &file)
-{
-    QFontMetrics metrics(font());
-    m_documentLabel->setText(metrics.elidedText(file, Qt::ElideLeft, m_documentLabel->width()));
-}
-
-void HostWidget::updateOnlineState(bool online)
-{
-    qDebug() << "updateOnline";
-
-    bool available = online || m_host->type() == Host::Manual;
+    qCDebug(csLog) << "updateAvailableState()" << available;
 
     if (available)
-        QTimer::singleShot(0, this, SLOT(connectToServer()));
+        scheduleConnectToServer();
     else
         onDisconnected();
 }
 
+void HostWidget::updateFollowTreeSelection(bool follow)
+{
+    m_followTreeSelectionAction->setChecked(follow);
+
+    if (follow && m_publisher.state() == QAbstractSocket::ConnectedState
+            && m_host->currentFile() != m_engine->activePath()) {
+        m_publisher.activateDocument(m_engine->activePath());
+    }
+}
+
+void HostWidget::updateRemoteActions()
+{
+    m_refreshAction->setEnabled(m_publisher.state() == QAbstractSocket::ConnectedState
+                                && !m_host->currentFile().isNull());
+    m_publishAction->setEnabled(m_publisher.state() == QAbstractSocket::ConnectedState);
+}
+
+void HostWidget::scheduleConnectToServer()
+{
+    qCDebug(csLog) << "scheduleConnectToServer()" << m_host->name();
+
+    m_connectToServerTimer.start(0, this);
+}
+
 void HostWidget::connectToServer()
 {
-    qDebug() << "connectToServer";
+    qCDebug(csLog) << "connectToServer()" << m_host->name()
+                   << m_publisher.state() << "available:" << m_host->available();
 
-    if (m_publisher.state() == QAbstractSocket::ConnectedState || m_publisher.state() == QAbstractSocket::ConnectingState) {
+    if (m_publisher.state() != QAbstractSocket::UnconnectedState)
         return;
-    }
 
-    if (m_host->online() || m_host->type() == Host::Manual) {
+    if (m_host->available()) {
         m_publisher.connectToServer(m_host->address(), m_host->port());
         m_activateId = QUuid();
         m_rotationId = QUuid();
@@ -237,39 +276,45 @@ void HostWidget::connectToServer()
     }
 }
 
-void HostWidget::connectAndSendFile()
-{
-    connectToServer();
-    m_activateId = m_publisher.activateDocument(QDir(m_engine->workspace()).relativeFilePath(m_host->currentFile()));
-}
-
 void HostWidget::onConnected()
 {
+    qCDebug(csLog) << "Host connected:" << m_host->name();
+
     m_connectDisconnectAction->setIcon(QIcon(":images/okay_ball.svg"));
     m_connectDisconnectAction->setToolTip("Host online");
     m_connectDisconnectAction->setText("Online");
+
+    updateFile(m_host->currentFile());
+    updateRemoteActions();
 
     sendXOffset(m_host->xOffset());
     sendYOffset(m_host->yOffset());
     sendRotation(m_host->rotation());
 
-    disconnect(m_connectDisconnectAction, SIGNAL(triggered()), 0, 0);
-    connect(m_connectDisconnectAction, SIGNAL(triggered()), &m_publisher, SLOT(disconnectFromServer()));
+    disconnect(m_connectDisconnectAction, &QAction::triggered, 0, 0);
+    connect(m_connectDisconnectAction, &QAction::triggered, &m_publisher, &RemotePublisher::disconnectFromServer);
 }
 
 void HostWidget::onDisconnected()
 {
+    qCDebug(csLog) << "Host disconnected:" << m_host->name();
+
     m_connectDisconnectAction->setIcon(QIcon(":images/error_ball.svg"));
     m_connectDisconnectAction->setToolTip("Host Offline");
     m_connectDisconnectAction->setText("Offline");
     resetProgressBar();
 
-    disconnect(m_connectDisconnectAction, SIGNAL(triggered()), 0, 0);
-    connect(m_connectDisconnectAction, SIGNAL(triggered()), this, SLOT(connectToServer()));
+    m_host->setCurrentFile(LiveDocument());
+    updateRemoteActions();
+
+    disconnect(m_connectDisconnectAction, &QAction::triggered, 0, 0);
+    connect(m_connectDisconnectAction, &QAction::triggered, this, &HostWidget::connectToServer);
 }
 
 void HostWidget::onConnectionError(QAbstractSocket::SocketError error)
 {
+    qCDebug(csLog) << "Host connection error:" << m_host->name() << error;
+
     m_connectDisconnectAction->setToolTip(m_publisher.errorToString(error));
     m_connectDisconnectAction->setIcon(QIcon(":images/warning_ball.svg"));
 
@@ -282,7 +327,11 @@ void HostWidget::onConnectionError(QAbstractSocket::SocketError error)
 
 void HostWidget::refresh()
 {
-    connectAndSendFile();
+    if (m_publisher.state() != QAbstractSocket::ConnectedState)
+        return;
+
+    if (!m_host->currentFile().isNull())
+        m_publisher.activateDocument(m_host->currentFile());
 }
 
 void HostWidget::probe()
@@ -292,13 +341,15 @@ void HostWidget::probe()
 
 void HostWidget::publishWorkspace()
 {
-    connectToServer();
-    connect(m_engine.data(), SIGNAL(publishFile(QString)), this, SLOT(sendDocument(QString)));
+    if (m_publisher.state() != QAbstractSocket::ConnectedState)
+        return;
+
+    connect(m_engine.data(), &LiveHubEngine::publishFile, this, &HostWidget::sendDocument);
     m_engine->publishWorkspace();
-    disconnect(m_engine.data(), SIGNAL(publishFile(QString)), this, SLOT(sendDocument(QString)));
+    disconnect(m_engine.data(), &LiveHubEngine::publishFile, this, &HostWidget::sendDocument);
 }
 
-void HostWidget::sendDocument(const QString& document)
+void HostWidget::sendDocument(const LiveDocument& document)
 {
     if (m_publisher.state() != QAbstractSocket::ConnectedState)
         return;
@@ -407,7 +458,7 @@ void HostWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
 
-    setUpdateFile(m_documentLabel->toolTip());
+    refreshDocumentLabel();
 }
 
 void HostWidget::showPinDialog()
@@ -423,19 +474,33 @@ void HostWidget::showPinDialog()
 
 void HostWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasFormat("text/uri-list") && (m_host->online() || m_host->type() == Host::Manual)) {
+    if (m_publisher.state() != QAbstractSocket::ConnectedState)
+        return;
 
+    if (event->mimeData()->hasUrls())
         event->acceptProposedAction();
-    }
 }
 
 void HostWidget::dropEvent(QDropEvent *event)
 {
-    QUrl url(event->mimeData()->text());
+    if (m_publisher.state() != QAbstractSocket::ConnectedState)
+        return;
 
-    if (url.isLocalFile())
-        m_host->setCurrentFile(url.toLocalFile());
     event->acceptProposedAction();
+
+    QUrl url(event->mimeData()->urls().first());
+    if (url.isLocalFile()) {
+        LiveDocument document = LiveDocument::resolve(m_engine->workspace(), url.toLocalFile());
+        if (!document.isNull() && document.isFileIn(m_engine->workspace())) {
+            if (m_host->followTreeSelection() && document != m_engine->activePath())
+                m_host->setFollowTreeSelection(false);
+            m_publisher.activateDocument(document);
+        } else {
+            QMessageBox::warning(this, tr("Not a workspace document"),
+                    tr("The dropped document is not a file in the current workspace:<br/>%1")
+                        .arg(url.toString()));
+        }
+    }
 }
 
 bool HostWidget::eventFilter(QObject *object, QEvent *event)
@@ -448,4 +513,12 @@ bool HostWidget::eventFilter(QObject *object, QEvent *event)
     }
 
     return false;
+}
+
+void HostWidget::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == m_connectToServerTimer.timerId()) {
+        m_connectToServerTimer.stop();
+        connectToServer();
+    }
 }

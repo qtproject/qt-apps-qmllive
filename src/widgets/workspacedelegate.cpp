@@ -31,9 +31,12 @@
 
 #include "workspacedelegate.h"
 
-WorkspaceDelegate::WorkspaceDelegate(FileSystemModel *model, QObject *parent) :
-    QStyledItemDelegate(parent),
-    m_model(model)
+#include "filesystemmodel.h"
+#include "workspaceview.h"
+
+WorkspaceDelegate::WorkspaceDelegate(WorkspaceView *view) :
+    QStyledItemDelegate(view),
+    m_view(view)
 {
 }
 
@@ -42,11 +45,31 @@ void WorkspaceDelegate::initStyleOption(QStyleOptionViewItem *option, const QMod
     QStyledItemDelegate::initStyleOption(option, index);
 
     if (option) {
-        if (m_model->isDir(index))
+        QString path = m_view->model()->filePath(index);
+
+        // Do not paint selected items any special way - only the current item
+        // and the item corresponding to the active document will be
+        // highlighted.
+        option->state &= ~QStyle::State_Selected;
+
+        // Highlighting in the view is suppressed with customized palette.
+        // See WorkspaceView's constructor.
+        QColor highlight = qApp->palette().color(QPalette::Highlight);
+        QColor highlightedText = qApp->palette().color(QPalette::HighlightedText);
+        option->palette.setColor(QPalette::Highlight, highlight);
+        option->palette.setColor(QPalette::HighlightedText, highlightedText);
+
+        LiveDocument document = LiveDocument::resolve(m_view->rootPath(), path);
+        if (document == m_view->activeDocument()) {
+            option->backgroundBrush = highlight;
+            option->palette.setColor(QPalette::Base, highlight);
+            option->palette.setColor(QPalette::Text, highlightedText);
+        }
+
+        if (m_view->model()->isDir(index))
             return;
 
-        QString path = m_model->filePath(index);
-        foreach (QString type, m_model->allowedTypesFilter())
+        foreach (QString type, m_view->model()->allowedTypesFilter())
         {
             if (path.contains(QRegExp(type, Qt::CaseInsensitive, QRegExp::Wildcard)))
                 return;

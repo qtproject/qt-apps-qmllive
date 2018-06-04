@@ -29,6 +29,8 @@
 **
 ****************************************************************************/
 
+#include <functional>
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -166,6 +168,7 @@ void Application::setDarkStyle()
     palette.setColor(QPalette::Text, QColor("#F0F0F0"));
     palette.setColor(QPalette::Button, QColor("#353535"));
     palette.setColor(QPalette::ButtonText, QColor("#FFFFFF"));
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#A0A0A0"));
     palette.setColor(QPalette::BrightText, QColor("#D0021B"));
     palette.setColor(QPalette::Highlight, QColor("#F19300"));
     palette.setColor(QPalette::HighlightedText, QColor("#1C1C1C"));
@@ -181,9 +184,9 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addPositionalArgument("workspace", "workspace folder to watch. If this points to a QML document, than the directory is asssumed to be the workspace and the file the active document.");
     parser.addPositionalArgument("document", "main QML document to load initially.");
 
-    QCommandLineOption pluginPathOption("pluginpath", "path to qmllive plugins", "pluginpath");
+    QCommandLineOption pluginPathOption("pluginpath", "path to QmlLive plugins", "pluginpath");
     parser.addOption(pluginPathOption);
-    QCommandLineOption importPathOption("importpath", "path to qml import path. Can appear multiple times", "importpath");
+    QCommandLineOption importPathOption("importpath", "path to QML import path. Can appear multiple times", "importpath");
     parser.addOption(importPathOption);
     QCommandLineOption stayOnTopOption("stayontop", "keep viewer window on top");
     parser.addOption(stayOnTopOption);
@@ -271,7 +274,7 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
                 parser.showHelp(-1);
             }
             options->setWorkspace(fi.absolutePath());
-            options->setActiveDocument(fi.absoluteFilePath());
+            options->setActiveDocument(LiveDocument(fi.absoluteFilePath()));
         } else {
             qDebug() << "First argument does not ending with \".qml\". Assuming it is a workspace.";
             if (!fi.exists() || !fi.isDir()) {
@@ -286,11 +289,12 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
         QFileInfo fi(argument);
         if (argument.endsWith(".qml")) {
             qDebug() << "Second argument ends with \".qml\". Assuming it is a file.";
-            if (!fi.exists() || !fi.isFile()) {
-                qWarning() << "Document does not exist or is not a file: " << fi.absoluteFilePath();
+            LiveDocument document = LiveDocument::resolve(options->workspace(), argument);
+            if (document.isNull() || !document.isFileIn(options->workspace())) {
+                qWarning() << document.errorString();
                 parser.showHelp(-1);
             }
-            options->setActiveDocument(fi.absoluteFilePath());
+            options->setActiveDocument(document);
         } else {
             qWarning() << "If second argument is present it needs to be a QML document: " << fi.absoluteFilePath();
             parser.showHelp(-1);
@@ -381,7 +385,7 @@ void MasterApplication::listenForArguments()
 void MasterApplication::applyOptions(const Options &options)
 {
     if (!options.workspace().isEmpty())
-        m_window->setWorkspace(QDir(options.workspace()).absolutePath());
+        m_window->setWorkspace(QDir(options.workspace()).absolutePath(), false);
 
     if (!options.pluginPath().isEmpty()) {
         if (!m_window->isInitialized())
@@ -397,7 +401,7 @@ void MasterApplication::applyOptions(const Options &options)
             qDebug() << "Ignoring attempt to set import paths after initialization.";
     }
 
-    if (!options.activeDocument().isEmpty()) {
+    if (!options.activeDocument().isNull()) {
         m_window->activateDocument(options.activeDocument());
     }
 

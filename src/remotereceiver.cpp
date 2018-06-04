@@ -82,11 +82,16 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
     , m_client(0)
     , m_bulkUpdateInProgress(false)
     , m_updateDocumentsOnConnectState(UpdateNotStarted)
+    , m_logSentPosition(0)
 {
-    connect(m_server, SIGNAL(received(QString,QByteArray)), this, SLOT(handleCall(QString,QByteArray)));
-    connect(m_server, SIGNAL(clientConnected(QTcpSocket*)), this, SLOT(onClientConnected(QTcpSocket*)));
-    connect(m_server, SIGNAL(clientConnected(QHostAddress)), this, SIGNAL(clientConnected(QHostAddress)));
-    connect(m_server, SIGNAL(clientDisconnected(QHostAddress)), this, SIGNAL(clientDisconnected(QHostAddress)));
+    void (IpcServer::*IpcServer__clientConnected_socket)(QTcpSocket*) = &IpcServer::clientConnected;
+    void (IpcServer::*IpcServer__clientConnected_address)(const QHostAddress &) = &IpcServer::clientConnected;
+    void (IpcServer::*IpcServer__clientDisconnected_address)(const QHostAddress &) = &IpcServer::clientDisconnected;
+
+    connect(m_server, &IpcServer::received, this, &RemoteReceiver::handleCall);
+    connect(m_server, IpcServer__clientConnected_socket, this, &RemoteReceiver::onClientConnected);
+    connect(m_server, IpcServer__clientConnected_address, this, &RemoteReceiver::clientConnected);
+    connect(m_server, IpcServer__clientDisconnected_address, this, &RemoteReceiver::clientDisconnected);
 }
 
 /*!
@@ -101,11 +106,7 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
     m_server->listen(port);
 
     if (m_connectionOptions & BlockingConnect) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 5, 0)
-        qWarning() << "Waiting for connection from QML Live bench…";
-#else
-        qInfo() << "Waiting for connection from QML Live bench…";
-#endif
+        qInfo() << "Waiting for connection from QmlLive Bench…";
 
         QEventLoop loop;
 
@@ -216,6 +217,7 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
             emit endBulkUpdate();
             if (m_updateDocumentsOnConnectState == UpdateStarted) {
                 m_updateDocumentsOnConnectState = UpdateFinished;
+                finishConnectionInitialization();
                 emit updateDocumentsOnConnectFinished(true);
             }
         } else {
@@ -227,13 +229,13 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
         QDataStream in(content);
         in >> document;
         in >> data;
-        emit updateDocument(document, data);
+        emit updateDocument(LiveDocument(document), data);
     } else if (method == "activateDocument(QString)") {
         QString document;
         QDataStream in(content);
         in >> document;
         qDebug() << "\tactivate document: " << document;
-        emit activateDocument(document);
+        emit activateDocument(LiveDocument(document));
     } else if (method == "ping()") {
         if (m_client)
             m_client->send("pong()", QByteArray());
@@ -247,13 +249,14 @@ void RemoteReceiver::registerNode(LiveNodeEngine *node)
 {
     if (m_node) { disconnect(m_node); }
     m_node = node;
-    connect(m_node, SIGNAL(logErrors(QList<QQmlError>)), this, SLOT(appendToLog(QList<QQmlError>)));
-    connect(m_node, SIGNAL(clearLog()), this, SLOT(clearLog()));
-    connect(this, SIGNAL(activateDocument(QString)), m_node, SLOT(setActiveDocument(QString)));
-    connect(this, SIGNAL(updateDocument(QString,QByteArray)), m_node, SLOT(updateDocument(QString,QByteArray)));
-    connect(this, SIGNAL(xOffsetChanged(int)), m_node, SLOT(setXOffset(int)));
-    connect(this, SIGNAL(yOffsetChanged(int)), m_node, SLOT(setYOffset(int)));
-    connect(this, SIGNAL(rotationChanged(int)), m_node, SLOT(setRotation(int)));
+    connect(m_node, &LiveNodeEngine::logErrors, this, &RemoteReceiver::appendToLog);
+    connect(m_node, &LiveNodeEngine::clearLog, this, &RemoteReceiver::clearLog);
+    connect(m_node, &LiveNodeEngine::activeDocumentChanged, this, &RemoteReceiver::onActiveDocumentChanged);
+    connect(this, &RemoteReceiver::activateDocument, m_node, &LiveNodeEngine::loadDocument);
+    connect(this, &RemoteReceiver::updateDocument, m_node, &LiveNodeEngine::updateDocument);
+    connect(this, &RemoteReceiver::xOffsetChanged, m_node, &LiveNodeEngine::setXOffset);
+    connect(this, &RemoteReceiver::yOffsetChanged, m_node, &LiveNodeEngine::setYOffset);
+    connect(this, &RemoteReceiver::rotationChanged, m_node, &LiveNodeEngine::setRotation);
 }
 
 /*!
@@ -293,13 +296,22 @@ void RemoteReceiver::onClientDisconnected(QTcpSocket *socket)
 }
 void RemoteReceiver::maybeStartUpdateDocumentsOnConnect()
 {
-    if (!(m_connectionOptions & UpdateDocumentsOnConnect))
-        return;
-
-    if (m_updateDocumentsOnConnectState == UpdateNotStarted) {
+    if (m_connectionOptions & UpdateDocumentsOnConnect
+            && m_updateDocumentsOnConnectState == UpdateNotStarted) {
         m_client->send("needsPublishWorkspace()", QByteArray());
         m_updateDocumentsOnConnectState = UpdateRequested;
+    } else {
+        finishConnectionInitialization();
     }
+}
+
+void RemoteReceiver::finishConnectionInitialization()
+{
+    if (!m_node->activeDocument().isNull())
+        onActiveDocumentChanged(m_node->activeDocument());
+
+    m_logSentPosition = 0;
+    flushLog();
 }
 
 /*!
@@ -307,7 +319,18 @@ void RemoteReceiver::maybeStartUpdateDocumentsOnConnect()
  */
 void RemoteReceiver::appendToLog(const QList<QQmlError> &errors)
 {
-    foreach (const QQmlError &err, errors) {
+    m_log.append(errors);
+
+    if (!m_client)
+        return;
+
+    flushLog();
+}
+
+void RemoteReceiver::flushLog()
+{
+    for (; m_logSentPosition < m_log.count(); ++m_logSentPosition) {
+        const QQmlError &err = m_log.at(m_logSentPosition);
         if (!err.isValid())
             continue;
 
@@ -337,11 +360,32 @@ void RemoteReceiver::appendToLog(const QList<QQmlError> &errors)
  */
 void RemoteReceiver::clearLog()
 {
+    m_log.clear();
+    m_logSentPosition = 0;
+
+    if (!m_client)
+        return;
+
     m_client->send("clearLog()", QByteArray());
 }
 
 /*!
- * \fn void RemoteReceiver::activateDocument(const QString& document)
+ * Called to notify bench about active document change
+ */
+void RemoteReceiver::onActiveDocumentChanged(const LiveDocument &document)
+{
+    if (!m_client)
+        return;
+
+    QByteArray bytes;
+    QDataStream out(&bytes, QIODevice::WriteOnly);
+    out << document.relativeFilePath();
+
+    m_client->send("activeDocumentChanged(QString)", bytes);
+}
+
+/*!
+ * \fn void RemoteReceiver::activateDocument(const LiveDocument& document)
  *
  * This signal is emitted when the remote active document \a document has changed
  */
@@ -410,7 +454,7 @@ void RemoteReceiver::clearLog()
  */
 
 /*!
- * \fn void RemoteReceiver::updateDocument(const QString &document, const QByteArray &content)
+ * \fn void RemoteReceiver::updateDocument(const LiveDocument &document, const QByteArray &content)
  *
  * This signal is emitted to notify that a \a document has changed its \a content
  */

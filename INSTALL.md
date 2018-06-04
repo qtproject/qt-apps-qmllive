@@ -25,9 +25,9 @@ target.
 
 ## Build documentation
 
-    $ export QT_INSTALL_DOCS=$QTSRC/qtbase/doc
+    $ qmake CONFIG+=force_independent
     $ make docs
 
-The documentation will be avilable at 'doc/html/index.html'.
+The documentation will be avilable at 'doc/qmllive/index.html'.
 
 Copyright (C) 2016 Pelagicore AG

@@ -57,8 +57,16 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     m_view->hideColumn(2); // type
     m_view->hideColumn(3); // modified time
 
-    m_view->setItemDelegate(new WorkspaceDelegate(m_model, this));
-    connect(m_view, SIGNAL(activated(QModelIndex)), this, SLOT(indexActivated(QModelIndex)));
+    // Prevent view highlighting background of a selected row. Only the
+    // active-document's row should be highlighted. See also
+    // WorkspaceDelegate::initStyleOption()
+    QPalette noHighlightPalette = palette();
+    noHighlightPalette.setColor(QPalette::Highlight, palette().color(QPalette::Base));
+    noHighlightPalette.setColor(QPalette::HighlightedText, palette().color(QPalette::Text));
+    m_view->setPalette(noHighlightPalette);
+
+    m_view->setItemDelegate(new WorkspaceDelegate(this));
+    connect(m_view, &QTreeView::activated, this, &WorkspaceView::indexActivated);
 
     m_model->setAllowedTypesFilter(QStringList() << "*.qml" << "*.png" << "*.otf" << "*.ttf");
 
@@ -67,7 +75,6 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     layout->addWidget(m_view);
     layout->setMargin(1);
     setLayout(layout);
-
 
     m_view->setDragEnabled(true);
     m_view->setDragDropMode(QAbstractItemView::DragOnly);
@@ -85,17 +92,17 @@ void WorkspaceView::setRootPath(const QString &dirPath)
 /*!
  * Activates the document by the given \a path
  */
-void WorkspaceView::activateDocument(const QString &path)
+void WorkspaceView::activateDocument(const LiveDocument &path)
 {
     //qDebug() << "WorkspaceView::activateDocument" << path;
-    QModelIndex index = m_model->index(path);
+    QModelIndex index = m_model->index(path.absoluteFilePathIn(rootPath()));
     selectIndex(index);
 }
 
 void WorkspaceView::activateRootPath()
 {
     selectIndex(m_rootIndex);
-    emit pathActivated(m_model->rootPath());
+    emit pathActivated(LiveDocument(QStringLiteral(".")));
 }
 
 void WorkspaceView::goUp()
@@ -110,7 +117,7 @@ void WorkspaceView::goUp()
 /*!
  * Returns the active, selected document.
  */
-QString WorkspaceView::activeDocument() const
+LiveDocument WorkspaceView::activeDocument() const
 {
     return m_currentDocument;
 }
@@ -140,8 +147,14 @@ void WorkspaceView::indexActivated(const QModelIndex &index)
 
     QString path = m_model->filePath(index);
 
-    m_currentDocument = path;
-    emit pathActivated(path);
+    LiveDocument oldDocument = m_currentDocument;
+
+    m_currentDocument = LiveDocument::resolve(m_model->rootDirectory(), path);
+    emit pathActivated(m_currentDocument);
+    m_view->update(index);
+
+    if (!oldDocument.isNull())
+        m_view->update(m_model->index(oldDocument.absoluteFilePathIn(rootPath())));
 }
 
 void WorkspaceView::selectIndex(const QModelIndex &index)

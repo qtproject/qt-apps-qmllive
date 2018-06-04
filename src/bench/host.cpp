@@ -73,7 +73,7 @@ QString Host::address() const
     return m_address;
 }
 
-QString Host::currentFile() const
+LiveDocument Host::currentFile() const
 {
     return m_currentFile;
 }
@@ -109,7 +109,7 @@ void Host::setAddress(QString arg)
     }
 }
 
-void Host::setCurrentFile(QString arg)
+void Host::setCurrentFile(LiveDocument arg)
 {
     m_currentFile = arg;
     emit currentFileChanged(arg);
@@ -144,6 +144,8 @@ void Host::setOnline(bool arg)
     if (m_online != arg) {
         m_online = arg;
         emit onlineChanged(arg);
+        if (m_type == AutoDiscovery)
+            emit availableChanged(arg);
     }
 }
 
@@ -191,6 +193,11 @@ bool Host::online() const
     return m_online;
 }
 
+bool Host::available() const
+{
+    return m_type == Manual || m_online;
+}
+
 bool Host::followTreeSelection() const
 {
     return m_followTreeSelection;
@@ -208,7 +215,6 @@ void Host::saveToSettings(QSettings *s)
     s->setValue("xOffset", xOffset());
     s->setValue("yOffset", yOffset());
     s->setValue("rotation", rotation());
-    s->setValue("currentFile", currentFile());
     s->setValue("autoDiscoveryId", autoDiscoveryId().toString());
     s->setValue("systemName", systemName());
     s->setValue("productVersion", productVersion());
@@ -226,7 +232,6 @@ void Host::restoreFromSettings(QSettings *s)
     setXOffset(s->value("xOffset").toInt());
     setYOffset(s->value("yOffset").toInt());
     setRotation(s->value("rotation").toInt());
-    setCurrentFile(s->value("currentFile").toString());
     setAutoDiscoveryId(QUuid(s->value("autoDiscoveryId").toString()));
     setSystemName(s->value("systemName").toString());
     setProductVersion(s->value("productVersion").toString());

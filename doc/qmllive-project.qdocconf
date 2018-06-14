@@ -37,5 +37,6 @@ qhp.QmlLive.subprojects.manual.title = Qt QmlLive
 qhp.QmlLive.subprojects.manual.indexTitle = Qt QmlLive
 qhp.QmlLive.subprojects.manual.type = manual
 
-navigation.homepage = "Qt QmlLive"
+navigation.homepage = "Qt Automotive Suite"
+navigation.landingpage = "Qt QmlLive"
 buildversion = "Qt QmlLive $QT_VERSION"

@@ -20,7 +20,8 @@ SOURCES += \
     $$PWD/logger.cpp \
     $$PWD/remotelogger.cpp \
     $$PWD/logreceiver.cpp \
-    $$PWD/fontadapter.cpp
+    $$PWD/fontadapter.cpp \
+    $$PWD/projectmanager.cpp
 
 public_headers += \
     $$PWD/livedocument.h \
@@ -33,7 +34,8 @@ public_headers += \
     $$PWD/remotepublisher.h \
     $$PWD/remotereceiver.h \
     $$PWD/contentadapterinterface.h \
-    $$PWD/remotelogger.h
+    $$PWD/remotelogger.h \
+    $$PWD/projectmanager.h
 
 HEADERS += \
     $$public_headers \

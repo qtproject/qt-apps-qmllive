@@ -50,13 +50,16 @@ class AllHostsWidget;
 class Host;
 class HostDiscoveryManager;
 class Options;
+class NewProjectWizard;
+class ProjectManager;
+
 QT_FORWARD_DECLARE_CLASS(QToolBar);
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void activateDocument(const LiveDocument &path);
     void setWorkspace(const QString& path, bool activateRootPath = true);
@@ -88,10 +91,13 @@ private slots:
     void openWorkspace();
     void logQuitEvent();
     void updateWindowTitle();
-    void openPreferences(Host *host = 0);
+    void openPreferences(Host *host = nullptr);
     void openRecentFolder();
     void clearRecentFolder();
     void stayOnTop();
+    void openProject();
+    void newProjectWizard();
+    void newProject();
 
     void onActiveWindowChanged(QQuickWindow *activeWindow);
 
@@ -126,4 +132,8 @@ private:
     QAction *m_clipRootObject;
     QToolBar* m_toolBar;
     QStringList m_qmlDefaultimportList;
+    QAction *m_openProject;
+    QAction *m_createProject;
+    NewProjectWizard *m_newProjectWizard;
+    ProjectManager *m_projectManager;
 };

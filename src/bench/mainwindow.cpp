@@ -48,13 +48,15 @@
 #include "allhostswidget.h"
 #include "hostdiscoverymanager.h"
 #include "options.h"
+#include "newprojectwizard.h"
+#include "projectmanager.h"
 
 class ErrorBar : public QFrame
 {
     Q_OBJECT
 
 public:
-    ErrorBar(QWidget *parent = 0)
+    ErrorBar(QWidget *parent = nullptr)
         : QFrame(parent)
     {
         setFrameShape(QFrame::StyledPanel);
@@ -101,6 +103,8 @@ MainWindow::MainWindow(QWidget *parent)
     , m_allHosts(new AllHostsWidget(this))
     , m_hub(new LiveHubEngine(this))
     , m_node(new BenchLiveNodeEngine(this))
+    , m_newProjectWizard(new NewProjectWizard(this))
+    , m_projectManager(new ProjectManager(this))
 {
     setupContent();
     setupMenuBar();
@@ -128,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_allHosts, &AllHostsWidget::refreshAll, m_hostManager, &HostManager::refreshAll);
     connect(m_hostManager, &HostManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
     connect(m_hostManager, &HostManager::openHostConfig, this, &MainWindow::openPreferences);
+    connect(m_newProjectWizard, &NewProjectWizard::accepted, this, &MainWindow::newProject);
 
     m_qmlDefaultimportList = m_node->qmlEngine()->importPathList();
 }
@@ -250,10 +255,24 @@ void MainWindow::setupMenuBar()
 {
     QMenu *file = menuBar()->addMenu(tr("&File"));
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."), this, SLOT(openWorkspace()), QKeySequence::Open);
+    m_createProject = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Project"), this, SLOT(newProject()), QKeySequence::New);
+#else
+    m_createProject = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Project"),
+                                      this, &MainWindow::newProjectWizard, QKeySequence::New);
+#endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    m_openProject = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Project..."), this, SLOT(openProject()), QKeySequence::Open);
+#else
+    m_openProject = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Project..."),
+                                      this, &MainWindow::openProject, QKeySequence::Open);
+#endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."), this, SLOT(openWorkspace()), QKeySequence("Ctrl+W"));
 #else
     m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."),
-                                      this, &MainWindow::openWorkspace, QKeySequence::Open);
+                                      this, &MainWindow::openWorkspace, QKeySequence("Ctrl+W"));
 #endif
     m_recentMenu = file->addMenu(QIcon::fromTheme("document-open-recent"), "&Recent");
     m_recentMenu->setEnabled(false);
@@ -414,6 +433,8 @@ void MainWindow::setupToolBar()
     m_toolBar = addToolBar("ToolBar");
     m_toolBar->setObjectName("toolbar");
     m_toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_toolBar->addAction(m_createProject);
+    m_toolBar->addAction(m_openProject);
     m_toolBar->addAction(m_openWorkspace);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_refresh);
@@ -589,6 +610,63 @@ void MainWindow::stayOnTop()
         setWindowFlags(flags ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
     }
     show();
+}
+
+void MainWindow::openProject()
+{
+    QString filter = tr("QmlLive (*.qmllive);; All files (*.*)");
+    QString path = QFileDialog::getOpenFileName(this, "Open Project", filter, filter);
+    if (path.isEmpty()) {
+        return;
+    }
+    if (m_projectManager->read(path))
+    {
+        QStringList paths;
+        QSettings s;
+        int count = s.beginReadArray("imports");
+        for (int i=0; i<count; i++) {
+            s.setArrayIndex(i);
+            paths.append(s.value("path").toString());
+        }
+        s.endArray();
+        paths.append(m_projectManager->imports());
+        paths.removeDuplicates();
+
+        //write Application settings
+        s.beginWriteArray("imports");
+        for (int i = 0; i < paths.count(); i++) {
+            s.setArrayIndex(i);
+            s.setValue("path", paths.at(i));
+        }
+        s.endArray();
+
+        setImportPaths(paths);
+        setWorkspace(m_projectManager->workspace());
+        activateDocument(LiveDocument(m_projectManager->mainDocument()));
+    }
+}
+
+void MainWindow::newProjectWizard()
+{
+    if (!m_newProjectWizard) {
+        m_newProjectWizard = new NewProjectWizard(this);
+    } else {
+        m_newProjectWizard->restart();
+    }
+    m_newProjectWizard->show();
+}
+
+void MainWindow::newProject()
+{
+    m_projectManager->setImports(m_newProjectWizard->imports());
+    m_projectManager->setMainDocument(m_newProjectWizard->mainDocument());
+    m_projectManager->setWorkspace(m_newProjectWizard->workspace());
+
+    m_projectManager->create(m_newProjectWizard->projectName());
+
+    setImportPaths(m_newProjectWizard->imports());
+    setWorkspace(m_newProjectWizard->workspace());
+    activateDocument(LiveDocument(m_newProjectWizard->mainDocument()));
 }
 
 #include "mainwindow.moc"

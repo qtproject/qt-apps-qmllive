@@ -53,7 +53,8 @@ public:
         NoWorkspaceOption = 0x0,
         LoadDummyData = 0x1,
         AllowUpdates = 0x2,
-        UpdatesAsOverlay = 0x4
+        UpdatesAsOverlay = 0x4,
+        AllowCreateMissing = 0x8
     };
     Q_DECLARE_FLAGS(WorkspaceOptions, WorkspaceOption)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)

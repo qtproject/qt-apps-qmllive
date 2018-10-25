@@ -93,60 +93,93 @@ const char OVERLAY_PATH_SEPARATOR = '-';
  * \sa {QML Live Runtime}
  */
 
-class OverlayUrlInterceptor : public QObject, public QQmlAbstractUrlInterceptor
+// Overlay uses temporary directory to allow parallel execution
+class Overlay : public QObject
 {
     Q_OBJECT
 
 public:
-    OverlayUrlInterceptor(const QString &basePath, const QString &overlayPath,
-                          QQmlAbstractUrlInterceptor *otherInterceptor, QObject *parent)
+    Overlay(const QString &basePath, QObject *parent)
         : QObject(parent)
-        , m_base(basePath)
-        , m_overlay(overlayPath)
-        , m_otherInterceptor(otherInterceptor)
+        , m_basePath(basePath)
+        , m_overlay(overlayTemplatePath())
     {
-        Q_ASSERT(!basePath.isEmpty());
-        Q_ASSERT(!overlayPath.isEmpty());
+        if (!m_overlay.isValid())
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+            qFatal("Failed to create overlay directory: %s", qPrintable(m_overlay.errorString()));
+#else
+            qFatal("Failed to create overlay directory");
+#endif
 
-        QDirIterator it(m_overlay.absolutePath(), QDir::AllEntries | QDir::NoDotAndDotDot,
-                        QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            QString overlayingPath = it.next();
-            QString document = m_overlay.relativeFilePath(overlayingPath);
-            m_mappings.insert(QUrl::fromLocalFile(m_base.absoluteFilePath(document)),
-                              QUrl::fromLocalFile(overlayingPath));
-        }
     }
 
-    QDir overlay() const { return m_overlay; }
+    ~Overlay()
+    {
+    }
+
+    QDir overlay() const { return m_overlay.path(); }
 
     QString reserve(const LiveDocument &document)
     {
         QWriteLocker locker(&m_lock);
 
-        QString overlayingPath = document.absoluteFilePathIn(m_overlay);
-        m_mappings.insert(QUrl::fromLocalFile(document.absoluteFilePathIn(m_base)),
-                          QUrl::fromLocalFile(overlayingPath));
+        QString overlayingPath = document.absoluteFilePathIn(m_overlay.path());
+        m_mappings.insert(document.absoluteFilePathIn(m_basePath), overlayingPath);
         return overlayingPath;
+    }
+
+    QString map(const QString &file) const
+    {
+        QReadLocker locker(&m_lock);
+
+        return m_mappings.value(file, file);
+    }
+
+private:
+    static QString overlayTemplatePath()
+    {
+        QSettings settings;
+        QString overlayTemplatePath = QDir::tempPath() + QDir::separator() + QLatin1String(OVERLAY_PATH_PREFIX);
+        if (!settings.organizationName().isEmpty()) // See QCoreApplication::organizationName's docs
+            overlayTemplatePath += settings.organizationName() + QLatin1Char(OVERLAY_PATH_SEPARATOR);
+        overlayTemplatePath += settings.applicationName();
+        return overlayTemplatePath;
+    }
+
+private:
+    mutable QReadWriteLock m_lock;
+    QHash<QString, QString> m_mappings;
+    QString m_basePath;
+    QTemporaryDir m_overlay;
+};
+
+class OverlayUrlInterceptor : public QObject, public QQmlAbstractUrlInterceptor
+{
+    Q_OBJECT
+
+public:
+    OverlayUrlInterceptor(const Overlay *overlay, QQmlAbstractUrlInterceptor *otherInterceptor, QObject *parent)
+        : QObject(parent)
+        , m_otherInterceptor(otherInterceptor)
+        , m_overlay(overlay)
+    {
+        Q_ASSERT(overlay);
     }
 
     // From QQmlAbstractUrlInterceptor
     QUrl intercept(const QUrl &url, DataType type) Q_DECL_OVERRIDE
     {
-        Q_UNUSED(type);
-
-        QReadLocker locker(&m_lock);
-
         const QUrl url_ = m_otherInterceptor ? m_otherInterceptor->intercept(url, type) : url;
-        return m_mappings.value(url_, url_);
+        if (url_.scheme() == QLatin1String("file")) {
+            return QUrl::fromLocalFile(m_overlay->map(url_.toLocalFile()));
+        } else {
+            return url_;
+        }
     }
 
 private:
-    QReadWriteLock m_lock;
-    QDir m_base;
-    QDir m_overlay;
     QQmlAbstractUrlInterceptor *m_otherInterceptor;
-    QHash<QUrl, QUrl> m_mappings;
+    QPointer<const Overlay> m_overlay;
 };
 
 /*!
@@ -172,7 +205,6 @@ LiveNodeEngine::LiveNodeEngine(QObject *parent)
  */
 LiveNodeEngine::~LiveNodeEngine()
 {
-    destroyOverlay();
 }
 
 /*!
@@ -541,7 +573,7 @@ void LiveNodeEngine::updateDocument(const LiveDocument &document, const QByteArr
     }
 
     QString filePath = (m_workspaceOptions & UpdatesAsOverlay)
-        ? m_overlayUrlInterceptor->reserve(document)
+        ? m_overlay->reserve(document)
         : document.absoluteFilePathIn(m_workspace);
 
     QString dirPath = QFileInfo(filePath).absoluteDir().absolutePath();
@@ -611,46 +643,13 @@ void LiveNodeEngine::setWorkspace(const QString &path, WorkspaceOptions options)
         m_workspaceOptions |= AllowUpdates;
     }
 
-    if (m_workspaceOptions & UpdatesAsOverlay)
-        initOverlay();
+    if (m_workspaceOptions & UpdatesAsOverlay) {
+        m_overlay = new Overlay(m_workspace.path(), this);
+        m_overlayUrlInterceptor = new OverlayUrlInterceptor(m_overlay, qmlEngine()->urlInterceptor(), this);
+        qmlEngine()->setUrlInterceptor(m_overlayUrlInterceptor);
+    }
 
     emit workspaceChanged(workspace());
-}
-
-void LiveNodeEngine::initOverlay()
-{
-    Q_ASSERT(m_workspaceOptions & UpdatesAsOverlay);
-
-    QSettings settings;
-    QString overlayBasePath = QDir::tempPath() + QDir::separator() + QLatin1String(OVERLAY_PATH_PREFIX);
-    if (!settings.organizationName().isEmpty()) // See QCoreApplication::organizationName's docs
-        overlayBasePath += settings.organizationName() + QLatin1Char(OVERLAY_PATH_SEPARATOR);
-    overlayBasePath += settings.applicationName();
-
-    // With temporary overlay allow parallel execution
-    QTemporaryDir overlay(overlayBasePath);
-    if (!overlay.isValid())
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-        qFatal("Failed to create overlay directory: %s", qPrintable(overlay.errorString()));
-#else
-        qFatal("Failed to create overlay directory");
-#endif
-    overlay.setAutoRemove(false);
-
-    m_overlayUrlInterceptor = new OverlayUrlInterceptor(m_workspace.path(),
-        overlay.path(), qmlEngine()->urlInterceptor(), this);
-    qmlEngine()->setUrlInterceptor(m_overlayUrlInterceptor);
-}
-
-void LiveNodeEngine::destroyOverlay()
-{
-    if (m_workspaceOptions & UpdatesAsOverlay) {
-        // Better be paranoid than sorry.
-        bool safe = m_overlayUrlInterceptor->overlay().absolutePath().startsWith(QDir::tempPath() + QDir::separator());
-        Q_ASSERT(safe);
-        if (!safe || !m_overlayUrlInterceptor->overlay().removeRecursively())
-            qWarning() << "Failed to remove overlay directory";
-    }
 }
 
 /*!

@@ -294,6 +294,8 @@ void HostWidget::onConnected()
 
     disconnect(m_connectDisconnectAction, &QAction::triggered, 0, 0);
     connect(m_connectDisconnectAction, &QAction::triggered, &m_publisher, &RemotePublisher::disconnectFromServer);
+
+    m_publisher.initComplete();
 }
 
 void HostWidget::onDisconnected()

@@ -230,6 +230,14 @@ QUuid RemotePublisher::setRotation(int rotation)
 }
 
 /*!
+  Sends \e initComplete via IPC
+ */
+QUuid RemotePublisher::initComplete()
+{
+    return m_ipc->send("initComplete()", QByteArray());
+}
+
+/*!
   Sends the \e sendWholeDocument with \a document as argument via IPC
  */
 QUuid RemotePublisher::sendWholeDocument(const LiveDocument& document)

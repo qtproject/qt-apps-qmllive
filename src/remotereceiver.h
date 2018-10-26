@@ -94,6 +94,7 @@ Q_SIGNALS:
     void endBulkUpdate();
     void updateDocumentsOnConnectFinished(bool ok);
     void updateDocument(const LiveDocument &document, const QByteArray &content);
+    void initComplete();
 
 private Q_SLOTS:
     void handleCall(const QString& method, const QByteArray& content);

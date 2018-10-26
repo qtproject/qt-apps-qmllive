@@ -60,18 +60,23 @@ QDir Overlay::overlay() const
     return m_overlay.path();
 }
 
-QString Overlay::reserve(const LiveDocument &document)
+QString Overlay::reserve(const LiveDocument &document, bool existing)
 {
     QWriteLocker locker(&m_lock);
     QString overlayingPath = document.absoluteFilePathIn(m_overlay.path());
-    m_mappings.insert(document.absoluteFilePathIn(m_basePath), overlayingPath);
+    m_mappings.insert(document.absoluteFilePathIn(m_basePath), qMakePair(overlayingPath, existing));
     return overlayingPath;
 }
 
-QString Overlay::map(const QString &file) const
+QString Overlay::map(const QString &file, bool existingOnly) const
 {
     QReadLocker locker(&m_lock);
-    return m_mappings.value(file, file);
+    auto it = m_mappings.find(file);
+    if (it == m_mappings.end())
+        return file;
+    if (existingOnly && !it->second)
+        return file;
+    return it->first;
 }
 
 QString Overlay::overlayTemplatePath()

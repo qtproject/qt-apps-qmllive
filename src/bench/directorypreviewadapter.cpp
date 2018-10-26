@@ -31,6 +31,7 @@
 ****************************************************************************/
 
 #include "directorypreviewadapter.h"
+#include "livedocument.h"
 #include <QFileInfo>
 #include <QDir>
 #include <QQmlContext>
@@ -64,15 +65,16 @@ bool DirectoryPreviewAdapter::isFullScreen() const
 
 bool DirectoryPreviewAdapter::canAdapt(const QUrl &url) const
 {
-    QFileInfo info(url.toLocalFile());
-    return info.isDir();
+    QString path(LiveDocument::toFilePath(url));
+    return !path.isEmpty() && QFileInfo(path).isDir();
 }
 QUrl DirectoryPreviewAdapter::adapt(const QUrl &url, QQmlContext *context)
 {
-    QDir dir(url.toLocalFile());
+    QString path(LiveDocument::toFilePath(url));
+    QDir dir(path);
 
     context->setContextProperty("files", dir.entryList(QDir::Files | QDir::NoDotDot | QDir::NoDot | QDir::NoSymLinks));
-    context->setContextProperty("path", url.toLocalFile());
+    context->setContextProperty("path", path);
     context->setContextProperty("adapter", this);
 
     if (availableFeatures().testFlag(QtQuickControls))

@@ -31,13 +31,23 @@
 ****************************************************************************/
 
 #include "livedocument.h"
+#include "resourcemap.h"
 
 #include <QDebug>
 
 /*!
  * \class LiveDocument
- * \brief Encapsulates a relative path to a workspace document.
+ * \brief Identifies a workspace document
  * \inmodule qmllive
+ *
+ * On the LiveHubEngine side, i.e. where the QmlLive Bench is running, it always
+ * represents a document on file system, under the workspace directory.
+ *
+ * On the LiveNodeEngine side, i.e. on the QmlLive Runtime side, it represents a
+ * document that may exist either on file system or in a Qt resource. In either
+ * case the document is identified by the relative path of the original file
+ * under the workspace directory on the LiveHubEngine side.  See
+ * runtimeLocation().
  */
 
 /*!
@@ -81,9 +91,9 @@ LiveDocument::LiveDocument(const QString &relativeFilePath)
 /*!
  * \fn QString LiveDocument::errorString() const
  *
- * When called just after resolve(), existsIn() or isFileIn() failed, returns a
- * descriptive message suitable for displaying in user interface. When called in
- * other context, the result is undefined.
+ * When called just after resolve(), existsIn(), isFileIn() or mapsToResource()
+ * failed, returns a descriptive message suitable for displaying in user
+ * interface. When called in other context, the result is undefined.
  */
 
 /*!
@@ -149,6 +159,54 @@ QString LiveDocument::absoluteFilePathIn(const QDir &workspace) const
 }
 
 /*!
+ * Returns \c true if the runtime location of the document is in a Qt resource.
+ * This is determined using the given \a resourceMap.
+ *
+ * \sa runtimeLocation(), LiveNodeEngine::resourceMap(), errorString()
+ */
+bool LiveDocument::mapsToResource(const ResourceMap &resourceMap) const
+{
+    LIVE_ASSERT(!isNull(), return false);
+
+    QString resource = resourceMap.toResource(*this);
+    if (resource.isEmpty()) {
+        m_errorString = tr("Document '%1' does not exist as a Qt resource")
+            .arg(m_relativeFilePath);
+        return false;
+    }
+
+    // TODO Necessary to check if it actually exists? ResourceMap may not be in sync.
+
+    return true;
+}
+
+/*!
+ * Determines the runtime location of the document. On LiveNodeEngine side a
+ * document may exist either on file system (under the given \a workspace) or in
+ * a Qt resource (determined using the given \a resourceMap).
+ *
+ * Example:
+ *
+ * \code
+ * LiveDocument document = ...;
+ * LiveNodeEngine *engine = ...;
+ * QFile file(document.runtimeLocation(engine->workspace(), *engine->resourceMap()));
+ * \endcode
+ *
+ * \sa mapsToResource(), LiveNodeEngine::resourceMap()
+ */
+QUrl LiveDocument::runtimeLocation(const QDir &workspace, const ResourceMap &resourceMap) const
+{
+    LIVE_ASSERT(!isNull(), return QString());
+
+    const QString resource = resourceMap.toResource(*this);
+    if (!resource.isEmpty())
+        return toUrl(resource);
+    else
+        return QUrl::fromLocalFile(absoluteFilePathIn(workspace));
+}
+
+/*!
  * Constructs a non-null instance unless the \a filePath resolves outside of the
  * \a workspace directory.
  *
@@ -179,6 +237,99 @@ LiveDocument LiveDocument::resolve(const QDir &workspace, const QString &filePat
     }
 
     return retv;
+}
+
+/*!
+ * Constructs a non-null instance for \a filePath that either resolves to a path
+ * under the \a workspace directory or determines a Qt resource for which a
+ * mapping exists in the given \a resourceMap.
+ *
+ * \a filePath may be an absolute or relative file path to a file or a Qt
+ * resource path (starting with \c {":/"} ). In either case the file is NOT
+ * required to exist,
+ *
+ * \sa isNull(), errorString()
+ */
+LiveDocument LiveDocument::resolve(const QDir &workspace, const ResourceMap &resourceMap, const QString &filePath)
+{
+    if (filePath.isEmpty()) {
+        qWarning() << "filePath is an empty string";
+        LiveDocument retv;
+        retv.m_errorString = tr("Not a valid file path: ''");
+        return retv;
+    }
+
+    if (filePath.startsWith(":/")) {
+        LiveDocument retv = resourceMap.toDocument(filePath);
+        if (retv.isNull()) {
+            retv.m_errorString = tr("No mapping exists for resource: '%1'").arg(filePath);
+        }
+        return retv;
+    } else {
+        return resolve(workspace, filePath);
+    }
+}
+
+/*!
+ * Constructs a non-null instance for \a fileUrl that either resolves to a path
+ * under the \a workspace directory or determines a Qt resource for which a
+ * mapping exists in the given \a resourceMap.
+ *
+ * \a fileUrl may be an URL representing a local file or a Qt resource path
+ * (e.g. \c {"qrc:/example/icon.png"}). In either case the file is NOT required
+ * to exist,
+ *
+ * \sa isNull(), errorString()
+ */
+LiveDocument LiveDocument::resolve(const QDir &workspace, const ResourceMap &resourceMap, const QUrl &fileUrl)
+{
+    if (fileUrl.isEmpty()) {
+        qWarning() << "fileUrl is an empty URL:" << fileUrl;
+        LiveDocument retv;
+        retv.m_errorString = tr("Not a valid URL: '%1'").arg(fileUrl.toString());
+        return retv;
+    }
+
+    if (fileUrl.scheme() == QLatin1String("qrc")) {
+        LiveDocument retv = resourceMap.toDocument(QLatin1String(":") + fileUrl.path());
+        if (retv.isNull()) {
+            retv.m_errorString = tr("No mapping exists for resource: '%1'").arg(fileUrl.toString());
+        }
+        return retv;
+    } else if (fileUrl.scheme() == QLatin1String("file")) {
+        return resolve(workspace, fileUrl.toLocalFile());
+    } else {
+        qWarning() << "fileUrl is not a supported URL:" << fileUrl;
+        LiveDocument retv;
+        retv.m_errorString = tr("Unsupported URL: '%1'").arg(fileUrl.toString());
+        return retv;
+    }
+}
+
+/*!
+ * Converts a local/Qt resource \a url to file path
+ */
+QString LiveDocument::toFilePath(const QUrl &url)
+{
+    if (url.scheme() == QLatin1String("qrc"))
+        return QLatin1String(":") + url.path();
+    else
+        return url.toLocalFile();
+}
+
+/*!
+ * Converts a local/Qt resource \a filePath to URL
+ */
+QUrl LiveDocument::toUrl(const QString &filePath)
+{
+    if (filePath.startsWith(":/")) {
+        QUrl url;
+        url.setScheme("qrc");
+        url.setPath(filePath.mid(1));
+        return url;
+    } else {
+        return QUrl::fromLocalFile(filePath);
+    }
 }
 
 /*!

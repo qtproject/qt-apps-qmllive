@@ -1,10 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 Luxoft Sweden AB
 ** Copyright (C) 2018 Jolla Ltd
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QML Live tool.
+** This file is part of the QmlLive tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -30,34 +29,38 @@
 **
 ****************************************************************************/
 
-#ifndef OVERLAY_H
-#define OVERLAY_H
+#pragma once
 
-#include <QObject>
+#include <QtCore>
+
 #include "qmllive_global.h"
-#include "livedocument.h"
 
-// Overlay uses temporary directory to allow parallel execution
-class QMLLIVESHARED_EXPORT Overlay : public QObject
+class LiveDocument;
+
+class QMLLIVESHARED_EXPORT ResourceMap : public QObject
 {
     Q_OBJECT
-public:
-    Overlay(const QString &basePath, QObject *parent);
-    ~Overlay();
 
-    QString reserve(const LiveDocument &document, bool existing);
-    QDir overlay() const;
-    QString map(const QString &file, bool existingOnly) const;
+public:
+    explicit ResourceMap(QObject *parent = nullptr);
+
+    QString toResource(const LiveDocument &document) const;
+    LiveDocument toDocument(const QString &resourceName) const;
+
+    QString errorString() const;
+
+    bool updateMapping(const LiveDocument &qrcDocument, QIODevice *qrcFile);
 
 private:
-    static QString overlayTemplatePath();
+    void removeMapping(const LiveDocument &qrcDocument);
+    static QString toLocalePrefix(QLocale::Language language, QLocale::Country country);
+    static QString cLocalePrefix();
+    static QString systemLocalePrefix();
 
 private:
     mutable QReadWriteLock m_lock;
-    // base path -> ( overlaying path, file exists at base path )
-    QHash<QString, QPair<QString, bool>> m_mappings;
-    QString m_basePath;
-    QTemporaryDir m_overlay;
+    QString m_errorString;
+    QMultiHash<QString, QString> m_resourcesByDocument;
+    QHash<QString, QString> m_documentByResource;
+    QMultiHash<QString, QString> m_resourcesByQrc;
 };
-
-#endif // OVERLAY_H

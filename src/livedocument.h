@@ -36,6 +36,8 @@
 
 #include "qmllive_global.h"
 
+class ResourceMap;
+
 class QMLLIVESHARED_EXPORT LiveDocument
 {
     Q_DECLARE_TR_FUNCTIONS(LiveDocument)
@@ -53,7 +55,16 @@ public:
     QString relativeFilePath() const;
     QString absoluteFilePathIn(const QDir &workspace) const;
 
+    bool mapsToResource(const ResourceMap &resourceMap) const;
+    QUrl runtimeLocation(const QDir &workspace, const ResourceMap &resourceMap) const;
+
     static LiveDocument resolve(const QDir &workspace, const QString &filePath);
+    static LiveDocument resolve(const QDir &workspace, const ResourceMap &resourceMap, const QString
+            &filePath);
+    static LiveDocument resolve(const QDir &workspace, const ResourceMap &resourceMap, const QUrl &fileUrl);
+
+    static QString toFilePath(const QUrl &url);
+    static QUrl toUrl(const QString &filePath);
 
     friend inline bool operator==(const LiveDocument &d1, const LiveDocument &d2)
     { return d1.m_relativeFilePath == d2.m_relativeFilePath; }

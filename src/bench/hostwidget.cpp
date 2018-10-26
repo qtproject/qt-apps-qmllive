@@ -295,6 +295,16 @@ void HostWidget::onConnected()
     disconnect(m_connectDisconnectAction, &QAction::triggered, 0, 0);
     connect(m_connectDisconnectAction, &QAction::triggered, &m_publisher, &RemotePublisher::disconnectFromServer);
 
+    // Send .qrc files to let the node fill its resourceMap
+    // TODO not using bulkSend as this could be misinterpreted as a response to
+    // needsPublishWorkspace
+    QDirIterator it(m_engine->workspace(), {"*.qrc"}, QDir::AllEntries | QDir::NoDotAndDotDot,
+            QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        LiveDocument qrcFile = LiveDocument::resolve(m_engine->workspace(), it.next());
+        sendDocument(qrcFile);
+    }
+
     m_publisher.initComplete();
 }
 

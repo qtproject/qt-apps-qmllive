@@ -31,6 +31,7 @@
 ****************************************************************************/
 
 #include "fontadapter.h"
+#include "livedocument.h"
 #include <QDebug>
 #include <QQmlContext>
 
@@ -64,7 +65,9 @@ QImage FontAdapter::preview(const QString &path, const QSize &requestedSize)
 
 bool FontAdapter::canAdapt(const QUrl &url) const
 {
-    QString path = url.toLocalFile();
+    QString path = LiveDocument::toFilePath(url);
+    if (path.isEmpty())
+        return false;
 
     foreach (const QString& extension, fontExtensions) {
         if (path.endsWith(extension))
@@ -81,7 +84,7 @@ bool FontAdapter::isFullScreen() const
 
 QUrl FontAdapter::adapt(const QUrl &url, QQmlContext *context)
 {
-    fontId = base.addApplicationFont(url.toLocalFile());
+    fontId = base.addApplicationFont(LiveDocument::toFilePath(url));
 
     QStringList families = base.applicationFontFamilies(fontId);
 

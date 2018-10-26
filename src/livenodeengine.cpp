@@ -33,6 +33,7 @@
 #include "livenodeengine.h"
 #include "liveruntime.h"
 #include "qmlhelper.h"
+#include "resourcemap.h"
 #include "contentpluginfactory.h"
 #include "imageadapter.h"
 #include "fontadapter.h"
@@ -47,6 +48,11 @@
 #else
 #define DEBUG if (0) qDebug()
 #endif
+
+namespace {
+const char *const OVERLAY_PATH_PREFIX = "qml-live-overlay--";
+const char OVERLAY_PATH_SEPARATOR = '-';
+}
 
 /*!
  * \class LiveNodeEngine
@@ -83,7 +89,10 @@
  *          With this option enabled, updates can be received even if workspace
  *          is read only. Updates will be stored in a writable overlay stacked
  *          over the original workspace with the help of
- *          QQmlAbstractUrlInterceptor. Requires \l AllowUpdates.
+ *          QQmlAbstractUrlInterceptor. This option only influences the way how
+ *          updates to file system files are handled - updates to Qt resource
+ *          files are always stored in an overlay.
+ *          Requires \l AllowUpdates.
  *   \value AllowCreateMissing
  *          Without this option enabled, updates are only accepted for existing
  *          workspace documents. Requires \l AllowUpdates.
@@ -91,17 +100,21 @@
  * \sa {QML Live Runtime}
  */
 
-class OverlayUrlInterceptor : public QObject, public QQmlAbstractUrlInterceptor
+class UrlInterceptor : public QObject, public QQmlAbstractUrlInterceptor
 {
     Q_OBJECT
 
 public:
-    OverlayUrlInterceptor(const Overlay *overlay, QQmlAbstractUrlInterceptor *otherInterceptor, QObject *parent)
+    UrlInterceptor(const QDir &workspace, const Overlay *overlay, const ResourceMap *resourceMap,
+            QQmlAbstractUrlInterceptor *otherInterceptor, QObject *parent)
         : QObject(parent)
         , m_otherInterceptor(otherInterceptor)
+        , m_workspace(workspace)
         , m_overlay(overlay)
+        , m_resourceMap(resourceMap)
     {
         Q_ASSERT(overlay);
+        Q_ASSERT(resourceMap);
     }
 
     // From QQmlAbstractUrlInterceptor
@@ -109,7 +122,20 @@ public:
     {
         const QUrl url_ = m_otherInterceptor ? m_otherInterceptor->intercept(url, type) : url;
         if (url_.scheme() == QLatin1String("file")) {
-            return QUrl::fromLocalFile(m_overlay->map(url_.toLocalFile()));
+            bool existingOnly = true;
+            return QUrl::fromLocalFile(m_overlay->map(url_.toLocalFile(), existingOnly));
+        } else if (url_.scheme() == QLatin1String("qrc")) {
+            const LiveDocument document = LiveDocument::resolve(m_workspace, *m_resourceMap, url_);
+            if (document.isNull())
+                return url_;
+
+            QString filePath = document.absoluteFilePathIn(m_workspace);
+            bool existingOnly = false;
+            filePath = m_overlay->map(filePath, existingOnly);
+            if (!QFileInfo(filePath).exists())
+                return url_;
+
+            return QUrl::fromLocalFile(filePath);
         } else {
             return url_;
         }
@@ -117,7 +143,9 @@ public:
 
 private:
     QQmlAbstractUrlInterceptor *m_otherInterceptor;
-    QPointer<const Overlay> m_overlay;
+    const QDir m_workspace;
+    const QPointer<const Overlay> m_overlay;
+    const QPointer<const ResourceMap> m_resourceMap;
 };
 
 /*!
@@ -129,6 +157,7 @@ LiveNodeEngine::LiveNodeEngine(QObject *parent)
     , m_xOffset(0)
     , m_yOffset(0)
     , m_rotation(0)
+    , m_resourceMap(new ResourceMap(this))
     , m_delayReload(new QTimer(this))
     , m_pluginFactory(new ContentPluginFactory(this))
     , m_activePlugin(0)
@@ -276,10 +305,11 @@ void LiveNodeEngine::usePreloadedDocument(const LiveDocument &document, QObject 
 
     m_activeFile = document;
 
-    if (!m_activeFile.existsIn(m_workspace)) {
+    if (!m_activeFile.existsIn(m_workspace) && !m_activeFile.mapsToResource(*m_resourceMap)) {
         QQmlError error;
         error.setUrl(QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace)));
-        error.setDescription(tr("File not found"));
+        error.setDescription(tr("File not found under the workspace "
+                    "and no mapping to a Qt resource exists for that file"));
         emit logErrors(QList<QQmlError>() << error);
     }
 
@@ -312,7 +342,7 @@ void LiveNodeEngine::usePreloadedDocument(const QString &document, QQuickWindow 
 {
     LIVE_ASSERT(m_activeFile.isNull(), return);
 
-    LiveDocument resolved = LiveDocument::resolve(workspace(), document);
+    LiveDocument resolved = LiveDocument::resolve(workspace(), *m_resourceMap, document);
     if (resolved.isNull()) {
         qWarning() << "Failed to resolve preloaded document path:" << document
                    << "Workspace: " << workspace();
@@ -411,8 +441,12 @@ void LiveNodeEngine::reloadDocument()
 
     emit clearLog();
 
-    const QUrl originalUrl = QUrl::fromLocalFile(m_activeFile.absoluteFilePathIn(m_workspace));
+    const QUrl originalUrl = m_activeFile.runtimeLocation(m_workspace, *m_resourceMap);
     const QUrl url = queryDocumentViewer(originalUrl);
+
+    DEBUG << "Loading document" << m_activeFile << "runtime location:" << originalUrl;
+    if (url != originalUrl)
+        DEBUG << "Using viewer" << url;
 
     auto showErrorScreen = [this] {
         Q_ASSERT(m_fallbackView);
@@ -505,20 +539,28 @@ void LiveNodeEngine::reloadDocument()
  */
 void LiveNodeEngine::updateDocument(const LiveDocument &document, const QByteArray &content)
 {
+    if (QFileInfo(document.relativeFilePath()).suffix() == QLatin1String("qrc")) {
+        QBuffer buffer;
+        buffer.setData(content);
+        buffer.open(QIODevice::ReadOnly);
+        if (!m_resourceMap->updateMapping(document, &buffer))
+            qWarning() << "Unable to parse qrc file " << document.relativeFilePath() << ":" << m_resourceMap->errorString();
+    }
+
     if (!(m_workspaceOptions & AllowUpdates)) {
         return;
     }
 
-    QString documentPath = document.absoluteFilePathIn(m_workspace);
+    bool existsInWorkspace = document.existsIn(m_workspace);
+    bool mapsToResource = document.mapsToResource(*m_resourceMap);
+    if (!existsInWorkspace && !mapsToResource && !(m_workspaceOptions & AllowCreateMissing))
+        return;
 
-    if (!(m_workspaceOptions & AllowCreateMissing)) {
-        if (!QFileInfo(documentPath).exists())
-            return;
-    }
+    bool useOverlay = (m_workspaceOptions & UpdatesAsOverlay) || mapsToResource;
 
-    QString writablePath = (m_workspaceOptions & UpdatesAsOverlay)
-        ? m_overlay->reserve(document)
-        : documentPath;
+    QString writablePath = useOverlay
+        ? m_overlay->reserve(document, existsInWorkspace)
+        : document.absoluteFilePathIn(m_workspace);
 
     QString writableDirPath = QFileInfo(writablePath).absoluteDir().absolutePath();
     QDir().mkpath(writableDirPath);
@@ -592,13 +634,24 @@ void LiveNodeEngine::setWorkspace(const QString &path, WorkspaceOptions options)
         m_workspaceOptions |= AllowUpdates;
     }
 
-    if (m_workspaceOptions & UpdatesAsOverlay) {
+    if (m_workspaceOptions & AllowUpdates) {
+        // Even without UpdatesAsOverlay the overlay is used for Qt resources
         m_overlay = new Overlay(m_workspace.path(), this);
-        m_overlayUrlInterceptor = new OverlayUrlInterceptor(m_overlay, qmlEngine()->urlInterceptor(), this);
-        qmlEngine()->setUrlInterceptor(m_overlayUrlInterceptor);
+        m_urlInterceptor = new UrlInterceptor(m_workspace, m_overlay, m_resourceMap, qmlEngine()->urlInterceptor(), this);
+        qmlEngine()->setUrlInterceptor(m_urlInterceptor);
     }
 
     emit workspaceChanged(workspace());
+}
+
+/*!
+ * Returns the ResourceMap managed by this instance.
+ *
+ * \sa LiveDocument
+ */
+ResourceMap *LiveNodeEngine::resourceMap() const
+{
+    return m_resourceMap;
 }
 
 /*!

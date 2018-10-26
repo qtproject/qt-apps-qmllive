@@ -31,6 +31,7 @@
 ****************************************************************************/
 
 #include "imageadapter.h"
+#include "livedocument.h"
 #include <QImageReader>
 #include <QDebug>
 #include <QFileInfo>
@@ -67,7 +68,7 @@ QImage ImageAdapter::preview(const QString &path, const QSize &requestedSize)
 
 bool ImageAdapter::canAdapt(const QUrl &url) const
 {
-    return !QImageReader::imageFormat(url.toLocalFile()).isEmpty();
+    return !QImageReader::imageFormat(LiveDocument::toFilePath(url)).isEmpty();
 }
 
 QUrl ImageAdapter::adapt(const QUrl &url, QQmlContext *context)

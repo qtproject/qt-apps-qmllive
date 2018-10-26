@@ -42,7 +42,8 @@
 
 class LiveRuntime;
 class ContentPluginFactory;
-class OverlayUrlInterceptor;
+class ResourceMap;
+class UrlInterceptor;
 
 class QMLLIVESHARED_EXPORT LiveNodeEngine : public QObject
 {
@@ -79,6 +80,7 @@ public:
 
     QString workspace() const;
     void setWorkspace(const QString &path, WorkspaceOptions options = NoWorkspaceOption);
+    ResourceMap *resourceMap() const;
 
     void setPluginPath(const QString& path);
     QString pluginPath() const;
@@ -136,8 +138,9 @@ private:
     QList<QMetaObject::Connection> m_activeWindowConnections;
     QDir m_workspace;
     WorkspaceOptions m_workspaceOptions;
-    QPointer<OverlayUrlInterceptor> m_overlayUrlInterceptor;
+    QPointer<UrlInterceptor> m_urlInterceptor;
     QPointer<Overlay> m_overlay;
+    QPointer<ResourceMap> m_resourceMap;
     QTimer *m_delayReload;
 
     ContentPluginFactory* m_pluginFactory;

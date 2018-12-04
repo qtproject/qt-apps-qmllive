@@ -34,7 +34,7 @@
 \page qmllive-installation.html
 \title Installation
 
-\chapter Dependencies
+\section1 Dependencies
 
 \list
     \li Windows, Linux or macOS
@@ -42,7 +42,7 @@
 \endlist
 
 
-\chapter Building for desktop
+\section1 Building for desktop
 
 \code
     $ qmake
@@ -57,7 +57,7 @@ QmlLive Bench can be started directly from build directory by executing
 \endcode
 
 
-\chapter Building for device
+\section1 Building for device
 
 \e{Note: Only needed when you want to have live reloading enabled on the
 target.}
@@ -78,7 +78,7 @@ Optionally it can be packaged with the help of
 \endcode
 
 
-\chapter Building documentation
+\section1 Building documentation
 
 \code
     $ qmake CONFIG+=force_independent
@@ -88,7 +88,7 @@ Optionally it can be packaged with the help of
 The documentation will be available at \tt{doc/qmllive/index.html}.
 
 
-\chapter Build options reference
+\section1 Build options reference
 
 The following values can be added to qmake \c CONFIG variable:
 

@@ -36,7 +36,7 @@
 \indexpage
 \title Qt QmlLive
 
-\chapter Overview
+\section1 Overview
 
 Qt QmlLive is a local and remote Qt Quick live reloading system. It allows you to
 change your QML user interface source code and view the result in almost
@@ -58,7 +58,7 @@ your work so much more delightful.
 
 \endquotation
 
-\chapter Contents
+\section1 Contents
 
 The content of the documentation:
 

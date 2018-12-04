@@ -34,7 +34,7 @@
 \page qmllive-concepts.html
 \title Concepts
 
-\chapter Live Reloading
+\section1 Live Reloading
 
 During a typical user interface design phase, designers create many graphical
 documents describing the desired user interface. Transferring such graphical
@@ -94,7 +94,7 @@ you can also connect more devices, or devices with different sizes.
 
 \image runtime.png
 
-\chapter Display, Screens, Panels, Components, Fragments
+\section1 Display, Screens, Panels, Components, Fragments
 
 \code
 +- Display
@@ -131,7 +131,7 @@ and its screen navigation structure, and of the structure of individual screens 
 their panels. It is also required to define a common set of components to be used inside
 the panels. The fragments are implementation-specific.
 
-\chapter UX Sheets - \e{visual component testing}
+\section1 UX Sheets - \e{visual component testing}
 
 
 UXSheet gives guidance on how to successfully develop user interface components with

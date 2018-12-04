@@ -34,7 +34,7 @@
 \page qmllive-usage.html
 \title Usage
 
-\chapter Introduction
+\section1 Introduction
 
 The QmlLive system was designed from the ground up to support your needs. It is
 structured in a modular fashion to be able to meet various usage
@@ -52,7 +52,7 @@ For C++ developers, we also offer the ability to integrate the QmlLive
 system into your own custom runtime using our \l LiveNodeEngine class with a few
 lines of code and then use the QmlLive Bench to control it.
 
-\chapter The Workbench
+\section1 The Workbench
 
 The standard workbench is the all inclusive QML live reloading tool. It allows you to
 select a workspace to watch over and provides a default QML runtime for the
@@ -79,7 +79,7 @@ options:
   -stayontop .........................keep viewer window on top
 \endcode
 
-\chapter Qt Creator Integration
+\section1 Qt Creator Integration
 
 You can integrate the QmlLive Bench into Qt Creator as an external tool. For this
 you need to open the Settings/Options dialog from Qt Creator and open the
@@ -102,7 +102,7 @@ current project root folder open as workspace.
 
 
 
-\chapter QmlLive Runtime
+\section1 QmlLive Runtime
 
 A default runtime is provided by the QmlLive Runtime tool. It
 provides a default qml viewer and listens on a given port for IPC calls from
@@ -149,7 +149,7 @@ this is used all workspace documents will be updated prior to instantiation of
 any QML component.
 
 
-\chapter Custom Runtime
+\section1 Custom Runtime
 
 You can create your own custom runtime with the QmlLive features. This allows you to use your QML view setup with your additional C++ code together with the QmlLive system.
 

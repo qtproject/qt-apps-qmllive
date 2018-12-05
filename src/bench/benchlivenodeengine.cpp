@@ -110,7 +110,7 @@ void BenchLiveNodeEngine::initPlugins()
         //This needs to be QueuedConnection because Qt5 doesn't like it to destruct it's object while it is in a signalHandler
         connect(adapter, &DirectoryPreviewAdapter::loadDocument,
                 this, [this](const QString &document) {
-                    m_workspaceView->activateDocument(LiveDocument(document));
+                    m_workspaceView->activateDocument(LiveDocument::resolve(workspace(), document));
                 },
                 Qt::QueuedConnection);
     }

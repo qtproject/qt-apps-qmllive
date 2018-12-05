@@ -41,7 +41,6 @@
     \li Qt5.4 or higher
 \endlist
 
-
 \section1 Building for desktop
 
 \code
@@ -134,7 +133,7 @@ The following custom qmake variables are recognized:
 \row
     \li EXAMPLES_PREFIX
     \li Installation prefix for examples. Defaults to
-        \c{$$[QT_INSTALL_LIBS]/qmllive/examples}.
+        \c{$$[QT_INSTALL_EXAMPLES]/qmllive}.
 
 \row
     \li QMLLIVE_VERSION_EXTRA

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -31,48 +31,33 @@
 
 #pragma once
 
-#include <QListView>
-#include <QPointer>
+#include <QtCore>
 
-class LiveDocument;
-class LiveHubEngine;
-class HostModel;
-class Host;
+#include "qmllive_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QDockWidget);
-
-class HostManager : public QListView
+class QMLLIVESHARED_EXPORT ProjectManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HostManager(QWidget *parent = 0);
+    explicit ProjectManager(QObject *parent = nullptr);
 
-    void setModel(HostModel* model);
-    void setLiveHubEngine(LiveHubEngine* engine);
+    bool read(const QString &path);
+    void write(const QString &path=QString());
+    void create(const QString &projectName);
+    QString mainDocument() const;
+    QString workspace() const;
+    QStringList imports() const;
 
-signals:
-    void logWidgetAdded(QDockWidget* log);
-    void openHostConfig(Host* host);
-
-public slots:
-    void followTreeSelection(const LiveDocument& currentFile);
-    void setCurrentFile(const LiveDocument& currentFile);
-    void publishAll();
-    void refreshAll();
-    void probe(const QString &hostName);
-
-private slots:
-    void rowsInserted(const QModelIndex& parent, int start, int end);\
-    void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
-    void modelReseted();
-    void addHost(int index);
+    void setProjectName(const QString &projectName);
+    void setMainDocument(const QString &mainDocument);
+    void setWorkspace(const QString &workspace);
+    void setImports(const QStringList &imports);
+private:
+    void reset();
 
 private:
-    using QListView::setModel;
-
-    QPointer<LiveHubEngine> m_engine;
-
-    HostModel* m_model;
-    QList<QDockWidget*> m_logList;
+    QString m_mainDocument;
+    QString m_workspace;
+    QStringList m_imports;
+    QString m_projectName;
 };
-

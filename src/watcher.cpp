@@ -41,6 +41,20 @@
  */
 
 /*!
+ \enum Watcher::Error
+ \brief Describes error state of a Watcher
+
+ \value NoError
+        No error
+ \value MaximumReached
+        The maximum number of watches set with setMaximumWatches() was exceeded
+ \value SystemError
+        QFileSystemWatcher::addPath failed for an unspecified reason
+ */
+
+int Watcher::s_maximumWatches = -1;
+
+/*!
  Default Constructor using parent as parent
  */
 Watcher::Watcher(QObject *parent)
@@ -63,12 +77,8 @@ Watcher::Watcher(QObject *parent)
 void Watcher::setDirectory(const QString &path)
 {
     m_rootDir = QDir(path);
-    if (!m_watcher->directories().isEmpty()) {
-        m_watcher->removePaths(m_watcher->directories());
-    }
-    if (!m_watcher->files().isEmpty()) {
-        m_watcher->removePaths(m_watcher->files());
-    }
+    removeAllPaths();
+    setError(NoError);
     addDirectoriesRecursively(m_rootDir.absolutePath());
 }
 
@@ -81,28 +91,90 @@ QString Watcher::directory() const
 }
 
 /*!
+ \fn Watcher::maximumWatches()
+
+ Returns the maximum number of watched directories
+ */
+
+/*!
+ Sets the maximum number of watched directories
+
+ This will only take effect with next setDirectory() call.
+ */
+void Watcher::setMaximumWatches(int maximumWatches)
+{
+    s_maximumWatches = maximumWatches;
+}
+
+/*!
+ \fn Watcher::hasError() const
+
+ Returns true if error() is not NoError
+ */
+
+/*!
+ \fn Watcher::error() const
+
+ Describes the current error state of this watcher
+ */
+
+/*!
+ \fn Watcher::errorChanged()
+
+ Notifies about error() change
+ */
+
+/*!
  Add path and all it's SubDirectory to the internal used QFileSystemWatcher
  */
 void Watcher::addDirectoriesRecursively(const QString &path)
 {
 //    qDebug() << "scan: " << path;
-    if (!m_watcher->directories().contains(path)) {
-        m_watcher->addPath(path);
-    }
+    addDirectory(path);
     QDirIterator iter(path, QDir::Dirs|QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-    while (iter.hasNext()) {
+    while (iter.hasNext() && !hasError()) {
         QDir entry(iter.next());
-        if (!m_watcher->directories().contains(entry.absolutePath())) {
-            m_watcher->addPath(entry.absolutePath());
+        addDirectory(entry.absolutePath());
+    }
+}
 
-            //If we couldn't add it we reached the filesystem limit
-            if (!m_watcher->directories().contains(entry.absolutePath())) {
-                qWarning() << "Watcher limit reached. Please reduce the number of files you are watching !!!";
-                return;
-            }
-        }
+void Watcher::addDirectory(const QString &path)
+{
+    if (m_watcher->directories().contains(path))
+        return;
+
+    if (s_maximumWatches > 0 &&
+            m_watcher->directories().count() + m_watcher->files().count() > s_maximumWatches) {
+        removeAllPaths();
+        setError(MaximumReached);
+        return;
     }
 
+    m_watcher->addPath(path);
+
+    if (!m_watcher->directories().contains(path)) {
+        removeAllPaths();
+        setError(SystemError);
+    }
+}
+
+void Watcher::removeAllPaths()
+{
+    if (!m_watcher->directories().isEmpty()) {
+        m_watcher->removePaths(m_watcher->directories());
+    }
+    if (!m_watcher->files().isEmpty()) {
+        m_watcher->removePaths(m_watcher->files());
+    }
+}
+
+void Watcher::setError(Watcher::Error error)
+{
+    if (m_error == error)
+        return;
+
+    m_error = error;
+    emit errorChanged();
 }
 
 void Watcher::recordChange(const QString &path)

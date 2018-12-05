@@ -45,6 +45,8 @@
 #include <QDebug>
 #include <QTextStream>
 
+#include "../qmllive_version.h"
+
 void handlePreview(QLocalSocket *socket);
 
 class PreviewServer : public QObject
@@ -59,8 +61,25 @@ public:
 
     bool listen()
     {
-        QLocalServer::removeServer("QmlLivePreviewGenerator");
-        return m_server->listen("QmlLivePreviewGenerator");
+        Q_ASSERT(!qApp->applicationName().isEmpty());
+        Q_ASSERT(!qApp->organizationDomain().isEmpty() || !qApp->organizationName().isEmpty());
+
+        QString userName;
+#if defined(Q_OS_UNIX)
+        userName = qgetenv("USER");
+#elif defined(Q_OS_WIN)
+        userName = qgetenv("USERNAME");
+#endif
+        if (userName.isEmpty())
+            qWarning("Failed to determine system user name");
+
+        QString serverName = QString::fromLatin1("%1.%2-%3")
+            .arg(qApp->organizationDomain().isEmpty() ? qApp->organizationName() : qApp->organizationDomain())
+            .arg(qApp->applicationName())
+            .arg(userName);
+
+        QLocalServer::removeServer(serverName);
+        return m_server->listen(serverName);
     }
 
     QString serverName() const
@@ -93,6 +112,10 @@ Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtInfoMsg)
 
 int main (int argc, char** argv)
 {
+    QGuiApplication::setApplicationName("QmlLivePreviewGenerator");
+    QGuiApplication::setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
+    QGuiApplication::setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
+
     QGuiApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
 

@@ -1,3 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS = \
-    app \
+SUBDIRS += app

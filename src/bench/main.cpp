@@ -36,6 +36,7 @@
 
 #include "hostmanager.h"
 #include "hostmodel.h"
+#include "livehubengine.h"
 #include "options.h"
 #include "mainwindow.h"
 #include "qmllive_version.h"
@@ -46,6 +47,7 @@ class Application : public QApplication
 
 public:
     static Application *create(int &argc, char **argv);
+    ~Application() override;
 
 protected:
     Application(int &argc, char **argv);
@@ -53,7 +55,14 @@ protected:
 
     QString serverName() const;
     void setDarkStyle();
-    void parseArguments(const QStringList &arguments, Options *options);
+    static void parseArguments(const QStringList &arguments, Options *options);
+    static const Options *options() { return s_options; }
+
+private:
+    static QString userName();
+
+private:
+    static Options *s_options;
 };
 
 class MasterApplication : public Application
@@ -62,6 +71,7 @@ class MasterApplication : public Application
 
 public:
     MasterApplication(int &argc, char **argv);
+    ~MasterApplication();
 
 private:
     void listenForArguments();
@@ -83,16 +93,18 @@ private:
     void forwardArguments();
 };
 
+Options *Application::s_options = 0;
+
 Application *Application::create(int &argc, char **argv)
 {
     setApplicationName("QmlLiveBench");
     setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 
-    // Workaround: Cannot use QCoreApplication::arguments before app is instantiated
-    const bool hasNoRemoteOption = argc >= 2 && QString::fromLocal8Bit(argv[1]) == QLatin1String("--noremote");
+    // Cannot instantiate the actual application yet
+    parseArguments(QCoreApplication(argc, argv).arguments(), s_options = new Options);
 
-    if (hasNoRemoteOption || isMaster())
+    if (isMaster())
         return new MasterApplication(argc, argv);
     else
         return new SlaveApplication(argc, argv);
@@ -107,10 +119,19 @@ Application::Application(int &argc, char **argv)
     setDarkStyle();
 }
 
+Application::~Application()
+{
+    delete s_options, s_options = 0;
+}
+
 bool Application::isMaster()
 {
     Q_ASSERT(!applicationName().isEmpty());
     Q_ASSERT(!organizationDomain().isEmpty() || !organizationName().isEmpty());
+    Q_ASSERT(s_options);
+
+    if (s_options->noRemote())
+        return true;
 
     static QSharedMemory *lock = 0;
     static bool retv = false;
@@ -118,9 +139,10 @@ bool Application::isMaster()
     if (lock != 0)
         return retv;
 
-    const QString key = QString::fromLatin1("%1.%2-lock")
+    const QString key = QString::fromLatin1("%1.%2-%3-lock")
         .arg(organizationDomain().isEmpty() ? organizationName() : organizationDomain())
-        .arg(applicationName());
+        .arg(applicationName())
+        .arg(userName());
 
     lock = new QSharedMemory(key, qApp);
 
@@ -145,9 +167,10 @@ QString Application::serverName() const
     Q_ASSERT(!applicationName().isEmpty());
     Q_ASSERT(!organizationDomain().isEmpty() || !organizationName().isEmpty());
 
-    return QString::fromLatin1("%1.%2-app")
+    return QString::fromLatin1("%1.%2-%3-app")
         .arg(organizationDomain().isEmpty() ? organizationName() : organizationDomain())
-        .arg(applicationName());
+        .arg(applicationName())
+        .arg(userName());
 }
 
 void Application::setDarkStyle()
@@ -199,12 +222,14 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
                                        "(implies --remoteonly)", "name");
     parser.addOption(probeHostOption);
     QCommandLineOption noRemoteOption("noremote", "do not try to talk to a running bench, do not listen for remote "
-                                      "connections. It MUST BE the VERY FIRST argument on command line.");
+                                      "connections.");
     parser.addOption(noRemoteOption);
     QCommandLineOption remoteOnlyOption("remoteonly", "talk to a running bench, do nothing if none is running.");
     parser.addOption(remoteOnlyOption);
     QCommandLineOption pingOption("ping", "just check if there is a bench running and accepting remote connections.");
     parser.addOption(pingOption);
+    QCommandLineOption maxWatchesOption("maxdirwatch", "limit the number of directories to watch for changes", "number", QString::number(options->maximumWatches()));
+    parser.addOption(maxWatchesOption);
 
     parser.process(arguments);
 
@@ -231,6 +256,15 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
         parser.showHelp(-1);
     }
 
+    if (parser.isSet(maxWatchesOption)) {
+        bool ok;
+        int value = parser.value(maxWatchesOption).toInt(&ok);
+        if (!ok) {
+            qWarning() << "Invalid argument to --maxdirwatch option";
+            parser.showHelp(-1);
+        }
+        options->setMaximumWatches(value);
+    }
 
     options->setPluginPath(parser.value(pluginPathOption));
     options->setImportPaths(parser.values(importPathOption));
@@ -302,6 +336,22 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     }
 }
 
+QString Application::userName()
+{
+    QString retv;
+
+#if defined(Q_OS_UNIX)
+    retv = QString::fromLocal8Bit(qgetenv("USER"));
+#elif defined(Q_OS_WIN)
+    retv = QString::fromLocal8Bit(qgetenv("USERNAME"));
+#endif
+
+    if (retv.isEmpty())
+        qWarning("Failed to determine system user name");
+
+    return retv;
+}
+
 /*
  * class MasterApplication
  */
@@ -310,29 +360,31 @@ MasterApplication::MasterApplication(int &argc, char **argv)
     : Application(argc, argv)
     , m_window(new MainWindow)
 {
-    Options options;
-    parseArguments(arguments(), &options);
-
-    if (options.ping()) {
+    if (options()->ping()) {
         QTimer::singleShot(0, [] { QCoreApplication::exit(1); });
         return;
     }
 
-    if (options.remoteOnly()) {
+    if (options()->remoteOnly()) {
         QTimer::singleShot(0, this, &QCoreApplication::quit);
         return;
     }
 
-    applyOptions(options);
+    applyOptions(*options());
 
-    if (options.hasNoninteractiveOptions()) {
+    if (options()->hasNoninteractiveOptions()) {
         QTimer::singleShot(0, this, &QCoreApplication::quit);
     } else {
         m_window->init();
         m_window->show();
-        if (!options.noRemote())
+        if (!options()->noRemote())
             listenForArguments();
     }
+}
+
+MasterApplication::~MasterApplication()
+{
+    delete m_window;
 }
 
 void MasterApplication::listenForArguments()
@@ -390,6 +442,8 @@ void MasterApplication::listenForArguments()
 
 void MasterApplication::applyOptions(const Options &options)
 {
+    LiveHubEngine::setMaximumWatches(options.maximumWatches());
+
     if (!options.workspace().isEmpty())
         m_window->setWorkspace(QDir(options.workspace()).absolutePath(), false);
 
@@ -474,18 +528,15 @@ void MasterApplication::applyOptions(const Options &options)
 SlaveApplication::SlaveApplication(int &argc, char **argv)
     : Application(argc, argv)
 {
-    Options options;
-    parseArguments(arguments(), &options);
-
-    if (options.ping()) {
+    if (options()->ping()) {
         QTimer::singleShot(0, &QCoreApplication::quit);
         return;
     }
 
-    if (!options.remoteOnly() && !options.hasNoninteractiveOptions())
+    if (!options()->remoteOnly() && !options()->hasNoninteractiveOptions())
         qInfo() << "Another instance running. Activating...";
 
-    warnAboutIgnoredOptions(options);
+    warnAboutIgnoredOptions(*options());
     forwardArguments();
 }
 

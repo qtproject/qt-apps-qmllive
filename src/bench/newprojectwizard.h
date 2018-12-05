@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -31,56 +31,76 @@
 
 #pragma once
 
-#include <QtCore>
+#include <QWizard>
+#include <QWizardPage>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QLabel>
 
-#include "livedocument.h"
-#include "qmllive_global.h"
+class ProjectPage : public QWizardPage
+{
+    Q_OBJECT
 
-class Watcher;
-class ContentPluginFactory;
+public:
+    ProjectPage(QWidget *parent = nullptr);
+    QString projectName() const;
 
-class QMLLIVESHARED_EXPORT LiveHubEngine : public QObject
+private:
+    QLineEdit *m_projectField;
+};
+
+class WorkspacePage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    WorkspacePage(QWidget *parent = nullptr);
+    QString workspace() const;
+    bool validatePage() override;
+
+private slots:
+    void selectWorkspacePath();
+
+private:
+    QLineEdit *m_workspaceField;
+    QLabel *m_warningLabel;
+};
+
+class MainDocumentPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    MainDocumentPage(QWidget *parent = nullptr);
+    QString mainDocument() const;
+
+private:
+    QLineEdit *m_mainDocumentField;
+};
+
+class NewProjectWizard : public QWizard
 {
     Q_OBJECT
 public:
-    enum Error {
-        NoError,
-        WatcherMaximumReached,
-        WatcherSystemError,
-    };
+    explicit NewProjectWizard(QWidget *parent = 0);
+    QWizardPage* createMainDocumentPage();
+    QWizardPage* createWorkspacePage();
+    QWizardPage* createImportsPage();
+    QWizardPage* createProjectPage();
 
-    explicit LiveHubEngine(QObject *parent = 0);
-    void setWorkspace(const QString& path);
+    QString mainDocument() const;
     QString workspace() const;
+    QStringList imports() const;
+    QString projectName() const;
 
-    LiveDocument activePath() const;
+private slots:
+    void addImportPath();
+    void editImportPath();
+    void removeImportPath();
 
-    bool hasError();
-    Error error();
-
-    static int maximumWatches();
-    static void setMaximumWatches(int maximumWatches);
-public Q_SLOTS:
-    void setActivePath(const LiveDocument& path);
-    void setFilePublishingActive(bool on);
-    void publishWorkspace();
-Q_SIGNALS:
-    void beginPublishWorkspace();
-    void endPublishWorkspace();
-    void publishFile(const LiveDocument& document);
-    void fileChanged(const LiveDocument& document);
-    void activateDocument(const LiveDocument& document);
-    void workspaceChanged(const QString& workspace);
-    void errorChanged();
-private Q_SLOTS:
-    void directoriesChanged(const QStringList& changes);
-    void watcherErrorChanged();
 private:
-    void publishDirectory(const QString& dirPath, bool fileChange);
-private:
-    Watcher *m_watcher;
-    bool m_filePublishingActive;
-    LiveDocument m_activePath;
-    Error m_error = NoError;
+    QListWidget *m_importListWidget;
+    ProjectPage *m_projectPage;
+    WorkspacePage *m_workspacePage;
+    MainDocumentPage *m_mainDocumentPage;
 };
-

@@ -47,6 +47,7 @@ public:
     QString mainDocument() const;
     QString workspace() const;
     QStringList imports() const;
+    QString projectLocation() const;
 
     void setProjectName(const QString &projectName);
     void setMainDocument(const QString &mainDocument);
@@ -60,4 +61,5 @@ private:
     QString m_workspace;
     QStringList m_imports;
     QString m_projectName;
+    QString m_projectLocation;
 };

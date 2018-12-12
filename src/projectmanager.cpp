@@ -47,6 +47,7 @@ ProjectManager::ProjectManager(QObject *parent)
     , m_mainDocument("main.qml")
     , m_workspace("")
     , m_projectName("")
+    , m_projectLocation("")
 {
 
 }
@@ -60,6 +61,7 @@ bool ProjectManager::read(const QString &path)
         qWarning() << "Unable to open document " << path;
         return false;
     }
+    m_projectLocation = QFileInfo(path).absolutePath();
     m_projectName = file.fileName();
     QByteArray data = file.readAll();
     QJsonParseError error;
@@ -77,13 +79,7 @@ bool ProjectManager::read(const QString &path)
         m_mainDocument = root.value(MainKey).toString();
     if (root.contains(WorkspaceKey))
     {
-        QString workspace = root.value(WorkspaceKey).toString();
-        if ((workspace.compare(".") == 0) || (workspace.compare("./") == 0)) {
-            m_workspace = QFileInfo(path).absolutePath();
-        }
-        else {
-            m_workspace = QDir(workspace).absolutePath();
-        }
+        m_workspace = root.value(WorkspaceKey).toString();
     }
     if (root.contains(ImportsKey) && root.value(ImportsKey).isArray()) {
         QJsonArray imports = root.value(ImportsKey).toArray();
@@ -95,11 +91,13 @@ bool ProjectManager::read(const QString &path)
 
 void ProjectManager::write(const QString &path)
 {
+    qInfo()<<"Writing into " << path;
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly)) {
         qWarning() << "Unable to write to document: " << path;
         return;
     }
+    m_projectLocation = QFileInfo(path).absolutePath();
     QJsonObject root;
     root.insert(MainKey, QJsonValue(m_mainDocument));
     root.insert(WorkspaceKey, QJsonValue(m_workspace));
@@ -114,8 +112,8 @@ void ProjectManager::write(const QString &path)
 void ProjectManager::create(const QString &projectName)
 {
     m_projectName = projectName;
-    QString path = QString(m_workspace).append(QDir::separator()).append(projectName).append(QmlLiveExtension);
-    qWarning() << path;
+    QString path = QString(projectName).append(QmlLiveExtension);
+    qInfo()<<"CREATING Project------ "<<path;
     write(path);
 }
 
@@ -132,6 +130,11 @@ QString ProjectManager::workspace() const
 QStringList ProjectManager::imports() const
 {
     return m_imports;
+}
+
+QString ProjectManager::projectLocation() const
+{
+    return m_projectLocation;
 }
 
 void ProjectManager::reset()

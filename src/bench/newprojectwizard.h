@@ -36,6 +36,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QLabel>
+#include <QDir>
 
 class ProjectPage : public QWizardPage
 {
@@ -44,9 +45,17 @@ class ProjectPage : public QWizardPage
 public:
     ProjectPage(QWidget *parent = nullptr);
     QString projectName() const;
+    bool validatePage() override;
 
+signals:
+    void updateProjectDir(const QString &path);
+
+private slots:
+    void selectProjectPath();
 private:
     QLineEdit *m_projectField;
+    QLabel *m_warningLabel;
+    QLineEdit *m_dirField;
 };
 
 class WorkspacePage : public QWizardPage
@@ -61,9 +70,13 @@ public:
 private slots:
     void selectWorkspacePath();
 
+public slots:
+    void onUpdateProjectDir(const QString &path);
+
 private:
     QLineEdit *m_workspaceField;
     QLabel *m_warningLabel;
+    QDir *m_projectFileDir;
 };
 
 class MainDocumentPage : public QWizardPage
@@ -74,8 +87,12 @@ public:
     MainDocumentPage(QWidget *parent = nullptr);
     QString mainDocument() const;
 
+public slots:
+    void onUpdateProjectDir(const QString &path);
+
 private:
     QLineEdit *m_mainDocumentField;
+    QDir *m_projectFileDir;
 };
 
 class NewProjectWizard : public QWizard
@@ -98,9 +115,13 @@ private slots:
     void editImportPath();
     void removeImportPath();
 
+public slots:
+    void onUpdateProjectDir(const QString &path);
+
 private:
     QListWidget *m_importListWidget;
     ProjectPage *m_projectPage;
     WorkspacePage *m_workspacePage;
     MainDocumentPage *m_mainDocumentPage;
+    QDir *m_projectFileDir;
 };

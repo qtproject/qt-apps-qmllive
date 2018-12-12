@@ -37,12 +37,15 @@
 #include <QFileDialog>
 #include "livedocument.h"
 
+const QString QmlLiveProjectsLocation(QDir(QDir().homePath()).absoluteFilePath("QMLLive"));
+
 NewProjectWizard::NewProjectWizard(QWidget *parent)
     : QWizard(parent)
     , m_importListWidget(nullptr)
     , m_projectPage(new ProjectPage())
     , m_workspacePage(new WorkspacePage())
     , m_mainDocumentPage(new MainDocumentPage())
+    , m_projectFileDir(nullptr)
 {
     setWizardStyle(QWizard::ClassicStyle);
     setOptions(QWizard::NoBackButtonOnStartPage);
@@ -50,10 +53,16 @@ NewProjectWizard::NewProjectWizard(QWidget *parent)
     addPage(m_workspacePage);
     addPage(createImportsPage());
     addPage(m_mainDocumentPage);
+
+    connect(m_projectPage, &ProjectPage::updateProjectDir, m_workspacePage, &WorkspacePage::onUpdateProjectDir);
+    connect(m_projectPage, &ProjectPage::updateProjectDir, m_mainDocumentPage, &MainDocumentPage::onUpdateProjectDir);
+    connect(m_projectPage, &ProjectPage::updateProjectDir, this, &NewProjectWizard::onUpdateProjectDir);
 }
 
 MainDocumentPage::MainDocumentPage(QWidget *parent)
     : QWizardPage (parent)
+    , m_mainDocumentField(new QLineEdit)
+    , m_projectFileDir(nullptr)
 {
     setTitle("Main Document");
     QGridLayout *layout = new QGridLayout;
@@ -61,7 +70,6 @@ MainDocumentPage::MainDocumentPage(QWidget *parent)
     QLabel *label = new QLabel("Main document: ");
     layout->addWidget(label, 0, 0);
 
-    m_mainDocumentField = new QLineEdit;
     registerField("mainDocument*", m_mainDocumentField);
     layout->addWidget(m_mainDocumentField, 0, 1);
 
@@ -79,16 +87,29 @@ QString MainDocumentPage::mainDocument() const
     return "";
 }
 
+void MainDocumentPage::onUpdateProjectDir(const QString &path)
+{
+    if (m_projectFileDir == nullptr){
+        m_projectFileDir = new QDir(path);
+    }
+    else {
+        m_projectFileDir->setPath(path);
+    }
+}
+
 WorkspacePage::WorkspacePage(QWidget *parent)
     : QWizardPage (parent)
+    , m_workspaceField(new QLineEdit)
+    , m_warningLabel(new QLabel)
+    , m_projectFileDir(nullptr)
 {
     setTitle("Select Workspace");
+    setSubTitle("The path should be relative to the project file location.");
     QGridLayout *layout = new QGridLayout;
 
     QLabel *label = new QLabel("Workspace: ");
     layout->addWidget(label, 0, 0);
 
-    m_workspaceField = new QLineEdit;
     registerField("workspace*", m_workspaceField);
     layout->addWidget(m_workspaceField, 0, 1);
 
@@ -96,7 +117,6 @@ WorkspacePage::WorkspacePage(QWidget *parent)
     layout->addWidget(button, 0, 2);
     connect(button, SIGNAL(clicked()), this, SLOT(selectWorkspacePath()));
 
-    m_warningLabel = new QLabel;
     layout->addWidget(m_warningLabel, 1, 0, 1, 3, Qt::AlignTop);
 
     layout->setColumnStretch(1, 1);
@@ -115,7 +135,8 @@ QString WorkspacePage::workspace() const
 void WorkspacePage::selectWorkspacePath()
 {
     m_warningLabel->setText("");
-    QString workspace = QFileDialog::getExistingDirectory(this, "Select Workspace");
+    QString path = QFileDialog::getExistingDirectory(this, "Select Workspace");
+    QString workspace = m_projectFileDir->relativeFilePath(path);
     if (!workspace.isEmpty() && m_workspaceField) {
         m_workspaceField->setText(workspace);
     }
@@ -123,12 +144,22 @@ void WorkspacePage::selectWorkspacePath()
 
 bool WorkspacePage::validatePage()
 {
-    if (QDir(workspace()).exists()) {
+    if (m_projectFileDir->exists(workspace())) {
         m_warningLabel->setText("");
         return true;
     } else {
         m_warningLabel->setText("The path you entered does not exist.");
         return false;
+    }
+}
+
+void WorkspacePage::onUpdateProjectDir(const QString &path)
+{
+    if (m_projectFileDir == nullptr){
+        m_projectFileDir = new QDir(path);
+    }
+    else {
+        m_projectFileDir->setPath(path);
     }
 }
 
@@ -160,6 +191,9 @@ QWizardPage *NewProjectWizard::createImportsPage()
 
 ProjectPage::ProjectPage(QWidget *parent)
     : QWizardPage (parent)
+    , m_projectField(new QLineEdit)
+    , m_warningLabel(new QLabel)
+    , m_dirField(new QLineEdit)
 {
     setTitle("Project Name");
     setSubTitle("This wizard generates a Qt QmlLive project. The QmlLive project file shall describe the"
@@ -171,10 +205,21 @@ ProjectPage::ProjectPage(QWidget *parent)
     QLabel *label = new QLabel("Project name: ");
     layout->addWidget(label, 0, 0);
 
-    m_projectField = new QLineEdit;
     registerField("projectName*", m_projectField);
     m_projectField->setPlaceholderText("MyQmlLiveProject");
     layout->addWidget(m_projectField, 0, 1);
+
+    QLabel *dirlabel = new QLabel("Create in: ");
+    layout->addWidget(dirlabel, 1, 0);
+
+    layout->addWidget(m_dirField, 1, 1);
+    m_dirField->setText(QmlLiveProjectsLocation);
+
+    QPushButton *button = new QPushButton("Select");
+    layout->addWidget(button, 1, 2);
+    connect(button, &QPushButton::clicked, this, &ProjectPage::selectProjectPath);
+
+    layout->addWidget(m_warningLabel, 1, 0, 1, 3, Qt::AlignTop);
 
     layout->setColumnStretch(1, 1);
     layout->setRowStretch(1, 1);
@@ -184,9 +229,42 @@ ProjectPage::ProjectPage(QWidget *parent)
 QString ProjectPage::projectName() const
 {
     if (m_projectField) {
-        return m_projectField->text();
+        if (m_dirField->text().isEmpty())
+            return m_projectField->text();
+        else {
+            return m_dirField->text() + QDir().separator() + m_projectField->text();
+        }
     }
     return "";
+}
+
+bool ProjectPage::validatePage()
+{
+    QDir dir(m_dirField->text());
+    if (dir.exists()) {
+        m_warningLabel->setText("");
+        emit updateProjectDir(m_dirField->text());
+        return true;
+    } else {
+        if (QDir().mkpath(m_dirField->text())) {
+            emit updateProjectDir(m_dirField->text());
+            return true;
+        }
+        else {
+            qWarning()<< "Unable to create directory: "<< m_dirField->text();
+            m_warningLabel->setText("Unable to create directory: "+ m_dirField->text());
+            return false;
+        }
+    }
+}
+
+void ProjectPage::selectProjectPath()
+{
+    m_warningLabel->setText("");
+    QString projectPath = QFileDialog::getExistingDirectory(this, "Create in");
+    if (!projectPath.isEmpty() && m_dirField) {
+        m_dirField->setText(projectPath);
+    }
 }
 
 QString NewProjectWizard::mainDocument() const
@@ -222,7 +300,8 @@ void NewProjectWizard::addImportPath()
     if (path.isEmpty()) {
         return;
     }
-    QListWidgetItem *item = new QListWidgetItem(path);
+    QString relativepath = m_projectFileDir->relativeFilePath(path);
+    QListWidgetItem *item = new QListWidgetItem(relativepath);
     item->setFlags(item->flags () | Qt::ItemIsEditable);
     m_importListWidget->addItem(item);
 
@@ -242,5 +321,15 @@ void NewProjectWizard::removeImportPath()
     QListWidgetItem *item = m_importListWidget->currentItem();
     if (item) {
         delete item;
+    }
+}
+
+void NewProjectWizard::onUpdateProjectDir(const QString &path)
+{
+    if (m_projectFileDir == nullptr){
+        m_projectFileDir = new QDir(path);
+    }
+    else {
+        m_projectFileDir->setPath(path);
     }
 }

@@ -641,7 +641,8 @@ void MainWindow::openProject()
         s.endArray();
 
         setImportPaths(paths);
-        setWorkspace(m_projectManager->workspace());
+        QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_projectManager->workspace());
+        setWorkspace(path);
         activateDocument(LiveDocument(m_projectManager->mainDocument()));
     }
 }
@@ -661,11 +662,11 @@ void MainWindow::newProject()
     m_projectManager->setImports(m_newProjectWizard->imports());
     m_projectManager->setMainDocument(m_newProjectWizard->mainDocument());
     m_projectManager->setWorkspace(m_newProjectWizard->workspace());
-
     m_projectManager->create(m_newProjectWizard->projectName());
 
     setImportPaths(m_newProjectWizard->imports());
-    setWorkspace(m_newProjectWizard->workspace());
+    QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_newProjectWizard->workspace());
+    setWorkspace(path);
     activateDocument(LiveDocument(m_newProjectWizard->mainDocument()));
 }
 

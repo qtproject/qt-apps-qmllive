@@ -40,6 +40,7 @@
 #include "options.h"
 #include "mainwindow.h"
 #include "qmllive_version.h"
+#include "projectmanager.h"
 
 class Application : public QApplication
 {
@@ -230,6 +231,8 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     parser.addOption(pingOption);
     QCommandLineOption maxWatchesOption("maxdirwatch", "limit the number of directories to watch for changes", "number", QString::number(options->maximumWatches()));
     parser.addOption(maxWatchesOption);
+    QCommandLineOption projectOption("project", "loads project document .qmllive containing workspace path, imports paths, main document in JSON format");
+    parser.addOption(projectOption);
 
     parser.process(arguments);
 
@@ -297,12 +300,16 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
     options->setHostsToRemove(parser.values(rmHostOption));
     options->setHostsToProbe(parser.values(probeHostOption));
 
+    if (parser.isSet(projectOption)){
+        options->setProject(parser.value(projectOption));
+    }
+
     const QStringList positionalArguments = parser.positionalArguments();
     if (positionalArguments.count() >= 1) {
         QString argument = positionalArguments.value(0);
         QFileInfo fi(argument);
         if (argument.endsWith(".qml")) {
-            qDebug() << "First argument ends with \".qml\". Assuming it is a file.";
+            qInfo() << "First argument ends with \".qml\". Assuming it is a file.";
             if (!fi.exists() || !fi.isFile()) {
                 qWarning() << "Document does not exist or is not a file: " << fi.absoluteFilePath();
                 parser.showHelp(-1);
@@ -310,12 +317,17 @@ void Application::parseArguments(const QStringList &arguments, Options *options)
             options->setWorkspace(fi.absolutePath());
             options->setActiveDocument(LiveDocument(fi.absoluteFilePath()));
         } else {
-            qDebug() << "First argument does not ending with \".qml\". Assuming it is a workspace.";
-            if (!fi.exists() || !fi.isDir()) {
-                qWarning() << "Workspace does not exist or is not a directory: " << fi.absoluteFilePath();
-                parser.showHelp(-1);
+            if (argument.endsWith(".qmllive") && parser.isSet(projectOption)){
+                qInfo() << "First argument is ending with \".qmllive\". Assuming it is a project.";
+                options->setProject(fi.absoluteFilePath());
+            } else {
+                qInfo() << "First argument does not ending with \".qml\". Assuming it is a workspace.";
+                if (!fi.exists() || !fi.isDir()) {
+                    qWarning() << "Workspace does not exist or is not a directory: " << fi.absoluteFilePath();
+                    parser.showHelp(-1);
+                }
+                options->setWorkspace(fi.absoluteFilePath());
             }
-            options->setWorkspace(fi.absoluteFilePath());
         }
     }
     if (positionalArguments.count() == 2) {
@@ -443,6 +455,19 @@ void MasterApplication::listenForArguments()
 void MasterApplication::applyOptions(const Options &options)
 {
     LiveHubEngine::setMaximumWatches(options.maximumWatches());
+
+    if (!options.project().isEmpty()) {
+        if (m_window->isInitialized())
+            m_window->setProject(options.project());
+        else {
+            ProjectManager pr;
+            if (pr.read(options.project())) {
+               m_window->setWorkspace(pr.workspace());
+               m_window->setImportPaths(pr.imports());
+               m_window->activateDocument(LiveDocument(pr.mainDocument()));
+            }
+        }
+    }
 
     if (!options.workspace().isEmpty())
         m_window->setWorkspace(QDir(options.workspace()).absolutePath(), false);

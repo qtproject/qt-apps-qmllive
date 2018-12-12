@@ -507,6 +507,11 @@ void MainWindow::setStaysOnTop(bool enabled)
     stayOnTop();
 }
 
+void MainWindow::setProject(const QString &projectFile)
+{
+    openProjectFile(projectFile);
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
@@ -619,6 +624,11 @@ void MainWindow::openProject()
     if (path.isEmpty()) {
         return;
     }
+    openProjectFile(path);
+}
+
+void MainWindow::openProjectFile(const QString &path)
+{
     if (m_projectManager->read(path))
     {
         QStringList paths;
@@ -644,6 +654,9 @@ void MainWindow::openProject()
         QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_projectManager->workspace());
         setWorkspace(path);
         activateDocument(LiveDocument(m_projectManager->mainDocument()));
+    }
+    else {
+        qWarning() << "Unable to read project document: "<<path;
     }
 }
 

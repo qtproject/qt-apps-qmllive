@@ -66,6 +66,7 @@ public:
     void setPluginPath(const QString& path);
     void setImportPaths(const QStringList& pathList);
     void setStaysOnTop(bool enabled);
+    void setProject(const QString& projectFile);
     void init();
     bool isInitialized() const { return m_initialized; }
 
@@ -84,6 +85,7 @@ private:
     void setupMenuBar();
     void writeSettings();
     void resetImportPaths();
+    void openProjectFile(const QString& path);
 private slots:
     void resizeToFit();
     void takeSnapshot();

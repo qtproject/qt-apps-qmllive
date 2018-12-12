@@ -89,6 +89,9 @@ public:
     int maximumWatches() const;
     void setMaximumWatches(int maximumWatches);
 
+    QString project() const;
+    void setProject(const QString &project);
+
 private:
     bool m_noRemote;
     bool m_remoteOnly;
@@ -102,5 +105,6 @@ private:
     QStringList m_hostsToRemove;
     QStringList m_hostsToProbe;
     int m_maximumWatches;
+    QString m_project;
 };
 

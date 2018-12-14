@@ -1,5 +1,5 @@
 project = QmlLive
-description = Pelagicore QmlLive Reference Documentation
+description = QmlLive Reference Documentation
 url = https://doc.qt.io/QtQmlLive
 version = $QT_VERSION
 

@@ -7,4 +7,4 @@
 * Juergen Bocklage-Ryannel - For providing the initial idea and believing into
     the product.
 
-Copyright (C) 2016 Pelagicore AG
+Copyright (C) 2019 Luxoft Sweden AB

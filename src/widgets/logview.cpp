@@ -39,7 +39,7 @@ LogView::LogView(bool createLogger, QWidget *parent)
 {
     m_log->setReadOnly(true);
     m_log->setMaximumBlockCount(1000);
-    m_log->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    m_log->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::TextSelectableByKeyboard);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);

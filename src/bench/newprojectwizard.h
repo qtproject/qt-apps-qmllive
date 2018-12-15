@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2019 Luxoft Sweden AB
-** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -55,7 +54,6 @@ private slots:
     void selectProjectPath();
 private:
     QLineEdit *m_projectField;
-    QLabel *m_warningLabel;
     QLineEdit *m_dirField;
 };
 
@@ -67,6 +65,9 @@ public:
     WorkspacePage(QWidget *parent = nullptr);
     QString workspace() const;
     bool validatePage() override;
+
+signals:
+    void updateWorkspace(const QString& workspace);
 
 private slots:
     void selectWorkspacePath();
@@ -87,12 +88,18 @@ class MainDocumentPage : public QWizardPage
 public:
     MainDocumentPage(QWidget *parent = nullptr);
     QString mainDocument() const;
+    bool validatePage() override;
 
+private slots:
+    void selectDocument();
 public slots:
+    void updateWorkspace(const QString& workspace);
     void onUpdateProjectDir(const QString &path);
 
 private:
     QLineEdit *m_mainDocumentField;
+    QLabel *m_warningLabel;
+    QString *m_workspace;
     QDir *m_projectFileDir;
 };
 

@@ -35,6 +35,7 @@
 #include "httpproxyoptionpage.h"
 #include "importpathoptionpage.h"
 #include "hostsoptionpage.h"
+#include "runtimeoptionpage.h"
 #include "appearanceoptionpage.h"
 
 OptionsDialog::OptionsDialog(QWidget *parent)
@@ -44,6 +45,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
     , m_importPathsForm(new ImportPathOptionPage(this))
     , m_hostsForm(new HostsOptionsPage(this))
     , m_appearanceForm(new AppearanceOptionPage(this))
+    , m_runtimeForm(new RuntimeOptionPage(this))
 {
     ui->setupUi(this);
 
@@ -68,8 +70,14 @@ OptionsDialog::OptionsDialog(QWidget *parent)
     item->setData(Qt::UserRole, index);
     ui->optionsView->addItem(item);
 
+    item = new QListWidgetItem("QML Live Runtime");
+    index = ui->optionsStack->addWidget(m_runtimeForm);
+    item->setData(Qt::UserRole, index);
+    ui->optionsView->addItem(item);
+
     connect(ui->optionsView, &QListWidget::currentItemChanged,
             this, &OptionsDialog::optionSelected);
+    connect(m_runtimeForm, &RuntimeOptionPage::updateRuntimePath, this, &OptionsDialog::updateRuntimePath);
     connect(m_appearanceForm, &AppearanceOptionPage::hideNonQMLFiles, this, &OptionsDialog::hideNonQMLFiles);
     connect(m_importPathsForm, &ImportPathOptionPage::updateImportPaths, this, &OptionsDialog::updateImportPaths);
 }
@@ -107,6 +115,7 @@ void OptionsDialog::accept()
     m_importPathsForm->apply();
     m_hostsForm->apply();
     m_appearanceForm->apply();
+    m_runtimeForm->apply();
     QDialog::accept();
 }
 
@@ -119,5 +128,4 @@ void OptionsDialog::setImports(const QStringList &imports)
 {
     m_importPathsForm->setImports(imports);
 }
-
 

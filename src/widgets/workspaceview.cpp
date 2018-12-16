@@ -79,6 +79,11 @@ WorkspaceView::WorkspaceView(QWidget *parent)
 
     m_view->setDragEnabled(true);
     m_view->setDragDropMode(QAbstractItemView::DragOnly);
+
+    m_view->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_newWindow = new QAction(tr("Open in New Window"), this);
+    connect(m_newWindow, &QAction::triggered, this, &WorkspaceView::onNewRuntimeWindow);
+    m_view->addAction(m_newWindow);
 }
 
 /*!
@@ -95,7 +100,6 @@ void WorkspaceView::setRootPath(const QString &dirPath)
  */
 void WorkspaceView::activateDocument(const LiveDocument &path)
 {
-    //qDebug() << "WorkspaceView::activateDocument" << path;
     QModelIndex index = m_model->index(path.absoluteFilePathIn(rootPath()));
     selectIndex(index);
 }
@@ -168,6 +172,17 @@ void WorkspaceView::selectIndex(const QModelIndex &index)
     m_view->setCurrentIndex(index);
     indexActivated(index);
     //m_view->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+}
+
+void WorkspaceView::onNewRuntimeWindow()
+{
+    QString path = m_model->rootDirectory().relativeFilePath(m_model->filePath(m_view->currentIndex()));
+    qInfo() << "Opening new QML Live Runtime with file path: " << path;
+    emit newRuntimeWindow(path);
+}
+void WorkspaceView::onConnectToServer()
+{
+    emit initConnectToServer(m_view->model()->data(m_view->currentIndex()).toString());
 }
 
 void WorkspaceView::restoreFromSettings(QSettings *s)

@@ -47,6 +47,7 @@ class QMLLIVESHARED_EXPORT RemotePublisher : public QObject
 public:
     explicit RemotePublisher(QObject *parent = 0);
     void connectToServer(const QString& hostName, int port);
+    void connectToServer(const QString &hostName, int port, int msecs);
     QString errorToString(QAbstractSocket::SocketError error);
     QAbstractSocket::SocketState state() const;
 

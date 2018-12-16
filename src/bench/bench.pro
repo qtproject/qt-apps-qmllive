@@ -29,7 +29,10 @@ SOURCES += \
     autodiscoveryhostsdialog.cpp \
     options.cpp \
     newprojectwizard.cpp \
-    appearanceoptionpage.cpp
+    appearanceoptionpage.cpp \
+    runtimemanager.cpp \
+    runtimeprocess.cpp \
+    runtimeoptionpage.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -52,7 +55,10 @@ HEADERS += \
     autodiscoveryhostsdialog.h \
     options.h \
     newprojectwizard.h \
-    appearanceoptionpage.h
+    appearanceoptionpage.h \
+    runtimemanager.h \
+    runtimeprocess.h \
+    runtimeoptionpage.h
 
 FORMS += \
     optionsdialog.ui \
@@ -60,6 +66,7 @@ FORMS += \
     httpproxyoptionpage.ui \
     importpathoptionpage.ui \
     autodiscoveryhostsdialog.ui \
+    runtimeoptionpage.ui \
     appearanceoptionpage.ui
 
 include(../widgets/widgets.pri)

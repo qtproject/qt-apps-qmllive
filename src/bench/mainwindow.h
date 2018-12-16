@@ -53,6 +53,7 @@ class HostDiscoveryManager;
 class Options;
 class NewProjectWizard;
 class ProjectManager;
+class RuntimeManager;
 
 QT_FORWARD_DECLARE_CLASS(QToolBar);
 
@@ -93,7 +94,6 @@ private:
     void saveImportPathToSettings(const QString& path);
 
 private slots:
-    void resizeToFit();
     void takeSnapshot();
     void slowDownAnimations(bool enable);
     void openWorkspace();
@@ -108,6 +108,7 @@ private slots:
     void newProject();
     void onActiveWindowChanged(QQuickWindow *activeWindow);
     void onLogWidgetAdded(QDockWidget* logDock);
+    void onLogWidgetRemoved(QDockWidget* logDock);
 
 private:
     void updateRecentFolder(const QString &path = QString());
@@ -115,12 +116,11 @@ private:
 private:
     bool m_initialized;
     WindowWidget *m_ww;
-    WorkspaceView *m_workspace;
+    WorkspaceView *m_workspaceView;
     QString m_workspacePath;
     LogView *m_log;
     QUrl m_currentSource;
     QDockWidget *m_logDock;
-    QDockWidget *m_workspaceDock;
     QDockWidget *m_hostDock;
     HostManager *m_hostManager;
     HostModel *m_hostModel;
@@ -134,7 +134,6 @@ private:
     QAction *m_stayOnTop;
     QAction *m_openWorkspace;
     QAction *m_refresh;
-    QAction *m_resizeFit;
     QAction *m_clipRootObject;
     QToolBar* m_toolBar;
     QStringList m_qmlDefaultimportList;
@@ -143,4 +142,5 @@ private:
     NewProjectWizard *m_newProjectWizard;
     ProjectManager *m_projectManager;
     QSet<QString> *m_imports;
+    RuntimeManager *m_runtimeManager;
 };

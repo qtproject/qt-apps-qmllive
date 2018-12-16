@@ -330,7 +330,6 @@ void LiveNodeEngine::usePreloadedDocument(const QString &document, QQuickWindow 
 void LiveNodeEngine::loadDocument(const LiveDocument& document)
 {
     DEBUG << "LiveNodeEngine::loadDocument: " << document;
-
     LiveDocument oldActiveFile = m_activeFile;
 
     m_activeFile = document;

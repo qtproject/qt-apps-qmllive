@@ -48,6 +48,7 @@ public:
     QAbstractSocket::SocketState state() const;
 
     void connectToServer(const QString& hostName, int port);
+    void connectToServer(const QString &hostName, int port, int msecs);
     QUuid send(const QString& method, const QByteArray& data);
 
     bool waitForConnected(int msecs = 30000);

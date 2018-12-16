@@ -31,12 +31,12 @@
 ****************************************************************************/
 
 #include "host.h"
-#include <QDebug>
+#include "constants.h"
 #include <QSettings>
 
 Host::Host(Type type, QObject *parent) :
     QObject(parent),
-    m_port(10234),
+    m_port(Constants::DEFAULT_PORT()),
     m_xOffset(0),
     m_yOffset(0),
     m_rotation(0),

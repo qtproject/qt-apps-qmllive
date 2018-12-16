@@ -37,6 +37,7 @@
 // Use QML Live headers
 #include "livenodeengine.h"
 #include "remotereceiver.h"
+#include "constants.h"
 
 class MyQmlApplicationEngine : public QQmlApplicationEngine
 {
@@ -79,7 +80,7 @@ int main(int argc, char **argv)
     // Listen to IPC call from remote QML Live Bench
     RemoteReceiver receiver;
     receiver.registerNode(&node);
-    receiver.listen(10234);
+    receiver.listen(Constants::DEFAULT_PORT());
 
     // Advanced use: let it know the initially loaded QML component (do this
     // only after registering to receiver!)

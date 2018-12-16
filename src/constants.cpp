@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2019 Luxoft Sweden AB
-** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QML Live tool.
@@ -30,54 +29,34 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "constants.h"
 
-#include <QtGui>
-#include <QtWidgets>
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-    class OptionsDialog;
-}
-QT_END_NAMESPACE
-
-class HttpProxyOptionPage;
-class ImportPathOptionPage;
-class HostsOptionsPage;
-class HostModel;
-class Host;
-class AppearanceOptionPage;
-class RuntimeOptionPage;
-
-class OptionsDialog : public QDialog
+int Constants::PRIMERUNTIME_PORT()
 {
-    Q_OBJECT
+    return 49155;
+}
 
-public:
-    explicit OptionsDialog(QWidget *parent = 0);
-    ~OptionsDialog();
+int Constants::DEFAULT_PORT()
+{
+    return 49156;
+}
 
-    void setHostModel(HostModel* model);
-    void setDiscoveredHostsModel(HostModel* model);
-    void setImports(const QStringList &imports);
+int Constants::DEFAULT_BENCH_PORT()
+{
+    return 49355;
+}
 
-    void openHostConfig(Host* host);
+QString Constants::RUNTIME_SETTINGS_KEY()
+{
+    return "runtime/path";
+}
 
-signals:
-    void hideNonQMLFiles(bool hide);
-    void updateImportPaths(const QStringList &imports);
-    void updateRuntimePath(const QString& path);
+QString Constants::DEFAULT_RUNTIME_LOCATION()
+{
+    return QDir(QDir(QCoreApplication::applicationDirPath()).canonicalPath()).absoluteFilePath("qmlliveruntime");
+}
 
-private slots:
-    void optionSelected(QListWidgetItem* current);
-    void accept();
-    void reject();
-
-private:
-    Ui::OptionsDialog *ui;
-    HttpProxyOptionPage *m_httpProxyForm;
-    ImportPathOptionPage *m_importPathsForm;
-    HostsOptionsPage *m_hostsForm;
-    RuntimeOptionPage *m_runtimeForm;
-    AppearanceOptionPage *m_appearanceForm;
-};
+QString Constants::LOCAL_HOST()
+{
+    return "127.0.0.1";
+}

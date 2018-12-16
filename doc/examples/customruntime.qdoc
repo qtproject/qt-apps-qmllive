@@ -41,7 +41,7 @@ view setup, combined with additional C++ code and the QML Live system.
 
 Start with the \l LiveNodeEngine class. We need to modify this class to be
 able to receive workspace changes and active document updates. By default,
-the IPC listens to port 10234.
+the IPC listens on port 49156.
 
 The code snippet below shows a minimal custom QML Live runtime:
 

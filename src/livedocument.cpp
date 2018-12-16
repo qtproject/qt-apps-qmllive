@@ -63,6 +63,7 @@ LiveDocument::LiveDocument(const QString &relativeFilePath)
     LIVE_ASSERT(QDir::isRelativePath(relativeFilePath), return);
     LIVE_ASSERT(!QDir::cleanPath(relativeFilePath).startsWith(QLatin1String("../")), return);
 
+    qInfo() << "LiveDocument::LiveDocument: relativeFilePath= " << relativeFilePath;
     m_relativeFilePath = relativeFilePath;
 }
 

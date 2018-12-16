@@ -31,7 +31,6 @@
 ****************************************************************************/
 
 #include "hostmodel.h"
-#include <QDebug>
 #include <QIcon>
 #include <QSettings>
 #include <QMimeData>

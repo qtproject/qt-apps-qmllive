@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2019 Luxoft Sweden AB
-** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QML Live tool.
@@ -32,52 +31,18 @@
 
 #pragma once
 
-#include <QtGui>
-#include <QtWidgets>
+#include <QtCore>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-    class OptionsDialog;
-}
-QT_END_NAMESPACE
+#include "qmllive_global.h"
 
-class HttpProxyOptionPage;
-class ImportPathOptionPage;
-class HostsOptionsPage;
-class HostModel;
-class Host;
-class AppearanceOptionPage;
-class RuntimeOptionPage;
-
-class OptionsDialog : public QDialog
+class QMLLIVESHARED_EXPORT Constants
 {
-    Q_OBJECT
-
 public:
-    explicit OptionsDialog(QWidget *parent = 0);
-    ~OptionsDialog();
-
-    void setHostModel(HostModel* model);
-    void setDiscoveredHostsModel(HostModel* model);
-    void setImports(const QStringList &imports);
-
-    void openHostConfig(Host* host);
-
-signals:
-    void hideNonQMLFiles(bool hide);
-    void updateImportPaths(const QStringList &imports);
-    void updateRuntimePath(const QString& path);
-
-private slots:
-    void optionSelected(QListWidgetItem* current);
-    void accept();
-    void reject();
-
-private:
-    Ui::OptionsDialog *ui;
-    HttpProxyOptionPage *m_httpProxyForm;
-    ImportPathOptionPage *m_importPathsForm;
-    HostsOptionsPage *m_hostsForm;
-    RuntimeOptionPage *m_runtimeForm;
-    AppearanceOptionPage *m_appearanceForm;
+    static int PRIMERUNTIME_PORT();
+    static int DEFAULT_PORT();
+    static int DEFAULT_BENCH_PORT();
+    static QString RUNTIME_SETTINGS_KEY();
+    static QString DEFAULT_RUNTIME_LOCATION();
+    static QString LOCAL_HOST();
 };
+

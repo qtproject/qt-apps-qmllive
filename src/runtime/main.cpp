@@ -39,29 +39,36 @@
 #include "logger.h"
 #include "qmlhelper.h"
 #include "qmllive_version.h"
+#include "constants.h"
 
 struct Options
 {
     Options()
-        : ipcPort(10234)
-        , updatesAsOverlay(false)
+        : updatesAsOverlay(false)
         , updateOnConnect(false)
         , fullscreen(false)
         , transparent(false)
         , frameless(false)
         , stayontop(false)
-    {}
-    int ipcPort;
+        , hideButtons(false)
+        , windowTitle("QML Live Runtime")
+    {
+        ipcPort = Constants::DEFAULT_PORT();
+    }
+
     bool updatesAsOverlay;
     bool updateOnConnect;
-    QString activeDocument;
-    QString workspace;
-    QString pluginPath;
-    QStringList importPaths;
     bool fullscreen;
     bool transparent;
     bool frameless;
     bool stayontop;
+    bool hideButtons;
+    QString windowTitle;
+    QString activeDocument;
+    QString workspace;
+    QString pluginPath;
+    QStringList importPaths;
+    int ipcPort;
 };
 
 static Options options;
@@ -76,7 +83,7 @@ static void parseArguments(const QStringList &arguments)
 
     parser.addPositionalArgument("workspace", "workspace folder to watch");
 
-    QCommandLineOption ipcPortOption("ipcport", "the port the IPC shall listen on, default is 10234", "ipcport");
+    QCommandLineOption ipcPortOption("ipcport", QString("the port the IPC shall listen on, default is %1").arg(Constants::DEFAULT_PORT()), "ipcport");
     parser.addOption(ipcPortOption);
 
     QCommandLineOption pluginPathOption("pluginpath", "path to QML Live plugins", "pluginpath");
@@ -104,6 +111,12 @@ static void parseArguments(const QStringList &arguments)
     QCommandLineOption framelessOption("frameless", "run with no window frame");
     parser.addOption(framelessOption);
 
+    QCommandLineOption windowTitleOption("title", "set window title");
+    parser.addOption(windowTitleOption);
+
+    QCommandLineOption hideButtonsOption("hidebuttons", "hide window control buttons (close, minimize, maximize)");
+    parser.addOption(hideButtonsOption);
+
     parser.process(arguments);
 
     if (parser.isSet(ipcPortOption)) {
@@ -117,10 +130,14 @@ static void parseArguments(const QStringList &arguments)
     options.fullscreen = parser.isSet(fullScreenOption);
     options.transparent = parser.isSet(transparentOption);
     options.frameless = parser.isSet(framelessOption);
+    options.windowTitle = parser.isSet(windowTitleOption);
+    options.hideButtons = parser.isSet(hideButtonsOption);
 
     QStringList positionalArguments = parser.positionalArguments();
     if (positionalArguments.count() == 1)
         options.workspace = positionalArguments.value(0);
+    if (positionalArguments.count() == 2)
+        options.workspace = positionalArguments.value(1);
 }
 
 class RuntimeLiveNodeEngine : public LiveNodeEngine
@@ -160,6 +177,10 @@ private slots:
         if (options.fullscreen) {
             activeWindow->setWindowState(Qt::WindowFullScreen);
         }
+
+        if (options.hideButtons) {
+            activeWindow->setFlags(activeWindow->flags() | Qt::WindowMinMaxButtonsHint);
+        }
     }
 };
 
@@ -171,6 +192,8 @@ int main(int argc, char** argv)
     app.setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 
     parseArguments(app.arguments());
+
+    app.setApplicationName(options.windowTitle);
 
     QQmlEngine qmlEngine;
     qmlEngine.setImportPathList(options.importPaths + qmlEngine.importPathList());

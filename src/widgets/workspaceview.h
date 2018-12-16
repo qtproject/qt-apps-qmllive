@@ -56,10 +56,14 @@ public Q_SLOTS:
     void activateDocument(const LiveDocument& path);
     void activateRootPath();
     void goUp();
+    void onNewRuntimeWindow();
+    void onConnectToServer();
     void hideNonQMLFiles(bool hide);
 
 Q_SIGNALS:
     void pathActivated(const LiveDocument& path);
+    void newRuntimeWindow(const QString &document);
+    void initConnectToServer(const QString &document);
 
 private Q_SLOTS:
     void indexActivated(const QModelIndex& index);
@@ -70,4 +74,6 @@ private:
     FileSystemModel *m_model;
     QModelIndex m_rootIndex;
     LiveDocument m_currentDocument;
+    QAction *m_newWindow;
+    QAction *m_connect;
 };

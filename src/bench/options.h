@@ -33,6 +33,7 @@
 #pragma once
 
 #include "livedocument.h"
+#include "constants.h"
 
 #include <QtCore>
 
@@ -44,7 +45,7 @@ public:
     struct HostOptions {
         QString name;
         QString address;
-        int port = 10234;
+        int port = Constants::DEFAULT_PORT();
     };
 
 public:

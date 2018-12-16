@@ -103,6 +103,7 @@ RemoteReceiver::RemoteReceiver(QObject *parent)
  */
 bool RemoteReceiver::listen(int port, ConnectionOptions options)
 {
+    qInfo() << "RemoteReceiver::listen: port = " << port << " options = " << options;
     m_connectionOptions = options;
     m_server->listen(port);
 

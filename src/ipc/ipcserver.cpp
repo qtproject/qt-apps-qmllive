@@ -51,7 +51,7 @@
  * \code{.cpp}
  * m_server = new IpcServer(this);
  * connect(m_server, &IpcServer::received, this, &MyHandler::handleCall);
- * m_server->listen(10234);
+ * m_server->listen(Constants.DEFAULT_PORT());
  *
  * ...
  *

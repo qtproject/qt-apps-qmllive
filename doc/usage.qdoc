@@ -239,7 +239,7 @@ You can create your own custom runtime with QML Live features. This way, you can
 setup with your additional C++ code together with the QML Live system.
 
 For this, you need to use the \l LiveNodeEngine class to be able to receive workspace changes and
-active document updates. By default, the IPC listens on port 10234.
+active document updates. By default, the IPC listens on port 49156.
 
 The code snippet below shows an example of a minimal custom QML Live runtime:
 

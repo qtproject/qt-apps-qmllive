@@ -51,6 +51,7 @@
 #include "options.h"
 #include "newprojectwizard.h"
 #include "projectmanager.h"
+#include "runtimemanager.h"
 
 class ErrorBar : public QFrame
 {
@@ -96,7 +97,7 @@ private:
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_initialized(false)
-    , m_workspace(new WorkspaceView())
+    , m_workspaceView(new WorkspaceView())
     , m_log(new LogView(true, this))
     , m_hostManager(new HostManager(this))
     , m_hostModel(new HostModel(this))
@@ -107,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_newProjectWizard(new NewProjectWizard(this))
     , m_projectManager(new ProjectManager(this))
     , m_imports (nullptr)
+    , m_runtimeManager(new RuntimeManager(this))
 {
     setupContent();
     setupMenuBar();
@@ -121,10 +123,12 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(QIcon("://images/favicon.png"));
 
     m_hub->setFilePublishingActive(true);
-    m_node->setWorkspaceView(m_workspace);
+    m_node->setWorkspaceView(m_workspaceView);
 
-    connect(m_workspace, &WorkspaceView::pathActivated, m_hub, &LiveHubEngine::setActivePath);
-    connect(m_workspace, &WorkspaceView::pathActivated, m_hostManager, &HostManager::followTreeSelection);
+    m_runtimeManager->setLiveHubEngine(m_hub);
+
+    connect(m_workspaceView, &WorkspaceView::pathActivated, m_hub, &LiveHubEngine::setActivePath);
+    connect(m_workspaceView, &WorkspaceView::pathActivated, m_hostManager, &HostManager::followTreeSelection);
     connect(m_hub, &LiveHubEngine::activateDocument, this, &MainWindow::updateWindowTitle);
     connect(m_hub, &LiveHubEngine::activateDocument, m_node, &LiveNodeEngine::loadDocument);
     connect(m_node, &LiveNodeEngine::activeWindowChanged, this, &MainWindow::onActiveWindowChanged);
@@ -135,12 +139,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_hostManager, &HostManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
     connect(m_hostManager, &HostManager::openHostConfig, this, &MainWindow::openPreferences);
     connect(m_newProjectWizard, &NewProjectWizard::accepted, this, &MainWindow::newProject);
+    connect(m_workspaceView, &WorkspaceView::pathActivated, m_runtimeManager, &RuntimeManager::setPrimeCurrentFile);
+    connect(m_workspaceView, &WorkspaceView::newRuntimeWindow, m_runtimeManager, &RuntimeManager::newRuntimeWindow);
+    connect(m_workspaceView, &WorkspaceView::initConnectToServer, m_runtimeManager, &RuntimeManager::initConnectToServer);
+    connect(m_runtimeManager, &RuntimeManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
+    connect(m_runtimeManager, &RuntimeManager::logWidgetRemoved, this, &MainWindow::onLogWidgetRemoved);
 
     m_qmlDefaultimportList = m_node->qmlEngine()->importPathList();
 }
 
 MainWindow::~MainWindow()
 {
+    m_runtimeManager->finishProcesses();
+    delete m_runtimeManager;
 }
 
 
@@ -155,8 +166,10 @@ void MainWindow::setupContent()
     m_ww->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_ww->setBackgroundRole(QPalette::Dark);
     m_node->setWindowWidget(m_ww);
+    m_ww->setHidden(true);
 
-    setCentralWidget(m_ww);
+    m_workspaceView->setWindowTitle("Workspace");
+    setCentralWidget(m_workspaceView);
 }
 
 void MainWindow::onActiveWindowChanged(QQuickWindow *activeWindow)
@@ -177,11 +190,6 @@ void MainWindow::onLogWidgetAdded(QDockWidget *logDock)
 
 void MainWindow::setupWorkspaceView()
 {
-    m_workspaceDock = new QDockWidget("Workspace", this);
-    m_workspaceDock->setObjectName("workspace");
-    m_workspaceDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    m_workspaceDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-
     auto contents = new QWidget;
     auto layout = new QVBoxLayout(contents);
     layout->setContentsMargins(1, 1, 1, 1);
@@ -212,10 +220,7 @@ void MainWindow::setupWorkspaceView()
         m_hub->setWorkspace(m_hub->workspace());
     });
 
-    layout->addWidget(m_workspace);
-
-    m_workspaceDock->setWidget(contents);
-    addDockWidget(Qt::LeftDockWidgetArea, m_workspaceDock);
+    layout->addWidget(m_workspaceView);
 }
 
 void MainWindow::setupHostView()
@@ -318,15 +323,9 @@ void MainWindow::setupMenuBar()
 #endif
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    m_resizeFit = view->addAction(QIcon::fromTheme("zoom-fit-best"), tr("Resize to Fit"), this, SLOT(resizeToFit()));
-#else
-    m_resizeFit = view->addAction(QIcon::fromTheme("zoom-fit-best"), tr("Resize to Fit"),
-                                  this, &MainWindow::resizeToFit);
-#endif
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     view->addAction(tr("Show Containing Folder"), m_workspace, SLOT(goUp()), QKeySequence("Ctrl+Esc"));
 #else
-    view->addAction(tr("Show Containing Folder"), m_workspace, &WorkspaceView::goUp,
+    view->addAction(tr("Show Containing Folder"), m_workspaceView, &WorkspaceView::goUp,
                     QKeySequence("Ctrl+Esc"));
 #endif
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
@@ -337,7 +336,6 @@ void MainWindow::setupMenuBar()
     m_stayOnTop->setCheckable(true);
 
     view->addSeparator();
-    view->addAction(m_workspaceDock->toggleViewAction());
     view->addAction(m_hostDock->toggleViewAction());
     m_logDockMenu = view->addMenu("Logs");
     m_logDockMenu->addAction(m_logDock->toggleViewAction());
@@ -386,7 +384,7 @@ void MainWindow::init()
         if (!last.isNull())
             activateDocument(last);
         else
-            m_workspace->activateRootPath();
+            m_workspaceView->activateRootPath();
     }
 
     restoreImportPathsFromSettings();
@@ -394,7 +392,9 @@ void MainWindow::init()
     m_hostModel->restoreFromSettings(&s);
     restoreState(s.value("windowState").toByteArray());
 
-    m_workspace->restoreFromSettings(&s);
+    m_workspaceView->restoreFromSettings(&s);
+    m_runtimeManager->setWorkspace(m_workspacePath);
+    m_runtimeManager->startPrimeRuntime();
 
     m_initialized = true;
 }
@@ -454,19 +454,12 @@ void MainWindow::setupToolBar()
     m_toolBar->addAction(m_openWorkspace);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_refresh);
-    m_toolBar->addAction(m_resizeFit);
 }
 
 void MainWindow::activateDocument(const LiveDocument &path)
 {
-    m_workspace->activateDocument(path);
-}
-
-void MainWindow::resizeToFit()
-{
-    QSize diff = m_ww->sizeHint() - m_ww->rect().size();
-    resize(rect().size() + diff);
-    updateWindowTitle();
+    m_workspaceView->activateDocument(path);
+    m_runtimeManager->setPrimeCurrentFile(path);
 }
 
 void MainWindow::takeSnapshot()
@@ -498,18 +491,20 @@ void MainWindow::slowDownAnimations(bool enable)
 void MainWindow::setWorkspace(const QString& path, bool activateRootPath)
 {
     m_workspacePath = path;
-    m_workspace->setRootPath(path);
+    m_workspaceView->setRootPath(path);
     m_node->setWorkspace(path);
     m_hub->setWorkspace(path);
     m_allHosts->setWorkspace(path);
     if (activateRootPath)
-        m_workspace->activateRootPath();
+        m_workspaceView->activateRootPath();
+    m_runtimeManager->setWorkspace(path);
     updateRecentFolder(path);
 }
 
 void MainWindow::setPluginPath(const QString &path)
 {
     m_node->setPluginPath(path);
+    m_runtimeManager->setPluginPath(path);
 }
 
 void MainWindow::setImportPaths(const QStringList &pathList)
@@ -519,6 +514,7 @@ void MainWindow::setImportPaths(const QStringList &pathList)
     *m_imports = QSet<QString>::fromList(pathList);
 
     m_node->qmlEngine()->setImportPathList(pathList + m_qmlDefaultimportList);
+    m_runtimeManager->setImportPathList(pathList + m_qmlDefaultimportList);
 }
 
 void MainWindow::setStaysOnTop(bool enabled)
@@ -535,6 +531,7 @@ void MainWindow::setProject(const QString &projectFile)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
+    m_runtimeManager->finishProcesses();
     QMainWindow::closeEvent(event);
 }
 
@@ -551,6 +548,7 @@ void MainWindow::openWorkspace()
         return;
     }
     setWorkspace(path);
+    m_runtimeManager->restartAll();
 }
 
 void MainWindow::logQuitEvent()
@@ -572,8 +570,9 @@ void MainWindow::updateWindowTitle()
 void MainWindow::openPreferences(Host *host)
 {
     OptionsDialog dialog;
-    connect(&dialog, &OptionsDialog::hideNonQMLFiles, m_workspace, &WorkspaceView::hideNonQMLFiles);
+    connect(&dialog, &OptionsDialog::hideNonQMLFiles, m_workspaceView, &WorkspaceView::hideNonQMLFiles);
     connect(&dialog, &OptionsDialog::updateImportPaths, this, &MainWindow::setImportPaths);
+    connect(&dialog, &OptionsDialog::updateRuntimePath, m_runtimeManager, &RuntimeManager::updateRuntimePath);
     dialog.setHostModel(m_hostModel);
     dialog.setDiscoveredHostsModel(m_discoveryManager->discoveredHostsModel());
     dialog.setImports(m_imports->toList());
@@ -674,8 +673,9 @@ void MainWindow::openProjectFile(const QString &path)
 
         setImportPaths(paths);
         QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_projectManager->workspace());
-        setWorkspace(path);
+        setWorkspace(m_projectManager->workspace());
         activateDocument(LiveDocument(m_projectManager->mainDocument()));
+        m_runtimeManager->restartAll();
     }
     else {
         qWarning() << "Unable to read project document: "<<path;
@@ -703,6 +703,12 @@ void MainWindow::newProject()
     QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_newProjectWizard->workspace());
     setWorkspace(path);
     activateDocument(LiveDocument(m_newProjectWizard->mainDocument()));
+    m_runtimeManager->restartAll();
+}
+
+void MainWindow::onLogWidgetRemoved(QDockWidget* logDock)
+{
+    removeDockWidget(logDock);
 }
 
 #include "mainwindow.moc"

@@ -61,7 +61,7 @@ public:
  * Here is a simple example:
  * \code
  *  IpcClient *client = new IpcClient(this);
- *  client->connectToServer("127.0.0.1", 10234);
+ *  client->connectToServer("127.0.0.1", Constants.DEFAULT_PORT());
  *  QString text = "Hello";
  *  QByteArray content;
  *  QDataStream out(&bytes, QIODevice::WriteOnly);
@@ -102,6 +102,7 @@ IpcClient::IpcClient(QTcpSocket *socket, QObject *parent)
     , m_written(0)
     , m_connection(0)
 {
+    qInfo() << "IpcClient socket: " << socket;
     connect(m_socket, &QAbstractSocket::connected, this, &IpcClient::connected);
     connect(m_socket, &QAbstractSocket::disconnected, this, &IpcClient::disconnected);
     void (QAbstractSocket::*QAbstractSocket__error)(QAbstractSocket::SocketError) = &QAbstractSocket::error;
@@ -122,7 +123,19 @@ QAbstractSocket::SocketState IpcClient::state() const
  */
 void IpcClient::connectToServer(const QString &hostName, int port)
 {
+    qInfo() << "IpcClient::connectToServer: hostName = " << hostName << " port = " << port;
     m_socket->connectToHost(hostName, port);
+}
+
+/*!
+ * Sets the Ip address to \a hostName and port to \a port to use for an IPC call and
+ * waits until the socket is connected, up to \a msecs milliseconds.
+ */
+void IpcClient::connectToServer(const QString &hostName, int port, int msecs)
+{
+    qInfo() << "IpcClient::connectToServer: hostName = " << hostName << " port = " << port <<" msecs = " << msecs;
+    m_socket->connectToHost(hostName, port);
+    if (m_socket->waitForConnected(msecs)) qInfo() <<"Connected after waiting for: "<<msecs;
 }
 
 /*!

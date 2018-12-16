@@ -1,10 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 Luxoft Sweden AB
-** Copyright (C) 2018 Pelagicore AG
+** Copyright (C) 2018 Luxoft Sweden AB
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QML Live tool.
+** This file is part of the QmlLive tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -30,54 +29,37 @@
 **
 ****************************************************************************/
 
-#pragma once
+#ifndef RUNTIMEOPTIONPAGE_H
+#define RUNTIMEOPTIONPAGE_H
 
+#include <QtCore>
 #include <QtGui>
 #include <QtWidgets>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-    class OptionsDialog;
+class RuntimeOptionPage;
 }
 QT_END_NAMESPACE
 
-class HttpProxyOptionPage;
-class ImportPathOptionPage;
-class HostsOptionsPage;
-class HostModel;
-class Host;
-class AppearanceOptionPage;
-class RuntimeOptionPage;
-
-class OptionsDialog : public QDialog
+class RuntimeOptionPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit OptionsDialog(QWidget *parent = 0);
-    ~OptionsDialog();
+    explicit RuntimeOptionPage(QWidget *parent = nullptr);
+    ~RuntimeOptionPage();
 
-    void setHostModel(HostModel* model);
-    void setDiscoveredHostsModel(HostModel* model);
-    void setImports(const QStringList &imports);
+    bool apply();
 
-    void openHostConfig(Host* host);
-
-signals:
-    void hideNonQMLFiles(bool hide);
-    void updateImportPaths(const QStringList &imports);
+Q_SIGNALS:
     void updateRuntimePath(const QString& path);
 
-private slots:
-    void optionSelected(QListWidgetItem* current);
-    void accept();
-    void reject();
+private Q_SLOTS:
+    void selectRuntimePath();
 
 private:
-    Ui::OptionsDialog *ui;
-    HttpProxyOptionPage *m_httpProxyForm;
-    ImportPathOptionPage *m_importPathsForm;
-    HostsOptionsPage *m_hostsForm;
-    RuntimeOptionPage *m_runtimeForm;
-    AppearanceOptionPage *m_appearanceForm;
+    Ui::RuntimeOptionPage *ui;
 };
+
+#endif // RUNTIMEOPTIONPAGE_H

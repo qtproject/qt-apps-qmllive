@@ -117,6 +117,15 @@ void RemotePublisher::connectToServer(const QString &hostName, int port)
 }
 
 /*!
+ * Set IPC destination to use \a hostName and \a port, waits until the socket is connected, up to \a msecs milliseconds
+ * \sa IpcClient::connectToServer
+ */
+void RemotePublisher::connectToServer(const QString &hostName, int port, int msecs)
+{
+    m_ipc->connectToServer(hostName, port, msecs);
+}
+
+/*!
   Converts the socket error \a error into a string
  */
 QString RemotePublisher::errorToString(QAbstractSocket::SocketError error)

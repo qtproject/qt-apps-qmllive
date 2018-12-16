@@ -169,3 +169,22 @@ void WorkspaceView::selectIndex(const QModelIndex &index)
     indexActivated(index);
     //m_view->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
+
+void WorkspaceView::restoreFromSettings(QSettings *s)
+{
+    hideNonQMLFiles(s->value("only_qml_files/enabled").toBool());
+}
+
+void WorkspaceView::hideNonQMLFiles(bool hide)
+{
+    QStringList filters;
+    if (hide) {
+        filters << "*.qml";
+    }
+    else {
+        filters << "*.*";
+    }
+    m_model->setNameFilters(filters);
+    m_model->setNameFilterDisables(false);
+    m_view->setModel(m_model);
+}

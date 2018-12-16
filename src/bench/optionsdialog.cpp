@@ -35,6 +35,7 @@
 #include "httpproxyoptionpage.h"
 #include "importpathoptionpage.h"
 #include "hostsoptionpage.h"
+#include "appearanceoptionpage.h"
 
 OptionsDialog::OptionsDialog(QWidget *parent)
     : QDialog(parent)
@@ -42,6 +43,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
     , m_httpProxyForm(new HttpProxyOptionPage(this))
     , m_importPathsForm(new ImportPathOptionPage(this))
     , m_hostsForm(new HostsOptionsPage(this))
+    , m_appearanceForm(new AppearanceOptionPage(this))
 {
     ui->setupUi(this);
 
@@ -61,8 +63,14 @@ OptionsDialog::OptionsDialog(QWidget *parent)
     item->setData(Qt::UserRole, index);
     ui->optionsView->addItem(item);
 
+    item = new QListWidgetItem("Appearance");
+    index = ui->optionsStack->addWidget(m_appearanceForm);
+    item->setData(Qt::UserRole, index);
+    ui->optionsView->addItem(item);
+
     connect(ui->optionsView, &QListWidget::currentItemChanged,
             this, &OptionsDialog::optionSelected);
+    connect(m_appearanceForm, &AppearanceOptionPage::hideNonQMLFiles, this, &OptionsDialog::hideNonQMLFiles);
 }
 
 OptionsDialog::~OptionsDialog()
@@ -97,6 +105,7 @@ void OptionsDialog::accept()
     m_httpProxyForm->apply();
     m_importPathsForm->apply();
     m_hostsForm->apply();
+    m_appearanceForm->apply();
     QDialog::accept();
 }
 
@@ -104,5 +113,6 @@ void OptionsDialog::reject()
 {
     QDialog::reject();
 }
+
 
 

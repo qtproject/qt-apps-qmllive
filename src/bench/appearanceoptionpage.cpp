@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 Luxoft Sweden AB
-** Copyright (C) 2018 Pelagicore AG
+** Copyright (C) 2018 Luxoft Sweden AB
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -30,49 +29,27 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "appearanceoptionpage.h"
+#include "ui_appearanceoptionpage.h"
 
-#include <QtGui>
-#include <QtWidgets>
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-    class OptionsDialog;
-}
-QT_END_NAMESPACE
-
-class HttpProxyOptionPage;
-class ImportPathOptionPage;
-class HostsOptionsPage;
-class HostModel;
-class Host;
-class AppearanceOptionPage;
-
-class OptionsDialog : public QDialog
+AppearanceOptionPage::AppearanceOptionPage(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::AppearanceOptionPage)
 {
-    Q_OBJECT
+    ui->setupUi(this);
+    QSettings s;
+    ui->fileFilter->setChecked(s.value("only_qml_files/enabled").toBool());
+}
 
-public:
-    explicit OptionsDialog(QWidget *parent = 0);
-    ~OptionsDialog();
+AppearanceOptionPage::~AppearanceOptionPage()
+{
+    delete ui;
+}
 
-    void setHostModel(HostModel* model);
-    void setDiscoveredHostsModel(HostModel* model);
-
-    void openHostConfig(Host* host);
-
-signals:
-    void hideNonQMLFiles(bool hide);
-
-private slots:
-    void optionSelected(QListWidgetItem* current);
-    void accept();
-    void reject();
-
-private:
-    Ui::OptionsDialog *ui;
-    HttpProxyOptionPage *m_httpProxyForm;
-    ImportPathOptionPage *m_importPathsForm;
-    HostsOptionsPage *m_hostsForm;
-    AppearanceOptionPage *m_appearanceForm;
-};
+void AppearanceOptionPage::apply()
+{
+    bool enabled = ui->fileFilter->isChecked();
+    QSettings s;
+    s.setValue("only_qml_files/enabled", enabled);
+    emit hideNonQMLFiles(enabled);
+}

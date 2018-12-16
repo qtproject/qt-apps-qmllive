@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 Luxoft Sweden AB
-** Copyright (C) 2018 Pelagicore AG
+** Copyright (C) 2018 Luxoft Sweden AB
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -30,49 +29,32 @@
 **
 ****************************************************************************/
 
-#pragma once
+#ifndef APPEARANCEOPTIONSPAGE_H
+#define APPEARANCEOPTIONSPAGE_H
 
+#include <QtCore>
 #include <QtGui>
+
 #include <QtWidgets>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-    class OptionsDialog;
+class AppearanceOptionPage;
 }
 QT_END_NAMESPACE
 
-class HttpProxyOptionPage;
-class ImportPathOptionPage;
-class HostsOptionsPage;
-class HostModel;
-class Host;
-class AppearanceOptionPage;
-
-class OptionsDialog : public QDialog
+class AppearanceOptionPage : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit OptionsDialog(QWidget *parent = 0);
-    ~OptionsDialog();
-
-    void setHostModel(HostModel* model);
-    void setDiscoveredHostsModel(HostModel* model);
-
-    void openHostConfig(Host* host);
+    explicit AppearanceOptionPage(QWidget *parent = nullptr);
+    ~AppearanceOptionPage();
+    void apply();
 
 signals:
     void hideNonQMLFiles(bool hide);
-
-private slots:
-    void optionSelected(QListWidgetItem* current);
-    void accept();
-    void reject();
-
 private:
-    Ui::OptionsDialog *ui;
-    HttpProxyOptionPage *m_httpProxyForm;
-    ImportPathOptionPage *m_importPathsForm;
-    HostsOptionsPage *m_hostsForm;
-    AppearanceOptionPage *m_appearanceForm;
+    Ui::AppearanceOptionPage *ui;
 };
+
+#endif // APPEARANCEOPTIONSPAGE_H

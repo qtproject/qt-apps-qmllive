@@ -393,6 +393,8 @@ void MainWindow::init()
     m_hostModel->restoreFromSettings(&s);
     restoreState(s.value("windowState").toByteArray());
 
+    m_workspace->restoreFromSettings(&s);
+
     m_initialized = true;
 }
 
@@ -553,6 +555,7 @@ void MainWindow::updateWindowTitle()
 void MainWindow::openPreferences(Host *host)
 {
     OptionsDialog dialog;
+    connect(&dialog, &OptionsDialog::hideNonQMLFiles, m_workspace, &WorkspaceView::hideNonQMLFiles);
     dialog.setHostModel(m_hostModel);
     dialog.setDiscoveredHostsModel(m_discoveryManager->discoveredHostsModel());
 

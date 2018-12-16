@@ -49,12 +49,14 @@ public:
     QString rootPath() const;
     void setDirectoriesSelectable(bool enabled);
     bool directoriesSelectable() const;
+    void restoreFromSettings(QSettings *s);
 
 public Q_SLOTS:
     void setRootPath(const QString& dirPath);
     void activateDocument(const LiveDocument& path);
     void activateRootPath();
     void goUp();
+    void hideNonQMLFiles(bool hide);
 
 Q_SIGNALS:
     void pathActivated(const LiveDocument& path);

@@ -32,7 +32,7 @@
 #include "mycontentadapterplugin.h"
 
 #include <QtCore/QtPlugin>
-#include <QtDeclarative/QDeclarativeContext>
+#include <QQmlContext>
 
 MyContentAdapterPlugin::MyContentAdapterPlugin(QObject *parent) :
     QObject(parent)
@@ -64,12 +64,11 @@ bool MyContentAdapterPlugin::canAdapt(const QUrl &url) const
 //! [0]
 
 //! [1]
-QUrl MyContentAdapterPlugin::adapt(const QUrl &url, QDeclarativeContext *context)
+
+QUrl MyContentAdapterPlugin::adapt(const QUrl &url, QQmlContext *context)
 {
     context->setContextProperty("imageSource", url);
 
     return QString("qrc:/mycontentadatperplugin/plugin.qml");
 }
 //! [1]
-
-Q_EXPORT_PLUGIN2(myContentAdapterPlugin, MyContentAdapterPlugin)

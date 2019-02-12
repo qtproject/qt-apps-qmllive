@@ -41,6 +41,7 @@ class MyContentAdapterPlugin : public QObject, public ContentAdapterInterface
 //! [1]
     Q_INTERFACES(ContentAdapterInterface)
 //! [1]
+    Q_PLUGIN_METADATA(IID "io.qt.QMLLive.ContentPlugin")
 public:
     explicit MyContentAdapterPlugin(QObject *parent = 0);
 
@@ -48,8 +49,8 @@ public:
     QImage preview(const QString& path, const QSize &requestedSize);
 
     bool canAdapt(const QUrl& url) const;
-    QUrl adapt(const QUrl& url, QDeclarativeContext* context);
 
+    QUrl adapt(const QUrl& url, QQmlContext* context);
 };
 //! [0]
 

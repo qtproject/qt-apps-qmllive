@@ -34,11 +34,12 @@
 /*!
     \module ipc
 
-    \title IPC Related Classes
-    \brief A simple IPC solution for calling method on remote objects.
+    \title IPC related classes
+    \brief A simple IPC solution to call methods on remote objects.
 
-    The IPC is based on the idea to have a server with individual connections
-    to clients and a client. The server is waiting for method calls from the
-    client and the client allows to send methods with additional data.
+    The Inter-Process Communication (IPC) is based on the idea to have a server
+    with individual connections to clients and a client. The server waits for
+    method calls from the client and the client lets you send methods with
+    additional data.
 
  */

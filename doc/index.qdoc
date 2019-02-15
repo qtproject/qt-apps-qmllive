@@ -33,58 +33,34 @@
 /*!
 
 \page qmllive-index.html
-\keyword QmlLive Reference Documentation
 \indexpage
 \title Qt QmlLive
 
 \section1 Overview
 
-Qt QmlLive is a local and remote Qt Quick live reloading system. It allows you to
-change your QML user interface source code and view the result in almost
-realtime.
+Qt QmlLive is a local and remote Qt Quick live reloading system. It allows you
+to change your QML user interface source code and view the result in realtime.
 
 \image workbench.png
 
-Often in user interface development you need to edit the placement or
-animations of the user interface to provide the exact user experience
-envisioned by the design team. This process of \e{try-and-error} is tedious with a
-classical \e{edit-save-run-exit} cycle. With QmlLive this cycle is way more
-effective. The scene is automatically reloaded when a document change is
-detected.
-
-\quotation
-
-A live reloading system opens a complete new world of possibilities and makes
-your work so much more delightful.
-
-\endquotation
+Often in User Interface (UI) development you need to edit the placement or
+animations to provide the user experience the design team envisions. This
+process of try-and-error is tedious with the classic \e{edit-save-run-exit}
+cycle. QmlLive makes this cycle more effective: the scene reloads automatically
+when a file changes.
 
 \section1 Contents
-
-The content of the documentation:
 
 \list
     \li \l{Installation} - How to install QmlLive from the source code
     \li \l{Usage} - How to use the different parts
-    \li \l{Concepts} - General overview of the system
-    \li \l{qmllive-reference}{Reference} - The API reference to build your custom render scene
+    \li \l{Concepts} - A general overview of the system
+    \li \l{qmllive-examples}{Examples} - Try out QmlLive
+    \li The API reference to build your custom render scene:
     \list
       \li \l{qmllive}{QmlLive} - The QmlLive library API
       \li \l{ipc}{IPC} - The internal IPC API
     \endlist
-
-    \li \l{qmllive-examples}{Examples} - Try out QmlLive
 \endlist
 
 */
-
-/*!
- * \page qmllive-reference
- * \title API Reference
- *
- *
- * \list
- *   \li \l{qmllive}{QmlLive}
- *   \li \l{ipc}{IPC}
- * \endlist
- */

@@ -75,9 +75,32 @@ Usage qmllivebench [options] <workspace>
 Usage qmllivebench [options] <workspace/file.qml>
 
 options:
+  -version ...........................displays version information.
   -pluginpath ........................path to QmlLive plugins
   -importpath ........................path to the QML import path
   -stayontop .........................keep viewer window on top
+  -addhost <name,address[,port]> .....add or update remote host configuration and exit
+  -rmhost <name> .....................remove remote host configuration and exit
+  -probehost <name> ..................suggest host became online and should be
+                                      connected (implies --remoteonly)
+  -noremote ..........................do not try to talk to a running bench, do
+                                      not listen for remote connections.
+  -remoteonly ........................talk to a running bench, do nothing if none
+                                      is running.
+  -ping ..............................just check if there is a bench running and
+                                      accepting remote connections.
+  -maxdirwatch <number> ..............limit the number of directories to watch for
+                                      changes
+  -project ...........................loads project document .qmllive containing
+                                      workspace path, imports paths, main document
+                                      in JSON format
+
+Arguments:
+  workspace ..........................workspace folder to watch. If this points to
+                                      a QML document, than the directory is
+                                      asssumed to be the workspace and the file the
+                                      active document.
+  document ...........................main QML document to load initially.
 \endcode
 
 \section1 Qt Creator Integration
@@ -124,6 +147,7 @@ Usage of the runtime
 Usage qmlliveruntime [options] <workspace>
 
  options:
+  -version ...........................displays version information.
   -ipcport <port> ....................the port the IPC shall listen on
   -updates-as-overlay ................allow receiving updates with read only workspace
   -update-on-connect .................update all workspace documents initially (blocking)

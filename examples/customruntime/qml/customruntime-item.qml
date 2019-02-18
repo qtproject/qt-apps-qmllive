@@ -30,35 +30,27 @@
 **
 ****************************************************************************/
 
+//! [1]
 import QtQuick 2.0
-import QtQuick.Window 2.2
 
-Window {
-    id: window
+ListView {
     width: 100
     height: 100
-    visible: true
 
-    ListView {
-        // TODO: Make it work with 'anchors.fill: parent'. Window size seems to
-        // be propagated too late to the contentItem, giving zero size initially.
-        width: window.width
-        height: window.height
-
-        model: ["red", "green", "blue", "black"]
-        delegate: Rectangle {
-            width: ListView.view.width
-            height: 25
-            color: model.modelData
-            Image {
-                anchors.left: parent.left
-                source: "../icon.png"
-            }
-            Text {
-                x: 25
-                text: model.modelData
-                color: "white"
-            }
+    model: myColors
+    delegate: Rectangle {
+        width: ListView.view.width
+        height: 25
+        color: model.modelData
+        Image {
+            anchors.left: parent.left
+            source: "../icon.png"
+        }
+        Text {
+            x: 25
+            text: model.modelData
+            color: "white"
         }
     }
 }
+//! [1]

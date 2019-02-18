@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = app
+TARGET = customruntime
 CONFIG += c++11
 
 macx*: CONFIG -= app_bundle
@@ -9,7 +9,7 @@ include(../../src/lib.pri)
 
 SOURCES += main.cpp
 
-target.path = $$EXAMPLES_PREFIX/app
+target.path = $$EXAMPLES_PREFIX/customruntime
 INSTALLS += target
 
 qml.files = qml/*.qml

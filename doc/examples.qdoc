@@ -37,6 +37,7 @@
 
    \list
     \li \l{contentplugin}{Content Plugin}
+    \li \l{customruntime}{Custom Runtime}
    \endlist
 
 */

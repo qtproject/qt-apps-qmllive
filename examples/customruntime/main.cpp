@@ -55,7 +55,7 @@ public:
 int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
-    MyQmlApplicationEngine engine(QStringLiteral("qml/window.qml"));
+    MyQmlApplicationEngine engine(QStringLiteral("qml/customruntime-window.qml"));
 
     if (!qEnvironmentVariableIsSet("MY_APP_ENABLE_QMLLIVE"))
         return app.exec();

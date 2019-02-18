@@ -184,7 +184,7 @@ on the port 10234.
 
 Here is a short example of a minimal custom QmlLive runtime:
 
-\snippet ../examples/app/main.cpp 0
+\snippet ../examples/customruntime/main.cpp 0
 
 On platforms where pkg-config is supported simply add the following to your
 project file if QmlLive is installed on your build host:

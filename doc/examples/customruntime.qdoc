@@ -32,7 +32,7 @@
 \example customruntime
 \title Custom Runtime Example
 
-\brief Demonstrates how to create a Custom QmlLive Runtime
+\brief Demonstrates how to create a Custom QmlLive Runtime.
 
 \image customruntime-example.png Screenshot of the Custom QmlLive Runtime
 

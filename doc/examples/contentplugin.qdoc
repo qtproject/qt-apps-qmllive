@@ -33,7 +33,7 @@
     \example contentplugin
     \title ContentPlugin Example
 
-    \brief Demonstrates how to write a Content Plugin for QmlLive
+    \brief Demonstrates how to write a Content Plugin for QmlLive.
 
     \image contentplugin-example.png Screenshot of the Plugin in Action
 

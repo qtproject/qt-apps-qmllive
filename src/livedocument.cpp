@@ -36,7 +36,7 @@
 
 /*!
  * \class LiveDocument
- * \brief Encapsulates a relative path to a workspace document
+ * \brief Encapsulates a relative path to a workspace document.
  * \inmodule qmllive
  */
 

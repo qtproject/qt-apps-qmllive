@@ -39,7 +39,7 @@ QMutex Logger::m_mutex;
 
 /*!
  * \class Logger
- * \brief Installs a qt messageHandler and receives all log messages
+ * \brief Installs a qt messageHandler and receives all log messages.
  * \inmodule qmllive
  *
  * The intention is to use this class if you want to display the log into widget

@@ -34,8 +34,8 @@
 /*!
     \module ipc
 
-    \title IPC related classes
-    \brief A simple IPC solution for calling method on remote objects
+    \title IPC Related Classes
+    \brief A simple IPC solution for calling method on remote objects.
 
     The IPC is based on the idea to have a server with individual connections
     to clients and a client. The server is waiting for method calls from the

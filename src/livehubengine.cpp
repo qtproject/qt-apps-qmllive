@@ -41,7 +41,7 @@
 
 /*!
  * \class LiveHubEngine
- * \brief The LiveHubEngine class watches over a workspace and notifies a node on changes
+ * \brief The LiveHubEngine class watches over a workspace and notifies a node on changes.
  * \inmodule qmllive
  *
  * The live hub watches over a workspace and notifies a live node about changed files. A

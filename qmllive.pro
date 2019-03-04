@@ -6,7 +6,6 @@ requires(!ios)
 load(configure)
 load(config-output)
 include(qmllive.pri)
-include(doc/doc.pri)
 
 !skip-bench:!minQtVersion(5, 4, 0): error("You need at least Qt 5.4.0 to build QmlLive Bench")
 !skip-tests:!minQtVersion(5, 4, 0): error("You need at least Qt 5.4.0 to build QmlLive tests")
@@ -18,6 +17,9 @@ CONFIG += ordered
 SUBDIRS += src
 !skip-tests: SUBDIRS += tests
 !skip-examples: SUBDIRS += examples
+SUBDIRS += doc
+
+include(doc/doc.pri)
 
 OTHER_FILES += \
     README.md \

@@ -43,7 +43,7 @@
 
 /*!
  * \class RemotePublisher
- * \brief Publishes hub changes to a remote node
+ * \brief Publishes hub changes to a remote node.
  * \inmodule qmllive
  *
  * To see the progress which commands were really sent successfully to to the server

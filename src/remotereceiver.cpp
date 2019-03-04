@@ -46,7 +46,7 @@
 
 /*!
  * \class RemoteReceiver
- * \brief Receives commands form the remote publisher
+ * \brief Receives commands from the remote publisher.
  * \inmodule qmllive
  *
  * Receives commands from a remote publisher to publish workspace files and to

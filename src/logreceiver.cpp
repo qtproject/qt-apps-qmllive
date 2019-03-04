@@ -37,7 +37,7 @@
 
 /*!
  * \class LogReceiver
- * \brief Connects to a port and waits for log messages sent via udp
+ * \brief Connects to a port and waits for log messages sent via UDP.
  * \inmodule qmllive
  *
  * \sa Logger, RemoteLogger

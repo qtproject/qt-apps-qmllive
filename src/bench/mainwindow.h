@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -50,19 +51,23 @@ class AllHostsWidget;
 class Host;
 class HostDiscoveryManager;
 class Options;
+class NewProjectWizard;
+class ProjectManager;
+
 QT_FORWARD_DECLARE_CLASS(QToolBar);
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void activateDocument(const LiveDocument &path);
     void setWorkspace(const QString& path, bool activateRootPath = true);
     void setPluginPath(const QString& path);
     void setImportPaths(const QStringList& pathList);
     void setStaysOnTop(bool enabled);
+    void setProject(const QString& projectFile);
     void init();
     bool isInitialized() const { return m_initialized; }
 
@@ -81,6 +86,7 @@ private:
     void setupMenuBar();
     void writeSettings();
     void resetImportPaths();
+    void openProjectFile(const QString& path);
 private slots:
     void resizeToFit();
     void takeSnapshot();
@@ -88,10 +94,13 @@ private slots:
     void openWorkspace();
     void logQuitEvent();
     void updateWindowTitle();
-    void openPreferences(Host *host = 0);
+    void openPreferences(Host *host = nullptr);
     void openRecentFolder();
     void clearRecentFolder();
     void stayOnTop();
+    void openProject();
+    void newProjectWizard();
+    void newProject();
 
     void onActiveWindowChanged(QQuickWindow *activeWindow);
 
@@ -126,4 +135,8 @@ private:
     QAction *m_clipRootObject;
     QToolBar* m_toolBar;
     QStringList m_qmlDefaultimportList;
+    QAction *m_openProject;
+    QAction *m_createProject;
+    NewProjectWizard *m_newProjectWizard;
+    ProjectManager *m_projectManager;
 };

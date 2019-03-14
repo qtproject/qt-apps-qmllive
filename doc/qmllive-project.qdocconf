@@ -1,7 +1,10 @@
 project = QmlLive
-description = Pelagicore QmlLive Reference Documentation
+description = QmlLive Reference Documentation
 url = https://doc.qt.io/QtQmlLive
 version = $QT_VERSION
+
+moduleheader = QmlLiveDoc
+includepaths += -I ../src
 
 sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
 headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
@@ -37,5 +40,8 @@ qhp.QmlLive.subprojects.manual.title = Qt QmlLive
 qhp.QmlLive.subprojects.manual.indexTitle = Qt QmlLive
 qhp.QmlLive.subprojects.manual.type = manual
 
-navigation.homepage = "Qt QmlLive"
+depends = qtcore qtqml qtquick qtnetwork qtautomotivesuite
+
+navigation.homepage = "Qt Automotive Suite"
+navigation.landingpage = "Qt QmlLive"
 buildversion = "Qt QmlLive $QT_VERSION"

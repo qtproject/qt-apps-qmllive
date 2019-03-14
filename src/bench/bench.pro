@@ -27,7 +27,9 @@ SOURCES += \
     importpathoptionpage.cpp \
     hostdiscoverymanager.cpp \
     autodiscoveryhostsdialog.cpp \
-    options.cpp
+    options.cpp \
+    newprojectwizard.cpp \
+    appearanceoptionpage.cpp
 
 HEADERS += \
     aboutdialog.h \
@@ -48,14 +50,17 @@ HEADERS += \
     httpproxyoptionpage.h \
     hostdiscoverymanager.h \
     autodiscoveryhostsdialog.h \
-    options.h
+    options.h \
+    newprojectwizard.h \
+    appearanceoptionpage.h
 
 FORMS += \
     optionsdialog.ui \
     hostsoptionpage.ui \
     httpproxyoptionpage.ui \
     importpathoptionpage.ui \
-    autodiscoveryhostsdialog.ui
+    autodiscoveryhostsdialog.ui \
+    appearanceoptionpage.ui
 
 include(../widgets/widgets.pri)
 include(../lib.pri)

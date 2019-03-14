@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -48,12 +49,14 @@ public:
     QString rootPath() const;
     void setDirectoriesSelectable(bool enabled);
     bool directoriesSelectable() const;
+    void restoreFromSettings(QSettings *s);
 
 public Q_SLOTS:
     void setRootPath(const QString& dirPath);
     void activateDocument(const LiveDocument& path);
     void activateRootPath();
     void goUp();
+    void hideNonQMLFiles(bool hide);
 
 Q_SIGNALS:
     void pathActivated(const LiveDocument& path);

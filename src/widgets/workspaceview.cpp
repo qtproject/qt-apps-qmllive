@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -73,7 +74,7 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     // setup layout
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_view);
-    layout->setMargin(1);
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     m_view->setDragEnabled(true);
@@ -167,4 +168,23 @@ void WorkspaceView::selectIndex(const QModelIndex &index)
     m_view->setCurrentIndex(index);
     indexActivated(index);
     //m_view->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+}
+
+void WorkspaceView::restoreFromSettings(QSettings *s)
+{
+    hideNonQMLFiles(s->value("only_qml_files/enabled").toBool());
+}
+
+void WorkspaceView::hideNonQMLFiles(bool hide)
+{
+    QStringList filters;
+    if (hide) {
+        filters << "*.qml";
+    }
+    else {
+        filters << "*.*";
+    }
+    m_model->setNameFilters(filters);
+    m_model->setNameFilterDisables(false);
+    m_view->setModel(m_model);
 }

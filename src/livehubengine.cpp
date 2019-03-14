@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -40,11 +41,23 @@
 
 /*!
  * \class LiveHubEngine
- * \brief The LiveHubEngine class watches over a workspace and notifies a node on changes
+ * \brief The LiveHubEngine class watches over a workspace and notifies a node on changes.
  * \inmodule qmllive
  *
  * The live hub watches over a workspace and notifies a live node about changed files. A
  * node can run on the same device or even on a remote device using a RemotePublisher.
+ */
+
+/*!
+ \enum LiveHubEngine::Error
+ \brief Describes error state of an engine
+
+ \value NoError
+        No error
+ \value WatcherMaximumReached
+        The maximum number of watches set with setMaximumWatches() was exceeded
+ \value WatcherSystemError
+        Watching a directory for changes failed for an unspecified reason
  */
 
 /*!
@@ -56,6 +69,7 @@ LiveHubEngine::LiveHubEngine(QObject *parent)
     , m_filePublishingActive(false)
 {
     connect(m_watcher, &Watcher::directoriesChanged, this, &LiveHubEngine::directoriesChanged);
+    connect(m_watcher, &Watcher::errorChanged, this, &LiveHubEngine::watcherErrorChanged);
 }
 
 /*!
@@ -95,6 +109,38 @@ LiveDocument LiveHubEngine::activePath() const
 }
 
 /*!
+ * Returns true if error() is not NoError
+ */
+bool LiveHubEngine::hasError()
+{
+    return m_error != NoError;
+}
+
+/*!
+ * Returns current Error
+ */
+LiveHubEngine::Error LiveHubEngine::error()
+{
+    return m_error;
+}
+
+/*!
+ * Returns the maximum number of watched directories
+ */
+int LiveHubEngine::maximumWatches()
+{
+    return Watcher::maximumWatches();
+}
+
+/*!
+ * Sets the maximum number of watched directories to \a maximumWatches
+ */
+void LiveHubEngine::setMaximumWatches(int maximumWatches)
+{
+    Watcher::setMaximumWatches(maximumWatches);
+}
+
+/*!
  * Handles watcher changes signals.
  */
 void LiveHubEngine::directoriesChanged(const QStringList &changes)
@@ -107,6 +153,31 @@ void LiveHubEngine::directoriesChanged(const QStringList &changes)
     }
 
     emit activateDocument(m_activePath);
+}
+
+/*!
+ * Handles watcher error signals
+ */
+void LiveHubEngine::watcherErrorChanged()
+{
+    Error newError = NoError;
+    switch (m_watcher->error()) {
+        case Watcher::NoError:
+            newError = NoError;
+            break;
+        case Watcher::MaximumReached:
+            newError = WatcherMaximumReached;
+            break;
+        case Watcher::SystemError:
+            newError = WatcherSystemError;
+            break;
+    }
+
+    if (newError == m_error)
+        return;
+
+    m_error = newError;
+    emit errorChanged();
 }
 
 /*!
@@ -186,3 +257,7 @@ void LiveHubEngine::setFilePublishingActive(bool on)
  * The signal is emitted when the workspace identified by \a workspace has changed
  */
 
+/*!
+ * \fn void LiveHubEngine::errorChanged()
+ * The signal is emitted when the error state desctibed by error() changed
+ */

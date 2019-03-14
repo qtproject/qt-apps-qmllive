@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -40,6 +41,7 @@ class MyContentAdapterPlugin : public QObject, public ContentAdapterInterface
 //! [1]
     Q_INTERFACES(ContentAdapterInterface)
 //! [1]
+    Q_PLUGIN_METADATA(IID "io.qt.QMLLive.ContentPlugin")
 public:
     explicit MyContentAdapterPlugin(QObject *parent = 0);
 
@@ -47,8 +49,8 @@ public:
     QImage preview(const QString& path, const QSize &requestedSize);
 
     bool canAdapt(const QUrl& url) const;
-    QUrl adapt(const QUrl& url, QDeclarativeContext* context);
 
+    QUrl adapt(const QUrl& url, QQmlContext* context);
 };
 //! [0]
 

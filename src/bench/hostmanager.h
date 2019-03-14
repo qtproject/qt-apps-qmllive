@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -68,6 +69,8 @@ private slots:
     void addHost(int index);
 
 private:
+    using QListView::setModel;
+
     QPointer<LiveHubEngine> m_engine;
 
     HostModel* m_model;

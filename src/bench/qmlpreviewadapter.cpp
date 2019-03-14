@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -62,7 +63,7 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
     }
 
     static const QString program = QCoreApplication::applicationDirPath() +
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN
         QStringLiteral("/previewGenerator.exe");
 #else
         QStringLiteral("/../libexec/qmllive/previewGenerator");

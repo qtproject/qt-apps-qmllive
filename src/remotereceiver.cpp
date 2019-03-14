@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -45,7 +46,7 @@
 
 /*!
  * \class RemoteReceiver
- * \brief Receives commands form the remote publisher
+ * \brief Receives commands from the remote publisher.
  * \inmodule qmllive
  *
  * Receives commands from a remote publisher to publish workspace files and to
@@ -117,8 +118,10 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
                 loop.quit();
             });
             loop.exec();
-            if (!pinOk)
+            if (!pinOk) {
+                qWarning() << "Refused connection from QmlLive Bench: Wrong pin";
                 return false;
+            }
         }
 
         if (m_connectionOptions & UpdateDocumentsOnConnect) {
@@ -128,9 +131,13 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
                 loop.quit();
             });
             loop.exec();
-            if (!finishedOk)
+            if (!finishedOk) {
+                qWarning() << "Initial workspace synchronization with QmlLive Bench failed";
                 return false;
+            }
         }
+
+        qInfo() << "QmlLive Bench connected";
     }
 
     return true;
@@ -179,6 +186,7 @@ void RemoteReceiver::handleCall(const QString &method, const QByteArray &content
         } else if (m_client) {
             emit pinOk(false);
             m_client->send("pinOK(bool)", QByteArray::number(0));
+            return;
         }
     }
 

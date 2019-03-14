@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -34,7 +35,7 @@
 
 /*!
  * \class RemoteLogger
- * \brief Installs a qt messageHandler and sends the logs over udp
+ * \brief Installs a Qt messageHandler and sends the logs over UDP.
  * \inmodule qmllive
  *
  * \sa Logger, LogReceiver
@@ -52,7 +53,7 @@ RemoteLogger::RemoteLogger(QObject *parent) :
 }
 
 /*!
- * Sets the \a address where the log messages will be sent to
+ * Sets the \a address where the log messages will be sent to.
  * \sa setPort()
  */
 void RemoteLogger::setHostAddress(const QHostAddress &address)
@@ -61,7 +62,7 @@ void RemoteLogger::setHostAddress(const QHostAddress &address)
 }
 
 /*!
- * Sets the \a port where the log messages will be sent to
+ * Sets the \a port where the log messages will be sent to.
  * \sa setHostAddress()
  */
 void RemoteLogger::setPort(int port)
@@ -87,7 +88,7 @@ void RemoteLogger::broadcast(int type, const QString &msg, const QUrl &url, int 
 }
 
 /*!
- * Broadcasts each error from the \a errors
+ * Broadcasts each error from the \a errors.
  */
 void RemoteLogger::appendToLog(const QList<QQmlError> &errors)
 {

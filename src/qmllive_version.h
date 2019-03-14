@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -33,7 +34,7 @@
 
 #include <QtGlobal>
 
-const char *const QMLLIVE_COPYRIGHT_NOTICE = "Copyright 2016 Pelagicore AG.  All rights reserved.";
+const char *const QMLLIVE_COPYRIGHT_NOTICE = "Copyright (C) 2019 Luxoft Sweden AB. All rights reserved.";
 
 const char *const QMLLIVE_VERSION_STR = QT_STRINGIFY(QMLLIVE_VERSION);
 
@@ -53,6 +54,6 @@ const char *const QMLLIVE_REVISION_STR = "";
 const char *const QMLLIVE_ORGANIZATION_NAME = QT_STRINGIFY(QMLLIVE_SETTINGS_VARIANT);
 const char *const QMLLIVE_ORGANIZATION_DOMAIN = "";
 #else
-const char *const QMLLIVE_ORGANIZATION_NAME = "Pelagicore";
-const char *const QMLLIVE_ORGANIZATION_DOMAIN = "pelagicore.com";
+const char *const QMLLIVE_ORGANIZATION_NAME = "Luxoft Sweden AB";
+const char *const QMLLIVE_ORGANIZATION_DOMAIN = "luxoft.com";
 #endif

@@ -2,7 +2,7 @@
 HTML.footer = \
     "   </div>\n" \
     "   <p class=\"copy-notice\">\n" \
-    "   <acronym title=\"Copyright\">&copy;</acronym> 2016 Pelagicore AG.\n" \
+    "   <acronym title=\"Copyright\">&copy;</acronym> 2019 Luxoft Sweden AB.\n" \
     "   Documentation contributions included herein are the copyrights of\n" \
     "   their respective owners. " \
     "   The documentation provided herein is licensed under the terms of the" \

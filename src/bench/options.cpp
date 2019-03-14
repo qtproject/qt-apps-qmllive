@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -37,6 +38,8 @@ Options::Options(QObject *parent)
     , m_remoteOnly(false)
     , m_ping(false)
     , m_stayOnTop(false)
+    , m_maximumWatches(100)
+    , m_project("")
 {
 
 }
@@ -173,4 +176,24 @@ QStringList Options::hostsToProbe() const
 void Options::setHostsToProbe(const QStringList &hostNames)
 {
     m_hostsToProbe = hostNames;
+}
+
+int Options::maximumWatches() const
+{
+    return m_maximumWatches;
+}
+
+void Options::setMaximumWatches(int maximumWatches)
+{
+    m_maximumWatches = maximumWatches;
+}
+
+QString Options::project() const
+{
+    return m_project;
+}
+
+void Options::setProject(const QString &project)
+{
+    m_project = project;
 }

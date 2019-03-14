@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -36,7 +37,7 @@
 
 /*!
  * \class LogReceiver
- * \brief Connects to a port and waits for log messages sent via udp
+ * \brief Connects to a port and waits for log messages sent via UDP.
  * \inmodule qmllive
  *
  * \sa Logger, RemoteLogger

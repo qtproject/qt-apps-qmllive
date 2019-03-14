@@ -4,7 +4,7 @@ android|ios|qnx {
 }
 
 isEmpty(PREFIX): PREFIX = $$[QT_INSTALL_PREFIX]
-isEmpty(EXAMPLES_PREFIX): EXAMPLES_PREFIX = $$[QT_INSTALL_LIBS]/qmllive/examples
+isEmpty(EXAMPLES_PREFIX): EXAMPLES_PREFIX = $$[QT_INSTALL_EXAMPLES]/qmllive
 
 VERSIONS = $$split(VERSION, ".")
 VERSION_MAJOR = $$member(VERSIONS, 0)

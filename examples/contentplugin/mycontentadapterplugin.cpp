@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -31,7 +32,7 @@
 #include "mycontentadapterplugin.h"
 
 #include <QtCore/QtPlugin>
-#include <QtDeclarative/QDeclarativeContext>
+#include <QQmlContext>
 
 MyContentAdapterPlugin::MyContentAdapterPlugin(QObject *parent) :
     QObject(parent)
@@ -63,12 +64,11 @@ bool MyContentAdapterPlugin::canAdapt(const QUrl &url) const
 //! [0]
 
 //! [1]
-QUrl MyContentAdapterPlugin::adapt(const QUrl &url, QDeclarativeContext *context)
+
+QUrl MyContentAdapterPlugin::adapt(const QUrl &url, QQmlContext *context)
 {
     context->setContextProperty("imageSource", url);
 
     return QString("qrc:/mycontentadatperplugin/plugin.qml");
 }
 //! [1]
-
-Q_EXPORT_PLUGIN2(myContentAdapterPlugin, MyContentAdapterPlugin)

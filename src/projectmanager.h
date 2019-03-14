@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -29,35 +30,37 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick.Window 2.2
+#pragma once
 
-Window {
-    id: window
-    width: 100
-    height: 100
-    visible: true
+#include <QtCore>
 
-    ListView {
-        // TODO: Make it work with 'anchors.fill: parent'. Window size seems to
-        // be propagated too late to the contentItem, giving zero size initially.
-        width: window.width
-        height: window.height
+#include "qmllive_global.h"
 
-        model: ["red", "green", "blue", "black"]
-        delegate: Rectangle {
-            width: ListView.view.width
-            height: 25
-            color: model.modelData
-            Image {
-                anchors.left: parent.left
-                source: "../icon.png"
-            }
-            Text {
-                x: 25
-                text: model.modelData
-                color: "white"
-            }
-        }
-    }
-}
+class QMLLIVESHARED_EXPORT ProjectManager : public QObject
+{
+    Q_OBJECT
+public:
+    explicit ProjectManager(QObject *parent = nullptr);
+
+    bool read(const QString &path);
+    void write(const QString &path=QString());
+    void create(const QString &projectName);
+    QString mainDocument() const;
+    QString workspace() const;
+    QStringList imports() const;
+    QString projectLocation() const;
+
+    void setProjectName(const QString &projectName);
+    void setMainDocument(const QString &mainDocument);
+    void setWorkspace(const QString &workspace);
+    void setImports(const QStringList &imports);
+private:
+    void reset();
+
+private:
+    QString m_mainDocument;
+    QString m_workspace;
+    QStringList m_imports;
+    QString m_projectName;
+    QString m_projectLocation;
+};

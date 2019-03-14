@@ -30,4 +30,4 @@ target.
 
 The documentation will be avilable at 'doc/qmllive/index.html'.
 
-Copyright (C) 2016 Pelagicore AG
+Copyright (C) 2019 Luxoft Sweden AB

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -34,12 +35,12 @@
 
 /*!
  * \class QmlHelper
- * \brief Provides a set of helper functions to setup your QML viewer
+ * \brief Provides a set of helper functions to setup your QML viewer.
  * \inmodule qmllive
  */
 
 /*!
- * Standard constructor using \a parent as parent
+ * Standard constructor using \a parent as parent.
  */
 QmlHelper::QmlHelper(QObject *parent) :
     QObject(parent)
@@ -47,9 +48,10 @@ QmlHelper::QmlHelper(QObject *parent) :
 }
 
 /*!
- * Loads dummy data from a "dummydata" folder in the workspace folder
- * \a engine defines the Engine where you want to export the dummy data to
- * The "dummydata" will be searched in the "dummydata" sub directory of \a workspace
+ * Loads dummy data from a "dummydata" folder in the workspace folder.
+ * \a engine defines the Engine where you want to export the dummy data to.
+ * The "dummydata" will be searched in the "dummydata" subdirectory of \a
+ * workspace.
  */
 void QmlHelper::loadDummyData(QQmlEngine *engine, const QString &workspace)
 {

@@ -7,4 +7,4 @@ It is available for the PC but also for an embedded device, which supports Qt5.
 
 More information is available form documentation (see install instructions).
 
-Copyright (C) 2016 Pelagicore AG
+Copyright (C) 2019 Luxoft Sweden AB

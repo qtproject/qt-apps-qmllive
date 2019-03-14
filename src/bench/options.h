@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -86,6 +87,12 @@ public:
     QStringList hostsToProbe() const;
     void setHostsToProbe(const QStringList &hostNames);
 
+    int maximumWatches() const;
+    void setMaximumWatches(int maximumWatches);
+
+    QString project() const;
+    void setProject(const QString &project);
+
 private:
     bool m_noRemote;
     bool m_remoteOnly;
@@ -98,5 +105,7 @@ private:
     QList<HostOptions> m_hostsToAdd;
     QStringList m_hostsToRemove;
     QStringList m_hostsToProbe;
+    int m_maximumWatches;
+    QString m_project;
 };
 

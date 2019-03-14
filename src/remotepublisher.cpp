@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -42,7 +43,7 @@
 
 /*!
  * \class RemotePublisher
- * \brief Publishes hub changes to a remote node
+ * \brief Publishes hub changes to a remote node.
  * \inmodule qmllive
  *
  * To see the progress which commands were really sent successfully to to the server

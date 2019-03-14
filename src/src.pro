@@ -1,4 +1,5 @@
 include(../qmllive.pri)
+include(../doc/doc.pri)
 
 TEMPLATE = subdirs
 CONFIG += ordered

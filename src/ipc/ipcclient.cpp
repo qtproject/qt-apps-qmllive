@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -50,7 +51,7 @@ public:
 
 /*!
  * \class IpcClient
- * \brief Client to send remote calls to an IpcServer
+ * \brief Client to send remote calls to an IpcServer.
  * \inmodule ipc
  *
  * The IPC system uses the normalized signal/slot signature to
@@ -381,34 +382,33 @@ qint64 IpcClient::sendPackage(const QString &method, const QByteArray &data)
 }
 
 /*!
- * \fn void IpcClient::connected();
- * Emitted once when the connection to the server is established
+ * \fn IpcClient::connected()
+ * Emitted once when the connection to the server is established.
  */
 
 /*!
- * \fn void IpcClient::disconnected();
- * Emitted once when the connection to the server is terminated
+ * \fn IpcClient::disconnected()
+ * Emitted once when the connection to the server is terminated.
  */
 
 /*!
- * \fn void IpcClient::connectionError(QAbstractSocket::SocketError socketError);
+ * \fn IpcClient::connectionError(QAbstractSocket::SocketError socketError)
  * Emitted when an error happens when connecting or disconnecting from the server
- * \a socketError describes what error happened
+ * \a socketError describes what error happened.
  */
 
 /*!
- * \fn void IpcClient::sentSuccessfully(const QUuid& uuid);
+ * \fn IpcClient::sentSuccessfully(const QUuid& uuid)
  * Emitted when the Package identified by \a uuid was successfully sent.
  */
 
 /*!
- * \fn void IpcClient::sendingError(const QUuid& uuid, QAbstractSocket::SocketError socketError);
- * Emitted when an error happens when sending the Package identified by \a uuid.
- * \a socketError describes what error happened
+ * \fn IpcClient::sendingError(const QUuid& uuid, QAbstractSocket::SocketError socketError)
+ * Emitted when an error \a socketError occurred while sending a Package identified by \a uuid.
  */
 
 /*!
- * \fn void IpcClient::received(const QString& method, const QByteArray& content)
+ * \fn IpcClient::received(const QString& method, const QByteArray& content)
  *
- * Called when a RPC call was received. Provides the \a method and \a content
+ * Called when an RPC call was received. Provides the \a method and the \a content.
  */

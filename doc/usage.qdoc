@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -34,7 +35,7 @@
 \page qmllive-usage.html
 \title Usage
 
-\chapter Introduction
+\section1 Introduction
 
 The QmlLive system was designed from the ground up to support your needs. It is
 structured in a modular fashion to be able to meet various usage
@@ -52,7 +53,7 @@ For C++ developers, we also offer the ability to integrate the QmlLive
 system into your own custom runtime using our \l LiveNodeEngine class with a few
 lines of code and then use the QmlLive Bench to control it.
 
-\chapter The Workbench
+\section1 The Workbench
 
 The standard workbench is the all inclusive QML live reloading tool. It allows you to
 select a workspace to watch over and provides a default QML runtime for the
@@ -74,12 +75,35 @@ Usage qmllivebench [options] <workspace>
 Usage qmllivebench [options] <workspace/file.qml>
 
 options:
+  -version ...........................displays version information.
   -pluginpath ........................path to QmlLive plugins
   -importpath ........................path to the QML import path
   -stayontop .........................keep viewer window on top
+  -addhost <name,address[,port]> .....add or update remote host configuration and exit
+  -rmhost <name> .....................remove remote host configuration and exit
+  -probehost <name> ..................suggest host became online and should be
+                                      connected (implies --remoteonly)
+  -noremote ..........................do not try to talk to a running bench, do
+                                      not listen for remote connections.
+  -remoteonly ........................talk to a running bench, do nothing if none
+                                      is running.
+  -ping ..............................just check if there is a bench running and
+                                      accepting remote connections.
+  -maxdirwatch <number> ..............limit the number of directories to watch for
+                                      changes
+  -project ...........................loads project document .qmllive containing
+                                      workspace path, imports paths, main document
+                                      in JSON format
+
+Arguments:
+  workspace ..........................workspace folder to watch. If this points to
+                                      a QML document, than the directory is
+                                      asssumed to be the workspace and the file the
+                                      active document.
+  document ...........................main QML document to load initially.
 \endcode
 
-\chapter Qt Creator Integration
+\section1 Qt Creator Integration
 
 You can integrate the QmlLive Bench into Qt Creator as an external tool. For this
 you need to open the Settings/Options dialog from Qt Creator and open the
@@ -102,7 +126,7 @@ current project root folder open as workspace.
 
 
 
-\chapter QmlLive Runtime
+\section1 QmlLive Runtime
 
 A default runtime is provided by the QmlLive Runtime tool. It
 provides a default qml viewer and listens on a given port for IPC calls from
@@ -123,6 +147,7 @@ Usage of the runtime
 Usage qmlliveruntime [options] <workspace>
 
  options:
+  -version ...........................displays version information.
   -ipcport <port> ....................the port the IPC shall listen on
   -updates-as-overlay ................allow receiving updates with read only workspace
   -update-on-connect .................update all workspace documents initially (blocking)
@@ -149,7 +174,7 @@ this is used all workspace documents will be updated prior to instantiation of
 any QML component.
 
 
-\chapter Custom Runtime
+\section1 Custom Runtime
 
 You can create your own custom runtime with the QmlLive features. This allows you to use your QML view setup with your additional C++ code together with the QmlLive system.
 
@@ -159,7 +184,7 @@ on the port 10234.
 
 Here is a short example of a minimal custom QmlLive runtime:
 
-\snippet ../examples/app/main.cpp 0
+\snippet ../examples/customruntime/main.cpp 0
 
 On platforms where pkg-config is supported simply add the following to your
 project file if QmlLive is installed on your build host:

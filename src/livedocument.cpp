@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -35,7 +36,7 @@
 
 /*!
  * \class LiveDocument
- * \brief Encapsulates a relative path to a workspace document
+ * \brief Encapsulates a relative path to a workspace document.
  * \inmodule qmllive
  */
 

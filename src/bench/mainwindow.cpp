@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -48,7 +49,49 @@
 #include "allhostswidget.h"
 #include "hostdiscoverymanager.h"
 #include "options.h"
+#include "newprojectwizard.h"
+#include "projectmanager.h"
 
+class ErrorBar : public QFrame
+{
+    Q_OBJECT
+
+public:
+    ErrorBar(QWidget *parent = nullptr)
+        : QFrame(parent)
+    {
+        setFrameShape(QFrame::StyledPanel);
+        setAutoFillBackground(true);
+        QPalette p = palette();
+        p.setColor(QPalette::Window, Qt::red);
+        setPalette(p);
+
+        auto layout = new QHBoxLayout(this);
+        layout->setContentsMargins(4, 4, 4, 4);
+
+        m_label = new QLabel;
+        m_label->setWordWrap(true);
+        layout->addWidget(m_label);
+
+        auto button = new QToolButton;
+        button->setAutoRaise(true);
+        button->setIcon(QIcon(":images/refresh.svg"));
+        connect(button, &QAbstractButton::clicked, this, &ErrorBar::retry);
+        layout->addWidget(button);
+    }
+
+    void setError(const QString &errorString)
+    {
+        m_label->setText(errorString);
+        setVisible(!errorString.isEmpty());
+    }
+
+signals:
+    void retry();
+
+private:
+    QLabel *m_label;
+};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -61,6 +104,8 @@ MainWindow::MainWindow(QWidget *parent)
     , m_allHosts(new AllHostsWidget(this))
     , m_hub(new LiveHubEngine(this))
     , m_node(new BenchLiveNodeEngine(this))
+    , m_newProjectWizard(new NewProjectWizard(this))
+    , m_projectManager(new ProjectManager(this))
 {
     setupContent();
     setupMenuBar();
@@ -88,6 +133,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_allHosts, &AllHostsWidget::refreshAll, m_hostManager, &HostManager::refreshAll);
     connect(m_hostManager, &HostManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
     connect(m_hostManager, &HostManager::openHostConfig, this, &MainWindow::openPreferences);
+    connect(m_newProjectWizard, &NewProjectWizard::accepted, this, &MainWindow::newProject);
 
     m_qmlDefaultimportList = m_node->qmlEngine()->importPathList();
 }
@@ -132,9 +178,42 @@ void MainWindow::setupWorkspaceView()
 {
     m_workspaceDock = new QDockWidget("Workspace", this);
     m_workspaceDock->setObjectName("workspace");
-    m_workspaceDock->setWidget(m_workspace);
     m_workspaceDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     m_workspaceDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
+
+    auto contents = new QWidget;
+    auto layout = new QVBoxLayout(contents);
+    layout->setContentsMargins(1, 1, 1, 1);
+    layout->setSpacing(1);
+
+    auto errorBar = new ErrorBar;
+    layout->addWidget(errorBar);
+
+    auto updateErrorBar = [this, errorBar]() {
+        QString error;
+        switch (m_hub->error()) {
+        case LiveHubEngine::NoError:
+            break;
+        case LiveHubEngine::WatcherMaximumReached:
+            error = tr("Unable to monitor file changes: The configured limit of %1 directories was exceeded.")
+                .arg(LiveHubEngine::maximumWatches());
+            break;
+        case LiveHubEngine::WatcherSystemError:
+            error = tr("Unable to monitor file changes. System limit exceeded?");
+            break;
+        }
+        errorBar->setError(error);
+    };
+    updateErrorBar();
+    connect(m_hub, &LiveHubEngine::errorChanged, errorBar, updateErrorBar);
+
+    connect(errorBar, &ErrorBar::retry, this, [this]() {
+        m_hub->setWorkspace(m_hub->workspace());
+    });
+
+    layout->addWidget(m_workspace);
+
+    m_workspaceDock->setWidget(contents);
     addDockWidget(Qt::LeftDockWidgetArea, m_workspaceDock);
 }
 
@@ -177,10 +256,24 @@ void MainWindow::setupMenuBar()
 {
     QMenu *file = menuBar()->addMenu(tr("&File"));
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."), this, SLOT(openWorkspace()), QKeySequence::Open);
+    m_createProject = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Project"), this, SLOT(newProject()), QKeySequence::New);
+#else
+    m_createProject = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Project"),
+                                      this, &MainWindow::newProjectWizard, QKeySequence::New);
+#endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    m_openProject = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Project..."), this, SLOT(openProject()), QKeySequence::Open);
+#else
+    m_openProject = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Project..."),
+                                      this, &MainWindow::openProject, QKeySequence::Open);
+#endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."), this, SLOT(openWorkspace()), QKeySequence("Ctrl+W"));
 #else
     m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."),
-                                      this, &MainWindow::openWorkspace, QKeySequence::Open);
+                                      this, &MainWindow::openWorkspace, QKeySequence("Ctrl+W"));
 #endif
     m_recentMenu = file->addMenu(QIcon::fromTheme("document-open-recent"), "&Recent");
     m_recentMenu->setEnabled(false);
@@ -300,6 +393,8 @@ void MainWindow::init()
     m_hostModel->restoreFromSettings(&s);
     restoreState(s.value("windowState").toByteArray());
 
+    m_workspace->restoreFromSettings(&s);
+
     m_initialized = true;
 }
 
@@ -341,6 +436,8 @@ void MainWindow::setupToolBar()
     m_toolBar = addToolBar("ToolBar");
     m_toolBar->setObjectName("toolbar");
     m_toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_toolBar->addAction(m_createProject);
+    m_toolBar->addAction(m_openProject);
     m_toolBar->addAction(m_openWorkspace);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_refresh);
@@ -413,6 +510,11 @@ void MainWindow::setStaysOnTop(bool enabled)
     stayOnTop();
 }
 
+void MainWindow::setProject(const QString &projectFile)
+{
+    openProjectFile(projectFile);
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
@@ -453,6 +555,7 @@ void MainWindow::updateWindowTitle()
 void MainWindow::openPreferences(Host *host)
 {
     OptionsDialog dialog;
+    connect(&dialog, &OptionsDialog::hideNonQMLFiles, m_workspace, &WorkspaceView::hideNonQMLFiles);
     dialog.setHostModel(m_hostModel);
     dialog.setDiscoveredHostsModel(m_discoveryManager->discoveredHostsModel());
 
@@ -517,3 +620,71 @@ void MainWindow::stayOnTop()
     }
     show();
 }
+
+void MainWindow::openProject()
+{
+    QString filter = tr("QmlLive (*.qmllive);; All files (*.*)");
+    QString path = QFileDialog::getOpenFileName(this, "Open Project", filter, filter);
+    if (path.isEmpty()) {
+        return;
+    }
+    openProjectFile(path);
+}
+
+void MainWindow::openProjectFile(const QString &path)
+{
+    if (m_projectManager->read(path))
+    {
+        QStringList paths;
+        QSettings s;
+        int count = s.beginReadArray("imports");
+        for (int i=0; i<count; i++) {
+            s.setArrayIndex(i);
+            paths.append(s.value("path").toString());
+        }
+        s.endArray();
+        paths.append(m_projectManager->imports());
+        paths.removeDuplicates();
+
+        //write Application settings
+        s.beginWriteArray("imports");
+        for (int i = 0; i < paths.count(); i++) {
+            s.setArrayIndex(i);
+            s.setValue("path", paths.at(i));
+        }
+        s.endArray();
+
+        setImportPaths(paths);
+        QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_projectManager->workspace());
+        setWorkspace(path);
+        activateDocument(LiveDocument(m_projectManager->mainDocument()));
+    }
+    else {
+        qWarning() << "Unable to read project document: "<<path;
+    }
+}
+
+void MainWindow::newProjectWizard()
+{
+    if (!m_newProjectWizard) {
+        m_newProjectWizard = new NewProjectWizard(this);
+    } else {
+        m_newProjectWizard->restart();
+    }
+    m_newProjectWizard->show();
+}
+
+void MainWindow::newProject()
+{
+    m_projectManager->setImports(m_newProjectWizard->imports());
+    m_projectManager->setMainDocument(m_newProjectWizard->mainDocument());
+    m_projectManager->setWorkspace(m_newProjectWizard->workspace());
+    m_projectManager->create(m_newProjectWizard->projectName());
+
+    setImportPaths(m_newProjectWizard->imports());
+    QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_newProjectWizard->workspace());
+    setWorkspace(path);
+    activateDocument(LiveDocument(m_newProjectWizard->mainDocument()));
+}
+
+#include "mainwindow.moc"

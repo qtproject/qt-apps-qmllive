@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -45,6 +46,7 @@ class ImportPathOptionPage;
 class HostsOptionsPage;
 class HostModel;
 class Host;
+class AppearanceOptionPage;
 
 class OptionsDialog : public QDialog
 {
@@ -59,6 +61,9 @@ public:
 
     void openHostConfig(Host* host);
 
+signals:
+    void hideNonQMLFiles(bool hide);
+
 private slots:
     void optionSelected(QListWidgetItem* current);
     void accept();
@@ -69,4 +74,5 @@ private:
     HttpProxyOptionPage *m_httpProxyForm;
     ImportPathOptionPage *m_importPathsForm;
     HostsOptionsPage *m_hostsForm;
+    AppearanceOptionPage *m_appearanceForm;
 };

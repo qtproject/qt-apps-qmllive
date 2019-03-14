@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -84,11 +85,11 @@ QVariant HostModel::headerData(int section, Qt::Orientation orientation, int rol
         return QVariant();
 
     switch (section) {
-    case 0: if (role == Qt::DisplayRole) return QVariant();
-    case 1: if (role == Qt::DisplayRole) return QString("Name");
-    case 2: if (role == Qt::DisplayRole) return QString("Version");
-    case 3: if (role == Qt::DisplayRole) return QString("System");
-    case 4: if (role == Qt::DisplayRole) return QString("Ip");
+    case 0: if (role == Qt::DisplayRole) return QVariant(); break;
+    case 1: if (role == Qt::DisplayRole) return QString("Name"); break;
+    case 2: if (role == Qt::DisplayRole) return QString("Version"); break;
+    case 3: if (role == Qt::DisplayRole) return QString("System"); break;
+    case 4: if (role == Qt::DisplayRole) return QString("Ip"); break;
     }
 
     return QVariant();

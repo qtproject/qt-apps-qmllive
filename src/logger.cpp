@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -38,7 +39,7 @@ QMutex Logger::m_mutex;
 
 /*!
  * \class Logger
- * \brief Installs a qt messageHandler and receives all log messages
+ * \brief Installs a qt messageHandler and receives all log messages.
  * \inmodule qmllive
  *
  * The intention is to use this class if you want to display the log into widget

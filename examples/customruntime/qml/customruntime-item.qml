@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -29,13 +30,14 @@
 **
 ****************************************************************************/
 
+//! [1]
 import QtQuick 2.0
 
 ListView {
     width: 100
     height: 100
 
-    model: ["red", "green", "blue", "black"]
+    model: myColors
     delegate: Rectangle {
         width: ListView.view.width
         height: 25
@@ -51,3 +53,4 @@ ListView {
         }
     }
 }
+//! [1]

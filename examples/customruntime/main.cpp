@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -54,7 +55,7 @@ public:
 int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
-    MyQmlApplicationEngine engine(QStringLiteral("qml/window.qml"));
+    MyQmlApplicationEngine engine(QStringLiteral("qml/customruntime-window.qml"));
 
     if (!qEnvironmentVariableIsSet("MY_APP_ENABLE_QMLLIVE"))
         return app.exec();

@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Pelagicore AG
+** Copyright (C) 2019 Luxoft Sweden AB
+** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QmlLive tool.
@@ -37,20 +38,35 @@ class Watcher : public QObject
 {
     Q_OBJECT
 public:
+    enum Error {
+        NoError,
+        MaximumReached,
+        SystemError,
+    };
+
     explicit Watcher(QObject *parent = 0);
     void setDirectory(const QString& path);
     QString directory() const;
+    bool hasError() const { return m_error != NoError; }
+    Error error() const { return m_error; }
+    static int maximumWatches() { return s_maximumWatches; }
+    static void setMaximumWatches(int maximumWatches);
 private Q_SLOTS:
     void recordChange(const QString &path);
     void notifyChanges();
 Q_SIGNALS:
     void directoriesChanged(const QStringList& changes);
-
+    void errorChanged();
 private:
     void addDirectoriesRecursively(const QString& path);
+    void addDirectory(const QString &path);
+    void removeAllPaths();
+    void setError(Error error);
+    static int s_maximumWatches;
     QFileSystemWatcher *m_watcher;
     QDir m_rootDir;
     QTimer *m_waitTimer;
     QStringList m_changes;
+    Error m_error = NoError;
 };
 

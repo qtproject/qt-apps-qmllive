@@ -38,11 +38,12 @@
 The following are some concepts that are helpful to understand QmlLive.
 
 \list
-   \li \l{Live Reloading}
-   \li \l{Local Sessions}
-   \li \l{Display, Screens, Panels, Components, Fragments}
-   \li \l{Remote Sessions}
-   \li \l{UXSheets}
+  \li \l{Live Reloading}
+  \li \l{QmlLive Bench vs QmlLive Runtime}
+  \li \l{Local Sessions}
+  \li \l{Remote Sessions}
+  \li \l{Create Your Own QmlLive Runtime}
+  \li \l{Structure QML Apps For Live Coding}
 \endlist
 
 \section1 Live Reloading
@@ -65,6 +66,21 @@ with the Qt Quick technology, already shortens the gap between vision and
 product via QML, a more design oriented language. QmlLive aims to close this
 gap.
 
+QmlLive supports live coding with two essential features:
+\list
+  \li Allows you to distribute source code modifications, removing the need
+    to redeploy your application to see the effect of your changes. QmlLive monitors
+    changes in the file system. As soon as you save a file, it is preprocessed as
+    needed, and the live view is refreshed.
+  \li Loads a particular QML file with your required component instead of the main
+    component, so that each component can be worked on independently.
+\endlist
+
+After each code change, QmlLive reloads your project on each connected device,
+within seconds.
+
+\section1 QmlLive Bench vs. QmlLive Runtime
+
 QmlLive is managed by a central Bench that watches your project workspace. A
 change in a file inside the workspace is automatically detected and immediately
 reflected onto one or more local rendering areas, or to connected remote
@@ -72,6 +88,51 @@ clients. A team can develop a UI quickly and precisely on a machine and
 simultaneously display it on one or more local and/or remote clients. These
 clients can run on any desktop or networked embedded device that supports Qt5
 and QmlLive.
+
+For sketching out the scene or working with independent UI elements, the QmlLive
+Bench is sufficient; you can see the live preview on your local machine.
+
+\table
+   \header
+      \li QmlLive Feature
+      \li Description
+   \row
+      \li QmlLive Bench
+      \li A GUI server application that populates workspace
+          updates to each local or remote client.
+   \row
+      \li QmlLive Runtime
+      \li A client application that listens to workspace updates from the
+          QmlLive Bench.
+\endtable
+
+If the application being developed should run on any embedded device or
+devices with different display resolutions, then you must launch the QmlLive Runtime
+on each embedded device. But, you only need to launch the QmlLive Bench on the
+developer's machine.
+
+QmlLive Bench supports the following features:
+\list
+  \li live reload a \c main file, or a selected component
+  \li watch workspace updates
+  \li provide a GUI to set a workspace or project settings, configure host connections,
+      import paths, and so on
+  \li Publish each file change to all local and remote QmlLive Runtimes on the
+      embedded devices
+  \li lets the user select different files to watch, for certain QmlLive Runtime
+      instances, on different connected devices
+  \li follows the currently watched file, on the connected devices
+  \li grabs log messages from all connected QmlLive Runtimes, to enable a more
+      convenient debugging process
+  \li lets the user select a file to watch, through the Workspace Navigator
+  \li controls connections to all of the devices
+\endlist
+
+QmlLive Runtime supports the following features:
+\list
+  \li live reload a \c main file, or a selected component
+  \li listens workspace updates from the QmlLive Bench
+\endlist
 
 \image concept.png
 
@@ -88,9 +149,6 @@ elements; instead of developing a whole scene, you can break the scene into
 smaller elements. As you work on these small elements, you can see how they
 look standalone or embedded into a larger scene.
 
-\image client.png
-
-
 \section1 Remote Sessions
 
 A scene rendered on a machine's display rarely looks the same as on the target
@@ -105,24 +163,35 @@ You can always connect more devices, or devices with different sizes.
 
 \image runtime.png
 
-\section1 Display, Screens, Panels, Components, Fragments
+\section1 Create Your Own QmlLive Runtime
+
+Some projects include custom C++ or native code. Those languages require a
+compilation step and cannot be reloaded directly with QmlLive reloading. For
+such case you can develop you own QmlLive Runtime based on the QmlLive library.
+For more details see \l{Custom Runtime}.
+
+\section1 Structure QML Apps For Live Coding
+
+Over time, developing applications in QML can become complex, especially if
+it's not clear how elements are isolated; this is also true for designing UIs.
+To translate the designer's vision into a developer's code, the vision needs
+to be broken into UI elements like \e display, \e screen, \e panel, \e component,
+and \e fragment.
 
 \code
 +- Display
-   |
-   +- Panel
-   |
-   +- Screen
-      |
-      +- Panel
-         |
-         +- Component
-            |
-            +- Fragment
+  |
+  +- Panel
+  |
+  +- Screen
+     |
+     +- Panel
+        |
+        +- Component
+           |
+           +- Fragment
 \endcode
 
-To better structure a UI, we \assume a hierarchy of UI elements. For simplicity
-we name them \e display, \e screen, \e panel, \e component, and \e fragment.
 These elements form a hierarchy from large UI elements to the smaller entities
 and internals. The main benefit of this hierarchy, is that it allows us to
 share a common vocabulary with our customers and ensures the design is always
@@ -131,14 +200,14 @@ aligned with this shared definition.
 These elements are defined as follows:
 
 \list
-   \li display - The root element that contains a collection of screens or
-       panels, where each screen covers the entire physical display.
-   \li screen - Consists of several panels that provide the visual structure
-       as defined by the design team.
-   \li panel - Each panel consists of a set of components.
-   \li components - Reusable UI elements that contain fragments.
-   \li fragments - An internal structure UI element, not exposed to the
-       UI developer.
+  \li display - The root element that contains a collection of screens or
+      panels, where each screen covers the entire physical display.
+  \li screen - Consists of several panels that provide the visual structure
+      as defined by the design team.
+  \li panel - Each panel consists of a set of components.
+  \li components - Reusable UI elements that contain fragments.
+  \li fragments - An internal structure UI element, not exposed to the
+      UI developer.
 \endlist
 
 Designing a UI requires an understanding of the initial display layout
@@ -146,18 +215,7 @@ and its screen navigation structure, and of the structure of individual screens 
 their panels. It is also required to define a common set of components to be used inside
 the panels. The fragments are implementation-specific.
 
-\section1 UXSheets
-
-Over time, developing applications in QML can become complex, especially if
-it is not clear how elements are isolated; this is also true for designing UIs.
-To translate the designer's vision into a developer's code, the vision needs
-to be broken into UI elements like screen, panel, components, and so on. Then,
-these elements need to be further validated on their own; before being translated
-into source code.
-
-To connect this vision to a developer's workflow, you can implement a graphics
-sheet directly with Qt Quick, as a series of standalone documents, collectively
-called a UXSheet. These sheets act as interfaces between the designer and the
-developer. The screen below shows how a sample sheet could look.
-
 */
+
+
+

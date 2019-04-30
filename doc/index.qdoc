@@ -45,18 +45,16 @@ to change your QML user interface source code and view the result in realtime.
 
 Often in User Interface (UI) development you need to edit the placement or
 animations to provide the user experience the design team envisions. This
-process of try-and-error is tedious with the classic \e{edit-save-run-exit}
-cycle. QmlLive makes this cycle more effective: the scene reloads automatically
-when a file changes.
-
-\section1 Contents
+process of trial and error is tedious with the classic \e{edit-save-run-exit}
+cycle. QmlLive makes this cycle more effective: whenever a file changes, the
+scene reloads automatically.
 
 \list
-    \li \l{Installation} - How to install QmlLive from the source code
-    \li \l{Usage} - How to use the different parts
-    \li \l{Concepts} - A general overview of the system
-    \li \l{qmllive-examples}{Examples} - Try out QmlLive
-    \li The API reference to build your custom render scene:
+    \li \l{Installation}
+    \li \l{Usage}
+    \li \l{Concepts}
+    \li \l{qmllive-examples}{Examples}
+    \li API Reference
     \list
       \li \l{qmllive}{QmlLive} - The QmlLive library API
       \li \l{ipc}{IPC} - The internal IPC API

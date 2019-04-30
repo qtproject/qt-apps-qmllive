@@ -37,26 +37,26 @@
 
 \section1 Introduction
 
-The QmlLive system is structured in a modular fashion to be able to meet various requirements.
+QmlLive is structured in a modular way, to be able to meet various usage requirements.
 
-Normally, in the early phase of a project, you want to use QmlLive Bench, which has everything
+In the early phase of a project, normally, you want to use \b QmlLive Bench, which has everything
 included in a typical desktop application.
 
-Later in the project, you may want to test your UI code on a target device. For this, you can use
-the QmlLive Bench in combination with the QmlLive Runtime. This combination offers you a default
-QML renderer to run on the device and a small remote application on the desktop to control it.
+Later in the project, you may want to test your UI code on a device. For this, you can combine
+QmlLive Bench with \b QmlLive Runtime. This combination provides you a default QML renderer to
+run on the device and a small remote application on the desktop to control it.
 
-For C++ developers, you can integrate the QmlLive system into your own custom runtime using the
-\l LiveNodeEngine class with a few lines of code, and then use the QmlLive Bench to control it.
+For C++ developers, it's possible to integrate QmlLive into your own custom runtime using the
+\l LiveNodeEngine class with a few lines of code, and then using QmlLive Bench to control it.
 
-\section1 The Workbench
+\section1 QmlLive Bench
 
-The standard workbench is the all inclusive QML live reloading tool, that allows you to select a
-workspace to watch over and provides a default QML runtime for the selected QML document.
+QmlLive Bench is the all inclusive QML live reloading tool, that allows you to select a workspace
+to watch over and provides a default QML runtime for the selected QML document.
 
-\image workbench.png The Workbench
+\image workbench.png QmlLive Bench
 
-To launch the Workbench, run the following command:
+To launch the Bench, run the following command:
 
 \code
 $(QMLIVEPROJECT)/bin/qmllivebench[.exe]

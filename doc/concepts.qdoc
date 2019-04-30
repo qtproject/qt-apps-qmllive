@@ -94,7 +94,7 @@ Bench is sufficient; you can see the live preview on your local machine.
 
 \table
    \header
-      \li QmlLive Feature
+      \li Feature
       \li Description
    \row
       \li QmlLive Bench
@@ -113,11 +113,11 @@ developer's machine.
 
 QmlLive Bench supports the following features:
 \list
-  \li live reload a \c main file, or a selected component
-  \li watch workspace updates
-  \li provide a GUI to set a workspace or project settings, configure host connections,
+  \li live reloads a \c main.qml file, or a selected component
+  \li watches the workspace for updates
+  \li provides a GUI to set a workspace or project settings, configure host connections,
       import paths, and so on
-  \li Publish each file change to all local and remote QmlLive Runtimes on the
+  \li publishes each file change to all local and remote QmlLive Runtimes on the
       embedded devices
   \li lets the user select different files to watch, for certain QmlLive Runtime
       instances, on different connected devices
@@ -130,15 +130,15 @@ QmlLive Bench supports the following features:
 
 QmlLive Runtime supports the following features:
 \list
-  \li live reload a \c main file, or a selected component
-  \li listens workspace updates from the QmlLive Bench
+  \li live reloads a \c main.qml file, or a selected component
+  \li listens for workspace updates from QmlLive Bench
 \endlist
 
 \image concept.png
 
 \section1 Local Sessions
 
-For a local session you only need the QmlLive Bench. It contains all of the
+For a local session you only need QmlLive Bench. It contains all of the
 required components in an easy-to-use interface. As you type and save, the
 output is displayed on your machine in a fraction of a second. Local sessions
 are best suited for a multi-monitor setup where you see your code on one
@@ -166,9 +166,9 @@ You can always connect more devices, or devices with different sizes.
 \section1 Create Your Own QmlLive Runtime
 
 Some projects include custom C++ or native code. Those languages require a
-compilation step and cannot be reloaded directly with QmlLive reloading. For
-such case you can develop you own QmlLive Runtime based on the QmlLive library.
-For more details see \l{Custom Runtime}.
+compilation step and cannot be reloaded directly with QmlLive. In this case,
+you can develop your own QmlLive Runtime based on the QmlLive library. For
+more details see \l{Custom Runtime}.
 
 \section1 Structure QML Apps For Live Coding
 
@@ -193,9 +193,9 @@ and \e fragment.
 \endcode
 
 These elements form a hierarchy from large UI elements to the smaller entities
-and internals. The main benefit of this hierarchy, is that it allows us to
-share a common vocabulary with our customers and ensures the design is always
-aligned with this shared definition.
+and internals. The main benefit of this hierarchy, is that it allows the design
+and the development team to share a common vocabulary with their customers, and
+ensures that the product's design is always aligned with this shared definition.
 
 These elements are defined as follows:
 
@@ -210,10 +210,10 @@ These elements are defined as follows:
       UI developer.
 \endlist
 
-Designing a UI requires an understanding of the initial display layout
-and its screen navigation structure, and of the structure of individual screens and
-their panels. It is also required to define a common set of components to be used inside
-the panels. The fragments are implementation-specific.
+Designing a UI requires understanding the initial display layout, its screen
+navigation structure, as well as the structure of individual screens and their
+panels. It's also necessary to define a common set of components for use inside
+the panels; however, the fragments are implementation-specific.
 
 */
 

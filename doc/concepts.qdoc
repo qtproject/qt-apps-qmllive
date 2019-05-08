@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -35,14 +35,14 @@
 \page qmllive-concepts.html
 \title Concepts
 
-The following are some concepts that are helpful to understand QmlLive.
+The following are some concepts that are helpful to understand QML Live.
 
 \list
   \li \l{Live Reloading}
-  \li \l{QmlLive Bench vs QmlLive Runtime}
+  \li \l{QML Live Bench vs QML Live Runtime}
   \li \l{Local Sessions}
   \li \l{Remote Sessions}
-  \li \l{Create Your Own QmlLive Runtime}
+  \li \l{Create Your Own QML Live Runtime}
   \li \l{Structure QML Apps For Live Coding}
 \endlist
 
@@ -63,33 +63,33 @@ There is a lot of time consuming editing work needed, to reach a compromise
 that satisfies the designer's vision and how the developer realizes it in code.
 Each iteration is a small step towards the desired user experience goal. Qt,
 with the Qt Quick technology, already shortens the gap between vision and
-product via QML, a more design oriented language. QmlLive aims to close this
+product via QML, a more design oriented language. QML Live aims to close this
 gap.
 
-QmlLive supports live coding with two essential features:
+QML Live supports live coding with two essential features:
 \list
   \li Allows you to distribute source code modifications, removing the need
-    to redeploy your application to see the effect of your changes. QmlLive monitors
+    to redeploy your application to see the effect of your changes. QML Live monitors
     changes in the file system. As soon as you save a file, it is preprocessed as
     needed, and the live view is refreshed.
   \li Loads a particular QML file with your required component instead of the main
     component, so that each component can be worked on independently.
 \endlist
 
-After each code change, QmlLive reloads your project on each connected device,
+After each code change, QML Live reloads your project on each connected device,
 within seconds.
 
-\section1 QmlLive Bench vs. QmlLive Runtime
+\section1 QML Live Bench vs. QML Live Runtime
 
-QmlLive is managed by a central Bench that watches your project workspace. A
+QML Live is managed by a central Bench that watches your project workspace. A
 change in a file inside the workspace is automatically detected and immediately
 reflected onto one or more local rendering areas, or to connected remote
 clients. A team can develop a UI quickly and precisely on a machine and
 simultaneously display it on one or more local and/or remote clients. These
 clients can run on any desktop or networked embedded device that supports Qt5
-and QmlLive.
+and QML Live.
 
-For sketching out the scene or working with independent UI elements, the QmlLive
+For sketching out the scene or working with independent UI elements, the QML Live
 Bench is sufficient; you can see the live preview on your local machine.
 
 \table
@@ -97,48 +97,48 @@ Bench is sufficient; you can see the live preview on your local machine.
       \li Feature
       \li Description
    \row
-      \li QmlLive Bench
+      \li QML Live Bench
       \li A GUI server application that populates workspace
           updates to each local or remote client.
    \row
-      \li QmlLive Runtime
+      \li QML Live Runtime
       \li A client application that listens to workspace updates from the
-          QmlLive Bench.
+          QML Live Bench.
 \endtable
 
 If the application being developed should run on any embedded device or
-devices with different display resolutions, then you must launch the QmlLive Runtime
-on each embedded device. But, you only need to launch the QmlLive Bench on the
+devices with different display resolutions, then you must launch the QML Live Runtime
+on each embedded device. But, you only need to launch the QML Live Bench on the
 developer's machine.
 
-QmlLive Bench supports the following features:
+QML Live Bench supports the following features:
 \list
   \li live reloads a \c main.qml file, or a selected component
   \li watches the workspace for updates
   \li provides a GUI to set a workspace or project settings, configure host connections,
       import paths, and so on
-  \li publishes each file change to all local and remote QmlLive Runtimes on the
+  \li publishes each file change to all local and remote QML Live Runtimes on the
       embedded devices
-  \li lets the user select different files to watch, for certain QmlLive Runtime
+  \li lets the user select different files to watch, for certain QML Live Runtime
       instances, on different connected devices
   \li follows the currently watched file, on the connected devices
-  \li grabs log messages from all connected QmlLive Runtimes, to enable a more
+  \li grabs log messages from all connected QML Live Runtimes, to enable a more
       convenient debugging process
   \li lets the user select a file to watch, through the Workspace Navigator
   \li controls connections to all of the devices
 \endlist
 
-QmlLive Runtime supports the following features:
+QML Live Runtime supports the following features:
 \list
   \li live reloads a \c main.qml file, or a selected component
-  \li listens for workspace updates from QmlLive Bench
+  \li listens for workspace updates from QML Live Bench
 \endlist
 
 \image concept.png
 
 \section1 Local Sessions
 
-For a local session you only need QmlLive Bench. It contains all of the
+For a local session you only need QML Live Bench. It contains all of the
 required components in an easy-to-use interface. As you type and save, the
 output is displayed on your machine in a fraction of a second. Local sessions
 are best suited for a multi-monitor setup where you see your code on one
@@ -157,17 +157,17 @@ appearance, pixel density, font rendering, and proportions. So it is vital to
 ensure that a user experience designed on a machine looks just as good on the
 embedded device. In the past, this used to be a cumbersome process, requiring
 that you copy the code to the embedded device and restart the application. With
-QmlLive Bench and QmlLive Runtime you connect to the device, propagate your
+QML Live Bench and QML Live Runtime you connect to the device, propagate your
 workspace, and from there on all changes are reflected on the device's display.
 You can always connect more devices, or devices with different sizes.
 
 \image runtime.png
 
-\section1 Create Your Own QmlLive Runtime
+\section1 Create Your Own QML Live Runtime
 
 Some projects include custom C++ or native code. Those languages require a
-compilation step and cannot be reloaded directly with QmlLive. In this case,
-you can develop your own QmlLive Runtime based on the QmlLive library. For
+compilation step and cannot be reloaded directly with QML Live. In this case,
+you can develop your own QML Live Runtime based on the QML Live library. For
 more details see \l{Custom Runtime}.
 
 \section1 Structure QML Apps For Live Coding

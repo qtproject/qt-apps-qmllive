@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -35,10 +35,10 @@
 
 #include "qmllive_global.h"
 
-class QMLLIVESHARED_EXPORT QmlLive
+class QMLLIVESHARED_EXPORT QMLLive
 {
 public:
-    QmlLive();
+    QMLLive();
 };
 
 #endif // QMLLIVELIB_H

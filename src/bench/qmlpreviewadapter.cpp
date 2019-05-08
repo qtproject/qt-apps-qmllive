@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -68,7 +68,7 @@ QImage QmlPreviewAdapter::preview(const QString &path, const QSize &requestedSiz
 #else
         QStringLiteral("/../libexec/qmllive/previewGenerator");
 #endif
-    static const QStringList arguments("QmlLiveBench");
+    static const QStringList arguments("QMLLiveBench");
 
     if (proc()->state() != QProcess::Running) {
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();

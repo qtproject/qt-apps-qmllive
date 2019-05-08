@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -342,7 +342,7 @@ void MainWindow::setupMenuBar()
     m_logDockMenu->addAction(m_logDock->toggleViewAction());
 
     QMenu *help = menuBar()->addMenu(tr("&Help"));
-    QAction *about = help->addAction(tr("About Qt QmlLive..."));
+    QAction *about = help->addAction(tr("About QML Live..."));
     connect(about, &QAction::triggered, this, [this]() { AboutDialog::exec(this); });
     about->setMenuRole(QAction::AboutRole);
 }
@@ -463,16 +463,16 @@ void MainWindow::takeSnapshot()
         img = m_node->activeWindow()->grabWindow();
 
     if (img.isNull()) {
-        m_log->appendToLog(LogView::InternalError, tr("QmlLive: could not retrieve snapshot pixmap"));
+        m_log->appendToLog(LogView::InternalError, tr("QML Live: could not retrieve snapshot pixmap"));
     } else {
         static int counter = 1;
         QString fileName = QString::fromLatin1("snapshot%1.png").arg(counter++);
         bool ok = img.save(fileName);
 
         if (!ok) // log
-            m_log->appendToLog(LogView::InternalError, tr("QmlLive: could not save snapshot as \"%1\"").arg(fileName));
+            m_log->appendToLog(LogView::InternalError, tr("QML Live: could not save snapshot as \"%1\"").arg(fileName));
         else
-            m_log->appendToLog(LogView::InternalInfo, tr("QmlLive: created snapshot \"%1\"").arg(fileName));
+            m_log->appendToLog(LogView::InternalInfo, tr("QML Live: created snapshot \"%1\"").arg(fileName));
     }
 }
 
@@ -623,7 +623,7 @@ void MainWindow::stayOnTop()
 
 void MainWindow::openProject()
 {
-    QString filter = tr("QmlLive (*.qmllive);; All files (*.*)");
+    QString filter = tr("QML Live (*.qmllive);; All files (*.*)");
     QString path = QFileDialog::getOpenFileName(this, "Open Project", filter, filter);
     if (path.isEmpty()) {
         return;

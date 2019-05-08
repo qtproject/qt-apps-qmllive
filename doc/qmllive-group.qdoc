@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -34,11 +34,11 @@
 /*!
     \module qmllive
 
-    \title QmlLive Module
+    \title QML Live Module
     \brief Classes for watching a workspace, as well as for local and remote
     reloading of Qt Quick User Interfaces.
 
-    The QmlLive module allows a developer to quickly create his own instance of
-    a QmlLive workbench or a QmlLive runtime.
+    The QML Live module allows a developer to quickly create his own instance of
+    a QML Live workbench or a QML Live runtime.
 
  */

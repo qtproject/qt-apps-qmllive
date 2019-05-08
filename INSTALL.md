@@ -1,4 +1,4 @@
-# Build and Install QmlLive
+# Build and Install QML Live
 
 ## Dependencies
 
@@ -20,7 +20,7 @@ Note: Only needed when you want to have live reloading enabled on the target.
     $ qmake # from cross compiler toolchain
     $ make
 
-You need to cross-compile QmlLive and copy the `./bin/qmlliveruntime` onto the
+You need to cross-compile QML Live and copy the `./bin/qmlliveruntime` onto the
 target.
 
 ## Build documentation

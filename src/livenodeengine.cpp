@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -90,7 +90,7 @@ const char OVERLAY_PATH_SEPARATOR = '-';
  *          over the original workspace with the help of
  *          QQmlAbstractUrlInterceptor. Requires \l AllowUpdates.
  *
- * \sa {QmlLive Runtime}
+ * \sa {QML Live Runtime}
  */
 
 class OverlayUrlInterceptor : public QObject, public QQmlAbstractUrlInterceptor
@@ -438,7 +438,7 @@ void LiveNodeEngine::reloadDocument()
     checkQmlFeatures();
 
     qInfo() << "----------------------------------------";
-    qInfo() << "QmlLive: (Re)loading" << m_activeFile;
+    qInfo() << "QML Live: (Re)loading" << m_activeFile;
 
     emit clearLog();
 
@@ -656,7 +656,7 @@ void LiveNodeEngine::destroyOverlay()
 /*!
  * Sets the pluginPath to \a path.
  *
- * The pluginPath will be used to load QmlLive plugins
+ * The pluginPath will be used to load QML Live plugins
  * \sa {ContentPlugin Example}
  */
 void LiveNodeEngine::setPluginPath(const QString &path)

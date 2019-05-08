@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -67,7 +67,7 @@ Rectangle {
 
     Text {
         id: qmllivetext
-        text: "QmlLive"
+        text: "QML Live"
 
         font.pixelSize: 70
         color: "white"
@@ -78,7 +78,7 @@ Rectangle {
     }
     Text {
         id: pleaseConnectText
-        text: "Please connect with QmlLiveRemote"
+        text: "Please connect with QML Live Remote"
 
         font.pixelSize: 40
         color: "white"

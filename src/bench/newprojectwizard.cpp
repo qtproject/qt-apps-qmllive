@@ -3,7 +3,7 @@
 ** Copyright (C) 2019 Luxoft Sweden AB
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -37,7 +37,7 @@
 #include <QFileDialog>
 #include "livedocument.h"
 
-const QString QmlLiveProjectsLocation(QDir(QDir().homePath()).absoluteFilePath("QMLLive"));
+const QString QMLLiveProjectsLocation(QDir(QDir().homePath()).absoluteFilePath("QMLLive"));
 
 NewProjectWizard::NewProjectWizard(QWidget *parent)
     : QWizard(parent)
@@ -269,8 +269,8 @@ ProjectPage::ProjectPage(QWidget *parent)
     setTitle("Project Name");
     QVBoxLayout *vbox = new QVBoxLayout;
 
-    QLabel *hintlabel = new QLabel("This wizard generates a QmlLive project. The QmlLive project file shall describe the "
-                                   "common options for a QmlLiveBench by specifying the workspace folder, the main document "
+    QLabel *hintlabel = new QLabel("This wizard generates a QML Live project. The QML Live project file shall describe the "
+                                   "common options for a QML Live Bench by specifying the workspace folder, the main document "
                                    "and the import paths relative to the project document location.");
     hintlabel->setWordWrap(true);
     hintlabel->setAlignment(Qt::AlignJustify);
@@ -283,14 +283,14 @@ ProjectPage::ProjectPage(QWidget *parent)
 
     m_projectField = new QLineEdit;
     registerField("projectName*", m_projectField);
-    m_projectField->setPlaceholderText("MyQmlLiveProject");
+    m_projectField->setPlaceholderText("MyQMLLiveProject");
     layout->addWidget(m_projectField, 1, 1);
 
     QLabel *dirlabel = new QLabel("Create in: ");
     layout->addWidget(dirlabel, 2, 0);
 
     layout->addWidget(m_dirField, 2, 1);
-    m_dirField->setText(QmlLiveProjectsLocation);
+    m_dirField->setText(QMLLiveProjectsLocation);
 
     QPushButton *button = new QPushButton("Select");
     layout->addWidget(button, 2, 2);

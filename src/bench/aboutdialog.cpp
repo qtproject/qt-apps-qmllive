@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -42,7 +42,7 @@
 AboutDialog::AboutDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("About Qt QmlLive"));
+    setWindowTitle(tr("About QML Live"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -61,7 +61,7 @@ AboutDialog::AboutDialog(QWidget *parent)
 #endif
 
     QString about = tr(
-        "<h3>Qt QmlLive %1%2</h3>"
+        "<h3>QML Live %1%2</h3>"
         "%3"
         "<p>%4</p>"
         "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, "

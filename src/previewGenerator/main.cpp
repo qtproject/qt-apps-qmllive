@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -113,7 +113,7 @@ Q_LOGGING_CATEGORY(pg, "PreviewGenerator", QtInfoMsg)
 
 int main (int argc, char** argv)
 {
-    QGuiApplication::setApplicationName("QmlLivePreviewGenerator");
+    QGuiApplication::setApplicationName("QMLLivePreviewGenerator");
     QGuiApplication::setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     QGuiApplication::setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 
@@ -121,12 +121,12 @@ int main (int argc, char** argv)
     app.setQuitOnLastWindowClosed(false);
 
     if (app.arguments().count() != 2 ||
-       (app.arguments().at(1) != "QmlLiveBench") )
-        qFatal("This application is managed by QmlLive and is not supposed to be manually started");
+       (app.arguments().at(1) != "QMLLiveBench") )
+        qFatal("This application is managed by QML Live and is not supposed to be manually started");
 
     PreviewServer preview;
     if (!preview.listen()) {
-        qFatal("Failed to listen to local socket \"QmlLivePreviewGenerator\": %s",
+        qFatal("Failed to listen to local socket \"QMLLivePreviewGenerator\": %s",
                qPrintable(preview.errorString()));
     }
 

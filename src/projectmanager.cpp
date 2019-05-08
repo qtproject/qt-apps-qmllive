@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -41,7 +41,7 @@
 const QLatin1String MainKey("main");
 const QLatin1String WorkspaceKey("workspace");
 const QLatin1String ImportsKey("imports");
-const QLatin1String QmlLiveExtension(".qmllive");
+const QLatin1String QMLLiveExtension(".qmllive");
 
 ProjectManager::ProjectManager(QObject *parent)
     : QObject(parent)
@@ -113,7 +113,7 @@ void ProjectManager::write(const QString &path)
 void ProjectManager::create(const QString &projectName)
 {
     m_projectName = projectName;
-    QString path = QString(projectName).append(QmlLiveExtension);
+    QString path = QString(projectName).append(QMLLiveExtension);
     qInfo()<<"CREATING Project------ "<<path;
     write(path);
 }

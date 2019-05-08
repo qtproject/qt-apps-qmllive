@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -33,19 +33,19 @@
     \example contentplugin
     \title ContentPlugin Example
 
-    \brief Demonstrates how to write a Content Plugin for QmlLive.
+    \brief Demonstrates how to write a Content Plugin for QML Live.
 
     \image contentplugin-example.png Screenshot of the Plugin in Action
 
     The plugin written in this example displays images like the
-    built-in Imageviewer in QmlLive, but it shows the content rotated
+    built-in Imageviewer in QML Live, but it shows the content rotated
     only works on *.png files.
 
     We will start by reviewing the interface defined in \c
-    contentadapterinterface.h in the QmlLive source code. This
-    interface can be used to add a new ContentAdapter to QmlLive.
+    contentadapterinterface.h in the QML Live source code. This
+    interface can be used to add a new ContentAdapter to QML Live.
     The ContentAdapter will be used to display any content that shouldn't be
-    handled by the QmlLive Runtime, like displaying an image.
+    handled by the QML Live Runtime, like displaying an image.
 
     \snippet contentadapterinterface.h 0
 
@@ -54,7 +54,7 @@
     given file or directory.
 
     The second function \c adapt(const QUrl& url, QDeclarativeContext* context)
-    returns a custom QUrl which will be used by QmlLive to display the given QUrl.
+    returns a custom QUrl which will be used by QML Live to display the given QUrl.
     The returned QUrl always has to point to a QML file used to display the content.
     To be able to control the returned QML file, \c context can be used to set custom
     properties which will be exported to the QML file.
@@ -66,7 +66,7 @@
 
    \snippet contentplugin/mycontentadapterplugin.h 0
 
-   The MyContentAdapterPlugin implements the interface to QmlLive. It subclasses
+   The MyContentAdapterPlugin implements the interface to QML Live. It subclasses
    QObject and the required \c ContentAdapterInterface.
 
    \snippet contentplugin/mycontentadapterplugin.h 1
@@ -104,6 +104,6 @@
 
    Because we don't want to fiddle around with paths, we include our QML file into
    a resource file. It is important to use a unique prefix in the resource file in
-   order to avoid conflicts with QmlLive, which also uses resource files. The best
+   order to avoid conflicts with QML Live, which also uses resource files. The best
    approach is to use the plugin name as a prefix.
 */

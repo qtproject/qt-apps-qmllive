@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -38,7 +38,7 @@
 #include <QMessageBox>
 
 Q_DECLARE_LOGGING_CATEGORY(csLog)
-Q_LOGGING_CATEGORY(csLog, "QmlLive.Bench.ConnectionState", QtInfoMsg)
+Q_LOGGING_CATEGORY(csLog, "QMLLive.Bench.ConnectionState", QtInfoMsg)
 
 const int LABEL_STACK_INDEX=0;
 const int PROGRESS_STACK_INDEX=1;

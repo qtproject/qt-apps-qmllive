@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -107,7 +107,7 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
     m_server->listen(port);
 
     if (m_connectionOptions & BlockingConnect) {
-        qInfo() << "Waiting for connection from QmlLive Bench…";
+        qInfo() << "Waiting for connection from QML Live Bench…";
 
         QEventLoop loop;
 
@@ -119,7 +119,7 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
             });
             loop.exec();
             if (!pinOk) {
-                qWarning() << "Refused connection from QmlLive Bench: Wrong pin";
+                qWarning() << "Refused connection from QML Live Bench: Wrong pin";
                 return false;
             }
         }
@@ -132,12 +132,12 @@ bool RemoteReceiver::listen(int port, ConnectionOptions options)
             });
             loop.exec();
             if (!finishedOk) {
-                qWarning() << "Initial workspace synchronization with QmlLive Bench failed";
+                qWarning() << "Initial workspace synchronization with QML Live Bench failed";
                 return false;
             }
         }
 
-        qInfo() << "QmlLive Bench connected";
+        qInfo() << "QML Live Bench connected";
     }
 
     return true;

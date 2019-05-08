@@ -1,6 +1,6 @@
-# QmlLive
+# QML Live
 
-QmlLive is a system to automatically reload a QtQuick user interface on every
+QML Live is a system to automatically reload a QtQuick user interface on every
 document save.
 
 It is available for the PC but also for an embedded device, which supports Qt5.

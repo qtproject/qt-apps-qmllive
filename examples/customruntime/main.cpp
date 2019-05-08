@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -34,7 +34,7 @@
 #include <QtGui>
 #include <QtQuick>
 
-// Use QmlLive headers
+// Use QML Live headers
 #include "livenodeengine.h"
 #include "remotereceiver.h"
 
@@ -61,11 +61,11 @@ int main(int argc, char **argv)
         return app.exec();
 
 #if defined(QT_NO_DEBUG)
-    qWarning() << "QmlLive support was disabled at compile time";
+    qWarning() << "QML Live support was disabled at compile time";
 #else
     LiveNodeEngine node;
 
-    // Let QmlLive know your runtime
+    // Let QML Live know your runtime
     node.setQmlEngine(&engine);
 
     // Allow it to display QML components with non-QQuickWindow root object
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     node.setWorkspace(app.applicationDirPath(),
                       LiveNodeEngine::AllowUpdates | LiveNodeEngine::UpdatesAsOverlay);
 
-    // Listen to IPC call from remote QmlLive Bench
+    // Listen to IPC call from remote QML Live Bench
     RemoteReceiver receiver;
     receiver.registerNode(&node);
     receiver.listen(10234);

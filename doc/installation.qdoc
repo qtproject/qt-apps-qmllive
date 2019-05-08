@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -49,8 +49,8 @@
     $ make
 \endcode
 
-To start QmlLive Bench directly from the build directory, run
-\c{./bin/qmllivebench}. Optionally, you can also install QmlLive Bench with
+To start QML Live Bench directly from the build directory, run
+\c{./bin/qmllivebench}. Optionally, you can also install QML Live Bench with
 the following command:
 
 \code
@@ -69,10 +69,10 @@ following command:
     $ make
 \endcode
 
-You need to cross-compile QmlLive and copy the \c{./bin/qmlliveruntime} binary
+You need to cross-compile QML Live and copy the \c{./bin/qmlliveruntime} binary
 onto the target.
 
-Optionally, you can package QmlLive with the following command:
+Optionally, you can package QML Live with the following command:
 
 \code
     $ make install INSTALL_ROOT=...
@@ -100,7 +100,7 @@ The following options can be added to the qmake \c CONFIG variable:
 
 \row
     \li skip-bench
-    \li Do not build \l{The Workbench}{QmlLive Bench}
+    \li Do not build \l{QML Live Bench}
 
 \row
     \li skip-examples
@@ -108,7 +108,7 @@ The following options can be added to the qmake \c CONFIG variable:
 
 \row
     \li skip-runtime
-    \li Do not build \l{QmlLive Runtime}
+    \li Do not build \l{QML Live Runtime}
 
 \row
     \li skip-tests
@@ -116,8 +116,8 @@ The following options can be added to the qmake \c CONFIG variable:
 
 \row
     \li static-link-runtime
-    \li Produce a single QmlLive Runtime executable binary. If this option is disabled,
-        QmlLive Runtime executable requires that the \c libqmllive dynamic library to
+    \li Produce a single QML Live Runtime executable binary. If this option is disabled,
+        QML Live Runtime executable requires that the \c libqmllive dynamic library to
         be copied to the target.
 \endtable
 

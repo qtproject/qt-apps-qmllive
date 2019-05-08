@@ -1,9 +1,9 @@
-project = QmlLive
-description = QmlLive Reference Documentation
-url = https://doc.qt.io/QtQmlLive
+project = QMLLive
+description = QML Live Reference Documentation
+url = https://doc.qt.io/QMLLive
 version = $QT_VERSION
 
-moduleheader = QmlLiveDoc
+moduleheader = QMLLiveDoc
 includepaths += -I ../src
 
 sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
@@ -24,24 +24,24 @@ sourcedirs += \
 
 imagedirs = images
 
-qhp.projects                    = QmlLive
-qhp.QmlLive.file                = qmllive.qhp
-qhp.QmlLive.namespace           = io.qt.qmllive.$QT_VERSION_TAG
-qhp.QmlLive.virtualFolder       = qmllive
-qhp.QmlLive.indexTitle          = Qt QmlLive
-qhp.QmlLive.indexRoot           =
+qhp.projects                    = QMLLive
+qhp.QMLLive.file                = qmllive.qhp
+qhp.QMLLive.namespace           = io.qt.qmllive.$QT_VERSION_TAG
+qhp.QMLLive.virtualFolder       = qmllive
+qhp.QMLLive.indexTitle          = QML Live
+qhp.QMLLive.indexRoot           =
 
-qhp.QmlLive.filterAttributes = QmlLive $QT_VERSION
-qhp.QmlLive.customFilters.QmlLive.name = QmlLive $QT_VERSION
-qhp.QmlLive.customFilters.QmlLive.filterAttributes = QmlLive $QT_VERSION
+qhp.QMLLive.filterAttributes = QML Live $QT_VERSION
+qhp.QMLLive.customFilters.QMLLive.name = QML Live $QT_VERSION
+qhp.QMLLive.customFilters.QMLLive.filterAttributes = QML Live $QT_VERSION
 
-qhp.QmlLive.subprojects = manual
-qhp.QmlLive.subprojects.manual.title = Qt QmlLive
-qhp.QmlLive.subprojects.manual.indexTitle = Qt QmlLive
-qhp.QmlLive.subprojects.manual.type = manual
+qhp.QMLLive.subprojects = manual
+qhp.QMLLive.subprojects.manual.title = QML Live
+qhp.QMLLive.subprojects.manual.indexTitle = QML Live
+qhp.QMLLive.subprojects.manual.type = manual
 
 depends = qtcore qtqml qtquick qtnetwork qtautomotivesuite
 
 navigation.homepage = "Qt Automotive Suite"
-navigation.landingpage = "Qt QmlLive"
-buildversion = "Qt QmlLive $QT_VERSION"
+navigation.landingpage = "QML Live"
+buildversion = "QML Live $QT_VERSION"

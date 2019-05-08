@@ -3,7 +3,7 @@
 ** Copyright (C) 2019 Luxoft Sweden AB
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -32,23 +32,23 @@
 \example customruntime
 \title Custom Runtime Example
 
-\brief Demonstrates how to create a Custom QmlLive Runtime.
+\brief Demonstrates how to create a Custom QML Live Runtime.
 
-\image customruntime-example.png Screenshot of the Custom QmlLive Runtime
+\image customruntime-example.png Screenshot of the Custom QML Live Runtime
 
-Creating a custom runtime with QmlLive features allows you to use your QML
-view setup, combined with additional C++ code and the QmlLive system.
+Creating a custom runtime with QML Live features allows you to use your QML
+view setup, combined with additional C++ code and the QML Live system.
 
 Start with the \l LiveNodeEngine class. We need to modify this class to be
 able to receive workspace changes and active document updates. By default,
 the IPC listens to port 10234.
 
-The code snippet below shows a minimal custom QmlLive runtime:
+The code snippet below shows a minimal custom QML Live runtime:
 
 \snippet customruntime/main.cpp 0
 
 To specify project depedencies on platforms that support \c pkg-config,
-add the following line to your project file. This is assuming QmlLive is
+add the following line to your project file. This is assuming QML Live is
 installed on your build host:
 
 \code

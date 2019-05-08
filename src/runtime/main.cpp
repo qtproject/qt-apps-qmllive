@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -69,7 +69,7 @@ static Options options;
 static void parseArguments(const QStringList &arguments)
 {
     QCommandLineParser parser;
-    parser.setApplicationDescription("QmlLive reloading runtime");
+    parser.setApplicationDescription("QML Live reloading runtime");
 
     parser.addHelpOption();
     parser.addVersionOption();
@@ -79,7 +79,7 @@ static void parseArguments(const QStringList &arguments)
     QCommandLineOption ipcPortOption("ipcport", "the port the IPC shall listen on, default is 10234", "ipcport");
     parser.addOption(ipcPortOption);
 
-    QCommandLineOption pluginPathOption("pluginpath", "path to QmlLive plugins", "pluginpath");
+    QCommandLineOption pluginPathOption("pluginpath", "path to QML Live plugins", "pluginpath");
     parser.addOption(pluginPathOption);
 
     QCommandLineOption importPathOption("importpath", "path to QML import path. Can appear multiple times", "importpath");
@@ -166,7 +166,7 @@ private slots:
 int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
-    app.setApplicationName("QmlLiveRuntime");
+    app.setApplicationName("QML Live Runtime");
     app.setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     app.setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 

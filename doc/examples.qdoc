@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -32,8 +32,8 @@
 
 /*!
    \group qmllive-examples
-   \title QmlLive Examples
-   \brief Examples showing how to extend the functionality of QmlLive.
+   \title QML Live Examples
+   \brief Examples showing how to extend the functionality of QML Live.
 
    \list
     \li \l{contentplugin}{Content Plugin}

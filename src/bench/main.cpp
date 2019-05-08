@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -99,7 +99,7 @@ Options *Application::s_options = 0;
 
 Application *Application::create(int &argc, char **argv)
 {
-    setApplicationName("QmlLiveBench");
+    setApplicationName("QML Live Bench");
     setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
 
@@ -203,13 +203,13 @@ void Application::setDarkStyle()
 void Application::parseArguments(const QStringList &arguments, Options *options)
 {
     QCommandLineParser parser;
-    parser.setApplicationDescription("QmlLive reloading workbench");
+    parser.setApplicationDescription("QML Live reloading workbench");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("workspace", "workspace folder to watch. If this points to a QML document, than the directory is asssumed to be the workspace and the file the active document.");
     parser.addPositionalArgument("document", "main QML document to load initially.");
 
-    QCommandLineOption pluginPathOption("pluginpath", "path to QmlLive plugins", "pluginpath");
+    QCommandLineOption pluginPathOption("pluginpath", "path to QML Live plugins", "pluginpath");
     parser.addOption(pluginPathOption);
     QCommandLineOption importPathOption("importpath", "path to QML import path. Can appear multiple times", "importpath");
     parser.addOption(importPathOption);

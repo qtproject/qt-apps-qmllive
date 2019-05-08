@@ -7,9 +7,9 @@ load(configure)
 load(config-output)
 include(qmllive.pri)
 
-!skip-bench:!minQtVersion(5, 4, 0): error("You need at least Qt 5.4.0 to build QmlLive Bench")
-!skip-tests:!minQtVersion(5, 4, 0): error("You need at least Qt 5.4.0 to build QmlLive tests")
-!minQtVersion(5, 2, 0): error("You need at least Qt 5.4.0 to build QmlLive Bench and/or tests, 5.2.0 for the rest")
+!skip-bench:!minQtVersion(5, 4, 0): error("You need at least Qt 5.4.0 to build QML Live Bench")
+!skip-tests:!minQtVersion(5, 4, 0): error("You need at least Qt 5.4.0 to build QML Live tests")
+!minQtVersion(5, 2, 0): error("You need at least Qt 5.4.0 to build QML Live Bench and/or tests, 5.2.0 for the rest")
 
 TEMPLATE = subdirs
 CONFIG += ordered

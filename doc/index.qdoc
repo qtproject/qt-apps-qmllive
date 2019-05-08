@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -34,11 +34,11 @@
 
 \page qmllive-index.html
 \indexpage
-\title Qt QmlLive
+\title QML Live
 
 \section1 Overview
 
-Qt QmlLive is a local and remote Qt Quick live reloading system. It allows you
+QML Live is a local and remote Qt Quick live reloading system. It allows you
 to change your QML user interface source code and view the result in realtime.
 
 \image workbench.png
@@ -46,7 +46,7 @@ to change your QML user interface source code and view the result in realtime.
 Often in User Interface (UI) development you need to edit the placement or
 animations to provide the user experience the design team envisions. This
 process of trial and error is tedious with the classic \e{edit-save-run-exit}
-cycle. QmlLive makes this cycle more effective: whenever a file changes, the
+cycle. QML Live makes this cycle more effective: whenever a file changes, the
 scene reloads automatically.
 
 \list
@@ -56,7 +56,7 @@ scene reloads automatically.
     \li \l{qmllive-examples}{Examples}
     \li API Reference
     \list
-      \li \l{qmllive}{QmlLive} - The QmlLive library API
+      \li \l{qmllive}{QML Live} - The QML Live library API
       \li \l{ipc}{IPC} - The internal IPC API
     \endlist
 \endlist

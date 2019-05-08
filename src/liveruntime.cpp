@@ -4,7 +4,7 @@
 ** Copyright (C) 2018 Pelagicore AG
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QmlLive tool.
+** This file is part of the QML Live tool.
 **
 ** $QT_BEGIN_LICENSE:GPL-QTAS$
 ** Commercial License Usage
@@ -37,7 +37,7 @@
 
 /*!
  * \class LiveRuntime
- * \brief Collects properties to be used for an enhanced QmlLive runtime.
+ * \brief Collects properties to be used for an enhanced QML Live runtime.
  * \inmodule qmllive
  *
  * This runtime is used in a live enhanced QML project to be able to access more

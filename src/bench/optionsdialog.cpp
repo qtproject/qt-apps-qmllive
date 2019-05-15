@@ -71,6 +71,7 @@ OptionsDialog::OptionsDialog(QWidget *parent)
     connect(ui->optionsView, &QListWidget::currentItemChanged,
             this, &OptionsDialog::optionSelected);
     connect(m_appearanceForm, &AppearanceOptionPage::hideNonQMLFiles, this, &OptionsDialog::hideNonQMLFiles);
+    connect(m_importPathsForm, &ImportPathOptionPage::updateImportPaths, this, &OptionsDialog::updateImportPaths);
 }
 
 OptionsDialog::~OptionsDialog()
@@ -114,5 +115,9 @@ void OptionsDialog::reject()
     QDialog::reject();
 }
 
+void OptionsDialog::setImports(const QStringList &imports)
+{
+    m_importPathsForm->setImports(imports);
+}
 
 

@@ -65,7 +65,6 @@ public:
     void activateDocument(const LiveDocument &path);
     void setWorkspace(const QString& path, bool activateRootPath = true);
     void setPluginPath(const QString& path);
-    void setImportPaths(const QStringList& pathList);
     void setStaysOnTop(bool enabled);
     void setProject(const QString& projectFile);
     void init();
@@ -74,9 +73,13 @@ public:
     HostModel *hostModel() const { return m_hostModel; }
     HostManager *hostManager() const { return m_hostManager; }
 
+public slots:
+    void setImportPaths(const QStringList& pathList);
+
 protected:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);
+
 private:
     void setupContent();
     void setupWorkspaceView();
@@ -85,8 +88,10 @@ private:
     void setupToolBar();
     void setupMenuBar();
     void writeSettings();
-    void resetImportPaths();
+    void restoreImportPathsFromSettings();
     void openProjectFile(const QString& path);
+    void saveImportPathToSettings(const QString& path);
+
 private slots:
     void resizeToFit();
     void takeSnapshot();
@@ -101,9 +106,7 @@ private slots:
     void openProject();
     void newProjectWizard();
     void newProject();
-
     void onActiveWindowChanged(QQuickWindow *activeWindow);
-
     void onLogWidgetAdded(QDockWidget* logDock);
 
 private:
@@ -139,4 +142,5 @@ private:
     QAction *m_createProject;
     NewProjectWizard *m_newProjectWizard;
     ProjectManager *m_projectManager;
+    QSet<QString> *m_imports;
 };

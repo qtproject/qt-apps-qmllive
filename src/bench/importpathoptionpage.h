@@ -50,6 +50,11 @@ public:
     explicit ImportPathOptionPage(QWidget *parent = 0);
     ~ImportPathOptionPage();
     void apply();
+    void setImports(const QStringList &imports);
+
+signals:
+    void updateImportPaths(const QStringList &imports);
+
 private slots:
     void addItem();
     void removeItem();

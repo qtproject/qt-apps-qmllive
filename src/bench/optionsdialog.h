@@ -58,11 +58,13 @@ public:
 
     void setHostModel(HostModel* model);
     void setDiscoveredHostsModel(HostModel* model);
+    void setImports(const QStringList &imports);
 
     void openHostConfig(Host* host);
 
 signals:
     void hideNonQMLFiles(bool hide);
+    void updateImportPaths(const QStringList &imports);
 
 private slots:
     void optionSelected(QListWidgetItem* current);

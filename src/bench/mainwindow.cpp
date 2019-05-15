@@ -106,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_node(new BenchLiveNodeEngine(this))
     , m_newProjectWizard(new NewProjectWizard(this))
     , m_projectManager(new ProjectManager(this))
+    , m_imports (nullptr)
 {
     setupContent();
     setupMenuBar();
@@ -388,7 +389,7 @@ void MainWindow::init()
             m_workspace->activateRootPath();
     }
 
-    resetImportPaths();
+    restoreImportPathsFromSettings();
 
     m_hostModel->restoreFromSettings(&s);
     restoreState(s.value("windowState").toByteArray());
@@ -415,20 +416,32 @@ void MainWindow::writeSettings()
     s.endArray();
 
     m_hostModel->saveToSettings(&s);
+
+    if (m_imports != nullptr) {
+        s.beginWriteArray("imports");
+        int j = 0;
+        for (auto i = m_imports->begin(); i != m_imports->end(); i++, j++) {
+            s.setArrayIndex(j);
+            s.setValue("path", *i);
+        }
+        s.endArray();
+    }
 }
 
-void MainWindow::resetImportPaths()
+void MainWindow::restoreImportPathsFromSettings()
 {
-    QStringList importPaths;
+    if (m_imports == nullptr)
+        m_imports = new QSet<QString>();
+
     QSettings s;
     int count = s.beginReadArray("imports");
     for (int i=0; i<count; i++) {
         s.setArrayIndex(i);
-        importPaths.append(s.value("path").toString());
+        m_imports->insert(s.value("path").toString());
     }
     s.endArray();
 
-    setImportPaths(importPaths);
+    m_node->qmlEngine()->setImportPathList(m_imports->toList() + m_qmlDefaultimportList);
 }
 
 void MainWindow::setupToolBar()
@@ -501,6 +514,10 @@ void MainWindow::setPluginPath(const QString &path)
 
 void MainWindow::setImportPaths(const QStringList &pathList)
 {
+    if (m_imports == nullptr)
+        m_imports = new QSet<QString>();
+    *m_imports = QSet<QString>::fromList(pathList);
+
     m_node->qmlEngine()->setImportPathList(pathList + m_qmlDefaultimportList);
 }
 
@@ -556,13 +573,14 @@ void MainWindow::openPreferences(Host *host)
 {
     OptionsDialog dialog;
     connect(&dialog, &OptionsDialog::hideNonQMLFiles, m_workspace, &WorkspaceView::hideNonQMLFiles);
+    connect(&dialog, &OptionsDialog::updateImportPaths, this, &MainWindow::setImportPaths);
     dialog.setHostModel(m_hostModel);
     dialog.setDiscoveredHostsModel(m_discoveryManager->discoveredHostsModel());
+    dialog.setImports(m_imports->toList());
 
     if (host)
         dialog.openHostConfig(host);
     if (dialog.exec()) {
-        resetImportPaths();
         m_discoveryManager->rescan();
     }
 }

@@ -458,16 +458,10 @@ void MasterApplication::applyOptions(const Options &options)
     LiveHubEngine::setMaximumWatches(options.maximumWatches());
 
     if (!options.project().isEmpty()) {
-        if (m_window->isInitialized())
+        if (!m_window->isInitialized())
             m_window->setProject(options.project());
-        else {
-            ProjectManager pr;
-            if (pr.read(options.project())) {
-               m_window->setWorkspace(pr.workspace());
-               m_window->setImportPaths(pr.imports());
-               m_window->activateDocument(LiveDocument(pr.mainDocument()));
-            }
-        }
+        else
+            qDebug() << "Ignoring attempt to set project file after initialization.";
     }
 
     if (!options.workspace().isEmpty())

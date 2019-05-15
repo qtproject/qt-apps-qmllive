@@ -38,16 +38,6 @@ ImportPathOptionPage::ImportPathOptionPage(QWidget *parent) :
     ui(new Ui::ImportPathOptionPage)
 {
     ui->setupUi(this);
-    QSettings s;
-    int count = s.beginReadArray("imports");
-    QListWidgetItem *item;
-    for (int i=0; i<count; i++) {
-        s.setArrayIndex(i);
-        item = new QListWidgetItem(s.value("path").toString());
-        item->setFlags(item->flags () | Qt::ItemIsEditable);
-        ui->importList->addItem(item);
-    }
-    s.endArray();
 
     connect(ui->addButton, &QAbstractButton::clicked, this, &ImportPathOptionPage::addItem);
     connect(ui->removeButton, &QAbstractButton::clicked, this, &ImportPathOptionPage::removeItem);
@@ -62,15 +52,10 @@ ImportPathOptionPage::~ImportPathOptionPage()
 void ImportPathOptionPage::apply()
 {
     QStringList paths;
-    QSettings s;
-    s.beginWriteArray("imports");
-    for (int i=0; i<ui->importList->count(); i++) {
-        QString path(ui->importList->item(i)->text());
-        paths << path;
-        s.setArrayIndex(i);
-        s.setValue("path", path);
+    for (int i = 0; i < ui->importList->count(); i++) {
+        paths << ui->importList->item(i)->text();
     }
-    s.endArray();
+    emit updateImportPaths(paths);
 }
 
 void ImportPathOptionPage::addItem()
@@ -97,5 +82,15 @@ void ImportPathOptionPage::editItem()
     QListWidgetItem *item = ui->importList->currentItem();
     if (item) {
         ui->importList->editItem(item);
+    }
+}
+
+void ImportPathOptionPage::setImports(const QStringList &imports)
+{
+    QListWidgetItem *item;
+    for (int i = 0; i < imports.count(); i++) {
+        item = new QListWidgetItem(imports.at(i));
+        item->setFlags(item->flags () | Qt::ItemIsEditable);
+        ui->importList->addItem(item);
     }
 }

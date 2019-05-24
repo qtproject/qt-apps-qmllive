@@ -4,7 +4,9 @@ url = https://doc.qt.io/QMLLive
 version = $QT_VERSION
 
 moduleheader = QMLLiveDoc
-includepaths += -I ../src
+includepaths += \
+    -I ../src \
+    -I .
 
 sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
 headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"

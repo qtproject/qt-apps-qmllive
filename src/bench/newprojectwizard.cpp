@@ -62,8 +62,8 @@ NewProjectWizard::NewProjectWizard(QWidget *parent)
 
 MainDocumentPage::MainDocumentPage(QWidget *parent)
     : QWizardPage (parent)
-    , m_workspace(nullptr)
     , m_mainDocumentField(new QLineEdit)
+    , m_workspace(nullptr)
     , m_projectFileDir(nullptr)
 {
     setTitle("Main Document");

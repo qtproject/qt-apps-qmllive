@@ -133,7 +133,7 @@ void RuntimeManager::setPrimeCurrentFile(const LiveDocument &currentFile)
      m_primeRuntime->setCurrentFile(currentFile);
 }
 
-void RuntimeManager::initConnectToServer(const QString &document)
+void RuntimeManager::initConnectToServer()
 {
     if (m_curproc->state() == QProcess::Running) {
         m_curproc->connectToServer();

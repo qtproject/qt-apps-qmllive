@@ -44,8 +44,8 @@ OptionsDialog::OptionsDialog(QWidget *parent)
     , m_httpProxyForm(new HttpProxyOptionPage(this))
     , m_importPathsForm(new ImportPathOptionPage(this))
     , m_hostsForm(new HostsOptionsPage(this))
-    , m_appearanceForm(new AppearanceOptionPage(this))
     , m_runtimeForm(new RuntimeOptionPage(this))
+    , m_appearanceForm(new AppearanceOptionPage(this))
 {
     ui->setupUi(this);
 

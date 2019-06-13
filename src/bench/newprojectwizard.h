@@ -107,7 +107,7 @@ class NewProjectWizard : public QWizard
 {
     Q_OBJECT
 public:
-    explicit NewProjectWizard(QWidget *parent = 0);
+    explicit NewProjectWizard(QWidget *parent = nullptr);
     QWizardPage* createMainDocumentPage();
     QWizardPage* createWorkspacePage();
     QWizardPage* createImportsPage();

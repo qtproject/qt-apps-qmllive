@@ -67,7 +67,7 @@ public slots:
     void onPrimeRuntimeChanged();
     void setPrimeCurrentFile(const LiveDocument &currentFile);
     void newRuntimeWindow(const QString &document);
-    void initConnectToServer(const QString &document);
+    void initConnectToServer();
     void onConnected();
     void onRuntimeStarted();
     void updateRuntimePath(const QString& path);

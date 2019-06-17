@@ -52,9 +52,11 @@ For C++ developers, it's possible to integrate QML Live into your own custom run
 \section1 QML Live Bench
 
 QML Live Bench is the all inclusive QML live reloading tool, that allows you to select a workspace
-to watch over and provides a default QML runtime for the selected QML document.
+to watch over and provides a Prime QML Live Runtime for the selected QML document. The "Prime QML
+Live Runtime" is a special type of Runtime that follows the currently selected \c .qml file.
+In contrast, QML Live Bench lets you preview several files simultaneously.
 
-\image workbench.png QML Live Bench
+\image qmllivebench.png QML Live Bench
 
 To launch the Bench, run the following command:
 
@@ -131,6 +133,11 @@ The following arguments are supported:
     \li \c document
     \li The main QML document to load, initially.
 \endtable
+
+To preview an additional file, in the Workspace Navigator, right-click on the file and
+select \uicontrol{Open in New Window}.
+
+\image newwindow.png
 
 \section1 Integrate with Qt Creator
 

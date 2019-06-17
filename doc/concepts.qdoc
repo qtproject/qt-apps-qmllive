@@ -126,6 +126,8 @@ QML Live Bench supports the following features:
       convenient debugging process
   \li lets the user select a file to watch, through the Workspace Navigator
   \li controls connections to all of the devices
+  \li lets the user preview several components or files in separate windows
+      in parallel with active file
 \endlist
 
 QML Live Runtime supports the following features:
@@ -200,13 +202,13 @@ ensures that the product's design is always aligned with this shared definition.
 These elements are defined as follows:
 
 \list
-  \li display - The root element that contains a collection of screens or
+  \li Display - The root element that contains a collection of screens or
       panels, where each screen covers the entire physical display.
-  \li screen - Consists of several panels that provide the visual structure
+  \li Screen - Consists of several panels that provide the visual structure
       as defined by the design team.
-  \li panel - Each panel consists of a set of components.
-  \li components - Reusable UI elements that contain fragments.
-  \li fragments - An internal structure UI element, not exposed to the
+  \li Panel - Each panel consists of a set of components.
+  \li Components - Reusable UI elements that contain fragments.
+  \li Fragments - An internal structure UI element, not exposed to the
       UI developer.
 \endlist
 

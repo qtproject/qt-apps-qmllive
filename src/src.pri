@@ -7,6 +7,7 @@ INCLUDEPATH += $${PWD}
 DEFINES += NO_LIBRSYNC
 
 SOURCES += \
+    $$PWD/overlay.cpp \
     $$PWD/watcher.cpp \
     $$PWD/livedocument.cpp \
     $$PWD/livehubengine.cpp \
@@ -38,6 +39,7 @@ public_headers += \
     $$PWD/projectmanager.h
 
 HEADERS += \
+    $$PWD/overlay.h \
     $$public_headers \
     $$PWD/qmllive_version.h \
     $$PWD/watcher.h \

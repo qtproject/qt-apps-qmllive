@@ -38,10 +38,10 @@
 #include "contentadapterinterface.h"
 #include "livedocument.h"
 #include "qmllive_global.h"
+#include "overlay.h"
 
 class LiveRuntime;
 class ContentPluginFactory;
-class Overlay;
 class OverlayUrlInterceptor;
 
 class QMLLIVESHARED_EXPORT LiveNodeEngine : public QObject

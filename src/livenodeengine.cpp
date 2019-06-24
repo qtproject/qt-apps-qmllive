@@ -48,11 +48,6 @@
 #define DEBUG if (0) qDebug()
 #endif
 
-namespace {
-const char *const OVERLAY_PATH_PREFIX = "qml-live-overlay--";
-const char OVERLAY_PATH_SEPARATOR = '-';
-}
-
 /*!
  * \class LiveNodeEngine
  * \brief The LiveNodeEngine class instantiates QML components in cooperation with LiveHubEngine.
@@ -92,66 +87,6 @@ const char OVERLAY_PATH_SEPARATOR = '-';
  *
  * \sa {QML Live Runtime}
  */
-
-// Overlay uses temporary directory to allow parallel execution
-class Overlay : public QObject
-{
-    Q_OBJECT
-
-public:
-    Overlay(const QString &basePath, QObject *parent)
-        : QObject(parent)
-        , m_basePath(basePath)
-        , m_overlay(overlayTemplatePath())
-    {
-        if (!m_overlay.isValid())
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-            qFatal("Failed to create overlay directory: %s", qPrintable(m_overlay.errorString()));
-#else
-            qFatal("Failed to create overlay directory");
-#endif
-
-    }
-
-    ~Overlay()
-    {
-    }
-
-    QDir overlay() const { return m_overlay.path(); }
-
-    QString reserve(const LiveDocument &document)
-    {
-        QWriteLocker locker(&m_lock);
-
-        QString overlayingPath = document.absoluteFilePathIn(m_overlay.path());
-        m_mappings.insert(document.absoluteFilePathIn(m_basePath), overlayingPath);
-        return overlayingPath;
-    }
-
-    QString map(const QString &file) const
-    {
-        QReadLocker locker(&m_lock);
-
-        return m_mappings.value(file, file);
-    }
-
-private:
-    static QString overlayTemplatePath()
-    {
-        QSettings settings;
-        QString overlayTemplatePath = QDir::tempPath() + QDir::separator() + QLatin1String(OVERLAY_PATH_PREFIX);
-        if (!settings.organizationName().isEmpty()) // See QCoreApplication::organizationName's docs
-            overlayTemplatePath += settings.organizationName() + QLatin1Char(OVERLAY_PATH_SEPARATOR);
-        overlayTemplatePath += settings.applicationName();
-        return overlayTemplatePath;
-    }
-
-private:
-    mutable QReadWriteLock m_lock;
-    QHash<QString, QString> m_mappings;
-    QString m_basePath;
-    QTemporaryDir m_overlay;
-};
 
 class OverlayUrlInterceptor : public QObject, public QQmlAbstractUrlInterceptor
 {

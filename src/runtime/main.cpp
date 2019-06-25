@@ -187,6 +187,8 @@ private slots:
 int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
+
+    app.setApplicationVersion(QString(QMLLIVE_VERSION_STR).append(" ").append(QMLLIVE_REVISION_STR));
     app.setApplicationName("QML Live Runtime");
     app.setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     app.setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));

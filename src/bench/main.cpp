@@ -102,6 +102,7 @@ Application *Application::create(int &argc, char **argv)
     setApplicationName("QML Live Bench");
     setOrganizationDomain(QLatin1String(QMLLIVE_ORGANIZATION_DOMAIN));
     setOrganizationName(QLatin1String(QMLLIVE_ORGANIZATION_NAME));
+    setApplicationVersion(QString(QMLLIVE_VERSION_STR).append(" ").append(QMLLIVE_REVISION_STR));
 
     // Cannot instantiate the actual application yet
     parseArguments(QCoreApplication(argc, argv).arguments(), s_options = new Options);

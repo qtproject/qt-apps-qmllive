@@ -57,7 +57,7 @@ AboutDialog::AboutDialog(QWidget *parent)
     buildInfo = tr("<p>Built on %1 %2 from revision %3.</p>")
         .arg(QLatin1String(__DATE__),
              QLatin1String(__TIME__),
-             QString::fromLatin1(QMLLIVE_REVISION_STR).left(7));
+             QString::fromLatin1(QMLLIVE_REVISION_STR));
 #endif
 
     QString about = tr(

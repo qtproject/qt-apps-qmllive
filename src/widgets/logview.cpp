@@ -64,22 +64,28 @@ void LogView::appendToLog(int type, const QString &msg, const QUrl &url, int lin
 
     qreal baseValue = m_log->palette().color(QPalette::Base).valueF();
     QColor color = m_log->palette().color(QPalette::Text);
+    bool bold = false;
 
     switch (type) {
     case QtWarningMsg: // yellow
         color = baseValue < 0.5f ? QColor(255, 255, 128) : QColor(140, 140, 0);
+        bold = true;
         break;
     case QtCriticalMsg: // red
         color = baseValue < 0.5f ? QColor(255, 64, 64) : QColor(165, 0, 0);
+        bold = true;
         break;
     case QtFatalMsg: // red
         color = baseValue < 0.5f ? QColor(255, 64, 64) : QColor(165, 0, 0);
+        bold = true;
         break;
     case InternalInfo: // green
         color = baseValue < 0.5f ? QColor(96, 255, 96) : QColor(128, 0, 0);
+        bold = true;
         break;
     case InternalError: // purple
         color = baseValue < 0.5f ? QColor(196, 128, 196) : QColor(96, 0, 96);
+        bold = true;
         break;
     default:
         break;
@@ -98,9 +104,17 @@ void LogView::appendToLog(int type, const QString &msg, const QUrl &url, int lin
     if (!s.isEmpty())
         s.append(QLatin1Char(' '));
 
-    s.append(QString::fromLatin1("<b><font color=\"%2\">%1</font></b>")
-             .arg(msg)
-             .arg(color.name()));
+    QString formattedLog;
+    if (bold) {
+        formattedLog = QString::fromLatin1("<b><font color=\"%2\">%1</font></b>")
+                .arg(msg)
+                .arg(color.name());
+    } else {
+        formattedLog = QString::fromLatin1("<font color=\"%2\">%1</font>")
+                     .arg(msg)
+                     .arg(color.name());
+    }
+    s.append(formattedLog);
 
     m_log->appendHtml(s);
 }

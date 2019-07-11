@@ -253,7 +253,6 @@ void MainWindow::setupLogView()
     m_logDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
     addDockWidget(Qt::BottomDockWidgetArea, m_logDock);
 
-    connect(m_node, &LiveNodeEngine::clearLog, m_log, &LogView::clear);
     connect(m_node, &LiveNodeEngine::logIgnoreMessages, m_log, &LogView::setIgnoreMessages);
     connect(m_node, &LiveNodeEngine::logErrors, m_log, &LogView::appendAllToLog);
 }

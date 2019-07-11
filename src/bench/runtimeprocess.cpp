@@ -124,7 +124,7 @@ void RuntimeProcess::onConnected()
 
 void RuntimeProcess::onDisconnected()
 {
-    qInfo()<<"RuntimeProcess::onDisconnected ismater="<<m_ismaster;
+    qInfo()<<"RuntimeProcess::onDisconnected ismaster="<<m_ismaster;
     if (m_ismaster){
         connectToServer();
     }
@@ -152,7 +152,6 @@ void RuntimeProcess::sendDocument(const LiveDocument &document)
 void RuntimeProcess::updateErrors()
 {
     QByteArray log = readAllStandardError();
-    qWarning() << "RuntimeProcess::updateErrors --> " << log.data();
     emit remoteLog(QtCriticalMsg, log.data());
 }
 

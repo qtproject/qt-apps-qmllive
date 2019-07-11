@@ -433,9 +433,9 @@ void LiveNodeEngine::reloadDocument()
         component->loadUrl(url);
         m_object = component->create();
     } else if (url == originalUrl) {
-        logError(tr("LiveNodeEngine: Cannot display this file type"));
+        logError(tr("Warning: LiveNodeEngine: Cannot display this file type"));
     } else {
-        logError(tr("LiveNodeEngine: Internal error: Cannot display this file type"));
+        logError(tr("Warning: LiveNodeEngine: Internal error: Cannot display this file type"));
     }
 
     if (!component->isReady()) {
@@ -464,11 +464,11 @@ void LiveNodeEngine::reloadDocument()
             m_fallbackView->setContent(url, component.take(), m_object);
             m_activeWindow = m_fallbackView;
         } else {
-            logError(tr("LiveNodeEngine: Cannot display this component: "
+            logError(tr("Warning: LiveNodeEngine: Cannot display this component: "
                         "Root object is not a QQuickWindow and no LiveNodeEngine::fallbackView set."));
         }
     } else {
-        logError(tr("LiveNodeEngine: Cannot display this component: "
+        logError(tr("Warning: LiveNodeEngine: Cannot display this component: "
                     "Root object is not a QQuickWindow nor a QQuickItem."));
         if (m_fallbackView)
             showErrorScreen();

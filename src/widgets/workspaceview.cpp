@@ -84,6 +84,8 @@ WorkspaceView::WorkspaceView(QWidget *parent)
     m_newWindow = new QAction(tr("Open in New Window"), this);
     connect(m_newWindow, &QAction::triggered, this, &WorkspaceView::onNewRuntimeWindow);
     m_view->addAction(m_newWindow);
+
+    m_view->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 /*!

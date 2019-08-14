@@ -75,18 +75,45 @@ bool ProjectManager::read(const QString &path)
         qWarning() << "Document must be a JSON object";
         return false;
     }
+
     QJsonObject root = document.object();
-    if (root.contains(MainKey))
-        m_mainDocument = root.value(MainKey).toString();
     if (root.contains(WorkspaceKey))
     {
-        m_workspace = root.value(WorkspaceKey).toString();
+        QString workspacestr = root.value(WorkspaceKey).toString();
+        QDir prjdir(m_projectLocation);
+
+        if (prjdir.exists(workspacestr)) {
+            m_workspace = QDir::cleanPath(prjdir.absoluteFilePath(workspacestr));
+            QDir workspacedir(m_workspace);
+
+            if (root.contains(MainKey)) {
+                if (workspacedir.exists(root.value(MainKey).toString())) {
+                    m_mainDocument = workspacedir.relativeFilePath(root.value(MainKey).toString());
+                } else {
+                    qWarning() << "File " + root.value(MainKey).toString() + " doesn't exist at " + m_workspace;
+                }
+            }
+
+            if (root.contains(ImportsKey) && root.value(ImportsKey).isArray()) {
+                QJsonArray imports = root.value(ImportsKey).toArray();
+                for (QJsonValue value : imports) {
+                    if (workspacedir.exists(value.toString())) {
+                        m_imports.append(workspacedir.relativeFilePath(value.toString()));
+                    } else {
+                        qWarning() << "Import path " + value.toString() + " doesn't exist at " + m_workspace;
+                    }
+                }
+            }
+        } else {
+            qCritical() << "Workspace path " + workspacestr + " doesn't exist at " + m_projectLocation;
+            return false;
+        }
+
+    } else {
+        qCritical() << "Document must contain a workspace path";
+        return false;
     }
-    if (root.contains(ImportsKey) && root.value(ImportsKey).isArray()) {
-        QJsonArray imports = root.value(ImportsKey).toArray();
-        for (QJsonValue value : imports)
-            m_imports.append(value.toString());
-    }
+
     return true;
 }
 

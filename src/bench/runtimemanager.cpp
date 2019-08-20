@@ -41,6 +41,8 @@ RuntimeManager::RuntimeManager(QObject *parent) : QObject(parent)
   ,m_currentFile(nullptr)
   ,m_imports(nullptr)
   ,m_pluginPath(nullptr)
+  ,m_primeRuntimeConnected(false)
+  ,m_primeCurrentFile(nullptr)
 {
     m_primeRuntime = new RuntimeProcess(this, Constants::PRIMERUNTIME_PORT(), true);
     QSettings s;
@@ -53,7 +55,6 @@ RuntimeManager::RuntimeManager(QObject *parent) : QObject(parent)
     }
     connect(m_primeRuntime, &RuntimeProcess::errorOccurred, this, &RuntimeManager::onPrimeRuntimeError);
     connect(m_primeRuntime, &RuntimeProcess::stateChanged, this, &RuntimeManager::onPrimeRuntimeChanged);
-    connect(m_primeRuntime, &RuntimeProcess::errorOccurred, this, &RuntimeManager::onError);
 }
 RuntimeManager::~RuntimeManager()
 {
@@ -68,6 +69,7 @@ void RuntimeManager::startPrimeRuntime()
     connect(m_primeRuntime, &RuntimeProcess::remoteLog, view, &LogView::appendToLog);
     connect(m_primeRuntime, &RuntimeProcess::clearLog, view, &LogView::clear);
     connect(m_primeRuntime, &RuntimeProcess::connected, view, &LogView::clear);
+    connect(m_primeRuntime, &RuntimeProcess::connected, this, &RuntimeManager::onPrimeRuntimeConnected);
     dock->setWidget(view);
     emit logWidgetAdded(dock);
 
@@ -93,7 +95,11 @@ void RuntimeManager::setLiveHubEngine(LiveHubEngine *engine)
 
 void RuntimeManager::onPrimeRuntimeError(QProcess::ProcessError error)
 {
-    qWarning()<<"RuntimeManager::onPrimeRuntimeError: "<<error;
+    if (error == QProcess::ProcessError::Crashed) {
+        qWarning() << "QML Live Prime Runtime crashed with QProcess::ExitStatus = " << m_primeRuntime->exitStatus();
+    } else {
+        qWarning() << "RuntimeManager::onPrimeRuntimeError: " << error;
+    }
 }
 
 void RuntimeManager::setWorkspace(const QString &workspace)
@@ -144,7 +150,6 @@ void RuntimeManager::setPrimeCurrentFile(const LiveDocument &currentFile)
         m_primeRuntime->setLiveHubEngine(m_engine);
         m_primeRuntime->start(m_runtimeBinaryPath, arguments);
     }
-
     m_primeRuntime->setCurrentFile(currentFile);
 }
 
@@ -209,18 +214,22 @@ void RuntimeManager::onRuntimeStarted()
 
 void RuntimeManager::finishProcesses()
 {
-    qInfo() << "RuntimeManager::finishProcesses ---------KILL ALL CHILD PROCESSES__________";
+    qInfo() << "RuntimeManager::finishProcesses ---------TERMINATE ALL CHILD PROCESSES__________";
 
     for (int i = 0; i < m_runtimes.count(); i++) {
-        m_runtimes.at(i)->terminate();
-        if (!m_runtimes.at(i)->waitForFinished(500)) {
-            m_runtimes.at(i)->kill();
+        if (m_runtimes.at(i)->state() != QProcess::NotRunning) {
+            m_runtimes.at(i)->terminate();
+            if (!m_runtimes.at(i)->waitForFinished(500)) {
+                qInfo() << "QML Live Runtime with port " + QString::number(m_runtimes.at(i)->port()) + " was not finished within 500 msec, KILLING...";
+                m_runtimes.at(i)->kill();
+            }
         }
     }
 
     if (m_primeRuntime->state() == QProcess::Running || m_primeRuntime->state() == QProcess::Starting){
         m_primeRuntime->terminate();
-        if (!m_primeRuntime->waitForFinished(100)) {
+        if (!m_primeRuntime->waitForFinished(1000)) {
+            qInfo() << "QML Live Prime Runtime with port " + QString::number(m_primeRuntime->port()) + " was not finished within 500 msec, KILLING...";
             m_primeRuntime->kill();
         }
     }
@@ -326,4 +335,12 @@ void RuntimeManager::stopPrimeRuntime()
     }
     m_primeRuntime->clearLog();
     m_primeRuntime->remoteLog(LogView::InternalMsgType::InternalInfo, "Please select file for preview.");
+}
+
+void RuntimeManager::onPrimeRuntimeConnected()
+{
+    qInfo() << "PrimeRuntime connected ";
+    m_primeRuntimeConnected = true;
+    if (m_primeCurrentFile != nullptr)
+        m_primeRuntime->setCurrentFile(*m_primeCurrentFile);
 }

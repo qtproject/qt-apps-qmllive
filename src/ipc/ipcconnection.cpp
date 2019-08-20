@@ -61,6 +61,12 @@ IpcConnection::IpcConnection(QTcpSocket *socket, QObject *parent)
     connect(m_socket, &QAbstractSocket::readyRead, this, &IpcConnection::readData);
 }
 
+IpcConnection::~IpcConnection()
+{
+    DEBUG << "IpcConnection::~IpcConnection() ";
+    if (m_socket != nullptr)
+        close();
+}
 /**
  * \brief Close the connection and delete it
  */

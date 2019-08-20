@@ -110,6 +110,15 @@ IpcClient::IpcClient(QTcpSocket *socket, QObject *parent)
     connect(m_socket, &QAbstractSocket::bytesWritten, this, &IpcClient::onBytesWritten);
 }
 
+IpcClient::~IpcClient()
+{
+    DEBUG << "IpcClient::~IpcClient()";
+    if (m_socket != nullptr) {
+        if (m_socket->state() == QAbstractSocket::ConnectedState)
+            m_socket->close();
+    }
+}
+
 /*!
  * Returns the socket state
  */

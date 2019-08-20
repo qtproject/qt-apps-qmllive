@@ -143,4 +143,5 @@ private:
     ProjectManager *m_projectManager;
     QSet<QString> *m_imports;
     RuntimeManager *m_runtimeManager;
+    bool m_closeEvent;
 };

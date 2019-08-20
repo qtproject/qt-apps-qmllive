@@ -40,6 +40,7 @@ class IpcConnection : public QObject
     Q_OBJECT
 public:
     explicit IpcConnection(QTcpSocket* socket, QObject *parent = 0);
+    ~IpcConnection();
     QTcpSocket* socket() const;
 private:
     void setMaxContentSize(qint64 size);

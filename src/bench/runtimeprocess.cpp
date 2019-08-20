@@ -167,6 +167,11 @@ void RuntimeProcess::updateOutput()
     emit remoteLog(QtInfoMsg, log.data());
 }
 
+int RuntimeProcess::port() const
+{
+    return m_port;
+}
+
 void RuntimeProcess::onStateChanged()
 {
     switch (state()) {

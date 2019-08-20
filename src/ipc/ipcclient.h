@@ -44,6 +44,7 @@ class IpcClient : public QObject
 public:
     explicit IpcClient(QObject *parent = 0);
     IpcClient(QTcpSocket* socket, QObject *parent = 0);
+    ~IpcClient();
 
     QAbstractSocket::SocketState state() const;
 

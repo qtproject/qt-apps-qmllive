@@ -67,6 +67,7 @@ signals:
 public slots:
     void onPrimeRuntimeError(QProcess::ProcessError error);
     void onPrimeRuntimeChanged();
+    void onPrimeRuntimeConnected();
     void setPrimeCurrentFile(const LiveDocument &currentFile);
     void newRuntimeWindow(const QString &document);
     void initConnectToServer();
@@ -87,6 +88,8 @@ private:
     QString* m_pluginPath;
     QList<QDockWidget*> m_logDocks;
     QList<RuntimeProcess*> m_runtimes;
+    bool m_primeRuntimeConnected;
+    LiveDocument* m_primeCurrentFile;
 };
 
 #endif // RUNTIMEMANAGER_H

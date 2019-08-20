@@ -109,6 +109,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_projectManager(new ProjectManager(this))
     , m_imports (nullptr)
     , m_runtimeManager(new RuntimeManager(this))
+    , m_closeEvent(false)
 {
     setupContent();
     setupMenuBar();
@@ -150,6 +151,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if (!m_closeEvent)
+        writeSettings();
     m_runtimeManager->finishProcesses();
     delete m_runtimeManager;
 }
@@ -400,6 +403,7 @@ void MainWindow::init()
 
 void MainWindow::writeSettings()
 {
+    qInfo() << "Writing QML Live Bench user settings...";
     QSettings s;
     s.setValue("geometry", saveGeometry());
     s.setValue("windowState", saveState());
@@ -529,6 +533,7 @@ void MainWindow::setProject(const QString &projectFile)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    m_closeEvent = true;
     writeSettings();
     m_runtimeManager->finishProcesses();
     QMainWindow::closeEvent(event);

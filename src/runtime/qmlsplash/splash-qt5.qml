@@ -34,8 +34,8 @@ import QtQuick 2.0
 
 Rectangle {
     id: root
-    width: parent.width ? parent.width : 1024
-    height: parent.height ? parent.height : 768
+    width: parent ? parent.width : 1024
+    height: parent ? parent.height : 768
     color: "#FF6600"
 
     Image {

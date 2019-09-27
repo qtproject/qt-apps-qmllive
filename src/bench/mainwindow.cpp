@@ -670,11 +670,12 @@ void MainWindow::openProjectFile(const QString &path)
         }
         s.endArray();
 
+        m_runtimeManager->restartAll();
+
         setImportPaths(paths);
         QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_projectManager->workspace());
         setWorkspace(m_projectManager->workspace());
         activateDocument(LiveDocument(m_projectManager->mainDocument()));
-        m_runtimeManager->restartAll();
     }
     else {
         qWarning() << "Unable to read project document: "<<path;

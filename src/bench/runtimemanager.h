@@ -57,6 +57,8 @@ public:
 
 private:
     QStringList argumentsList(const int& port, const QString& titles, const bool hideButtons = false);
+    void restartPrimeRuntime();
+    void stopPrimeRuntime();
 
 signals:
     void logWidgetAdded(QDockWidget* log);
@@ -71,7 +73,6 @@ public slots:
     void onConnected();
     void onRuntimeStarted();
     void updateRuntimePath(const QString& path);
-    void restartPrimeRuntime();
     void onError(QProcess::ProcessError error);
 
 private:

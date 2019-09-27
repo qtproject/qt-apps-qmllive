@@ -35,6 +35,7 @@
 RuntimeProcess::RuntimeProcess(QObject *parent, int port, bool ismaster) :
    QProcess(parent)
   ,m_ismaster(ismaster)
+  ,m_doNotConnect(false)
   ,m_port(port)
   ,m_engine(nullptr)
   ,m_document(nullptr)
@@ -49,6 +50,7 @@ RuntimeProcess::RuntimeProcess(QObject *parent, int port, bool ismaster) :
     //transmit log messages to appropriate LogView
     connect(this, &RuntimeProcess::readyReadStandardError, this, &RuntimeProcess::updateErrors);
     connect(this, &RuntimeProcess::readyReadStandardOutput, this, &RuntimeProcess::updateOutput);
+    connect(this, &RuntimeProcess::stateChanged, this, &RuntimeProcess::onStateChanged);
 }
 
 RuntimeProcess::~RuntimeProcess()
@@ -94,25 +96,29 @@ void RuntimeProcess::setLiveHubEngine(LiveHubEngine *engine)
 
 void RuntimeProcess::connectToServer()
 {
-    qInfo()<<"RuntimeProcess::connectToServer()"<< Constants::LOCAL_HOST() <<
-             " port=" << m_port << m_publisher.state();
+    if (!m_doNotConnect) {
+        qInfo()<<"RuntimeProcess::connectToServer()"<< Constants::LOCAL_HOST() <<
+                 " port=" << m_port << m_publisher.state();
 
-    if (m_publisher.state() != QAbstractSocket::UnconnectedState)
-        return;
+        if (m_publisher.state() != QAbstractSocket::UnconnectedState)
+            return;
 
-    m_publisher.connectToServer(Constants::LOCAL_HOST(), m_port);
+        m_publisher.connectToServer(Constants::LOCAL_HOST(), m_port);
+    }
 }
 
 void RuntimeProcess::connectToServer(int msecs)
 {
-    qInfo()<<"RuntimeProcess::connectToServer(msecs)"<< Constants::LOCAL_HOST() <<
-             " port=" << m_port << m_publisher.state();
-    QThread::msleep(msecs);
+    if (!m_doNotConnect) {
+        qInfo()<<"RuntimeProcess::connectToServer(msecs)"<< Constants::LOCAL_HOST() <<
+                 " port=" << m_port << m_publisher.state();
+        QThread::msleep(msecs);
 
-    if (m_publisher.state() != QAbstractSocket::UnconnectedState)
-        return;
+        if (m_publisher.state() != QAbstractSocket::UnconnectedState)
+            return;
 
-    m_publisher.connectToServer(Constants::LOCAL_HOST(), m_port, msecs);
+        m_publisher.connectToServer(Constants::LOCAL_HOST(), m_port, msecs);
+    }
 }
 
 void RuntimeProcess::onConnected()
@@ -125,7 +131,7 @@ void RuntimeProcess::onConnected()
 void RuntimeProcess::onDisconnected()
 {
     qInfo()<<"RuntimeProcess::onDisconnected ismaster="<<m_ismaster;
-    if (m_ismaster){
+    if (m_ismaster && !m_doNotConnect){
         connectToServer();
     }
 }
@@ -159,4 +165,19 @@ void RuntimeProcess::updateOutput()
 {
     QByteArray log = readAllStandardOutput();
     emit remoteLog(QtInfoMsg, log.data());
+}
+
+void RuntimeProcess::onStateChanged()
+{
+    switch (state()) {
+    case QProcess::Running:
+        m_doNotConnect = false;
+        break;
+    case QProcess::Starting:
+    case QProcess::NotRunning:
+        m_doNotConnect = true;
+        break;
+    default:
+        break;
+    }
 }

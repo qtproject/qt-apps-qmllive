@@ -44,7 +44,7 @@ class LogView : public QWidget
 {
     Q_OBJECT
 public:
-    enum {
+    enum InternalMsgType {
         InternalInfo = QtDebugMsg - 1,
         InternalError = QtDebugMsg - 2
     };

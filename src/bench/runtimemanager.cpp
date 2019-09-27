@@ -128,9 +128,24 @@ void RuntimeManager::onPrimeRuntimeChanged()
 
 void RuntimeManager::setPrimeCurrentFile(const LiveDocument &currentFile)
 {
-    if (!currentFile.isFileIn(m_engine->workspace()) || m_primeRuntime->state() != QProcess::Running)
+    if (!currentFile.isFileIn(m_engine->workspace())) {
+        qCritical() << "The selected file for preview is not located in the workspace. File: " << currentFile.relativeFilePath();
         return;
-     m_primeRuntime->setCurrentFile(currentFile);
+    }
+
+    if (m_primeRuntime->state() != QProcess::Running) {
+        QStringList arguments = argumentsList(Constants::PRIMERUNTIME_PORT(), "Prime QML Live Runtime", true);
+
+        if (m_engine == nullptr) {
+            qCritical() << "Failed to start Prime QML Live Runtime: nullptr QML engine object";
+            return;
+        }
+
+        m_primeRuntime->setLiveHubEngine(m_engine);
+        m_primeRuntime->start(m_runtimeBinaryPath, arguments);
+    }
+
+    m_primeRuntime->setCurrentFile(currentFile);
 }
 
 void RuntimeManager::initConnectToServer()
@@ -298,5 +313,17 @@ void RuntimeManager::restartAll()
         emit logWidgetRemoved(m_logDocks.at(i));
     }
 
-    restartPrimeRuntime();
+    stopPrimeRuntime();
+}
+
+void RuntimeManager::stopPrimeRuntime()
+{
+    if (m_primeRuntime->state() == QProcess::Running) {
+        m_primeRuntime->terminate();
+    }
+    if (!m_primeRuntime->waitForFinished(1000)) {
+        m_primeRuntime->kill();
+    }
+    m_primeRuntime->clearLog();
+    m_primeRuntime->remoteLog(LogView::InternalMsgType::InternalInfo, "Please select file for preview.");
 }

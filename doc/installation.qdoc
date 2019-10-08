@@ -42,11 +42,19 @@
     \li Qt5.4 or higher
 \endlist
 
-\section1 Building for desktop
+\section1 Get the Source Code
+
+You can install QML Live via the Qt Installer with a valid license for
+Qt Automotive Suite. Alternatively, you can also obtain the source code from
+\l{https://code.qt.io/cgit/qt-apps/qmllive.git/}.
+
+\section1 Build for Desktop
+
+QML Live uses qmake for its build system. The basic build steps are:
 
 \code
-    $ qmake
-    $ make
+    qmake
+    make
 \endcode
 
 To start QML Live Bench directly from the build directory, run
@@ -54,7 +62,7 @@ To start QML Live Bench directly from the build directory, run
 the following command:
 
 \code
-    $ make install
+    make install
 \endcode
 
 
@@ -65,8 +73,8 @@ following command:
 
 \code
     # using qmake from cross compiler toolchain
-    $ qmake "CONFIG+=skip-bench skip-examples static-link-runtime"
-    $ make
+    qmake "CONFIG+=skip-bench skip-examples static-link-runtime"
+    make
 \endcode
 
 You need to cross-compile QML Live and copy the \c{./bin/qmlliveruntime} binary
@@ -75,15 +83,17 @@ onto the target.
 Optionally, you can package QML Live with the following command:
 
 \code
-    $ make install INSTALL_ROOT=...
+    make install INSTALL_ROOT=...
 \endcode
 
 
 \section1 Build Documentation
 
+To build the documentation only, run the following commands:
+
 \code
-    $ qmake CONFIG+=force_independent
-    $ make docs
+    qmake CONFIG+=force_independent
+    make docs
 \endcode
 
 The documentation is available at: \tt{doc/qmllive/index.html}.

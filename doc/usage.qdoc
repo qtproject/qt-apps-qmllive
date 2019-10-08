@@ -139,6 +139,48 @@ select \uicontrol{Open in New Window}.
 
 \image newwindow.png
 
+\section1 QML Live Workspace and Its Configuration
+
+QML Live uses a workspace to organize your work. A QML Live workspace consists of a folder
+where all work files are located and a configuration file with a \c{.qmllive} extension.
+The workspace configuration file is a JSON file that describes which files in the workspace
+folder should be started first. It also allows you to configure the following parameters:
+
+\table
+  \header
+    \li Argument
+    \li Required / Optional
+    \li Description
+  \row
+    \li \c workspace
+    \li Required
+    \li Specifies the workspace folder to watch.
+  \row
+    \li \c main
+    \li Optional
+    \li The main QML document to load, initially.
+  \row
+    \li \c imports
+    \li Optional
+    \li Specifies the path to the QML import.
+\endtable
+
+The code snippet below shows an example of a QML Live workspace configuration file:
+\badcode
+{
+    "imports": [
+        "import/path/1","import/path/2"
+    ],
+    "main": "main.qml",
+    "workspace": "path/to/directory/with/files/for/preview"
+}
+\endcode
+
+The path that \c workspace points to must be relative to the workspace configuration file,
+or absolute. The \c imports path should be relative to the workspace configuration file or
+the \c workspace path. To create a workspace configuration file, click
+\uicontrol{New Workspace Configuration} in the UI.
+
 \section1 Integrate with Qt Creator
 
 You can integrate the QML Live Bench into Qt Creator, as an external tool. To do so:

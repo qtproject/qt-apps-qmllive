@@ -44,7 +44,6 @@ class LiveDocument;
 class LiveRuntime;
 class LiveHubEngine;
 class BenchLiveNodeEngine;
-class WindowWidget;
 class HostModel;
 class HostManager;
 class AllHostsWidget;
@@ -77,6 +76,9 @@ public:
 public slots:
     void setImportPaths(const QStringList& pathList);
 
+signals:
+    void quitEvent();
+
 protected:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);
@@ -106,7 +108,6 @@ private slots:
     void openWorkspaceConfig();
     void newWorkspaceConfigWizard();
     void newWorkspaceConfig();
-    void onActiveWindowChanged(QQuickWindow *activeWindow);
     void onLogWidgetAdded(QDockWidget* logDock);
     void onLogWidgetRemoved(QDockWidget* logDock);
 
@@ -115,7 +116,6 @@ private:
 
 private:
     bool m_initialized;
-    WindowWidget *m_ww;
     WorkspaceView *m_workspaceView;
     QString m_workspacePath;
     LogView *m_log;

@@ -34,7 +34,6 @@
 
 #include "livenodeengine.h"
 
-class WindowWidget;
 class PreviewImageProvider;
 class WorkspaceView;
 class BenchLiveNodeEngine : public LiveNodeEngine
@@ -46,7 +45,6 @@ public:
     ~BenchLiveNodeEngine();
 
     void setWorkspaceView(WorkspaceView* view);
-    void setWindowWidget(WindowWidget *widget);
 
 public slots:
     void refresh();
@@ -60,7 +58,6 @@ private Q_SLOTS:
     QImage convertIconToImage(const QFileInfo& info, const QSize& requestedSize);
 
 private:
-    WindowWidget* m_ww;
     QPointer<PreviewImageProvider> m_imageProvider;
     WorkspaceView* m_workspaceView;
     bool m_clipToRootObject;

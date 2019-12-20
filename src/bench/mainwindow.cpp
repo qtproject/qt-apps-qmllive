@@ -31,7 +31,6 @@
 ****************************************************************************/
 
 #include "mainwindow.h"
-#include "widgets/windowwidget.h"
 
 #include <QToolBar>
 #include <QtNetwork>
@@ -132,7 +131,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_workspaceView, &WorkspaceView::pathActivated, m_hostManager, &HostManager::followTreeSelection);
     connect(m_hub, &LiveHubEngine::activateDocument, this, &MainWindow::updateWindowTitle);
     connect(m_hub, &LiveHubEngine::activateDocument, m_node, &LiveNodeEngine::loadDocument);
-    connect(m_node, &LiveNodeEngine::activeWindowChanged, this, &MainWindow::onActiveWindowChanged);
     connect(m_node->qmlEngine(), &QQmlEngine::quit, this, &MainWindow::logQuitEvent);
     connect(m_allHosts, &AllHostsWidget::publishAll, m_hostManager, &HostManager::publishAll);
     connect(m_allHosts, &AllHostsWidget::currentFileChanged, m_hostManager, &HostManager::setCurrentFile);
@@ -140,7 +138,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_hostManager, &HostManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
     connect(m_hostManager, &HostManager::openHostConfig, this, &MainWindow::openPreferences);
     connect(m_newWorkspaceConfigWizard, &NewProjectWizard::accepted, this, &MainWindow::newWorkspaceConfig);
-    connect(m_workspaceView, &WorkspaceView::pathActivated, m_runtimeManager, &RuntimeManager::setPrimeCurrentFile);
     connect(m_workspaceView, &WorkspaceView::newRuntimeWindow, m_runtimeManager, &RuntimeManager::newRuntimeWindow);
     connect(m_workspaceView, &WorkspaceView::initConnectToServer, m_runtimeManager, &RuntimeManager::initConnectToServer);
     connect(m_runtimeManager, &RuntimeManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
@@ -164,21 +161,8 @@ void MainWindow::setupContent()
     setupWorkspaceView();
     setupHostView();
 
-    m_ww = new WindowWidget(this);
-    m_ww->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_ww->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_ww->setBackgroundRole(QPalette::Dark);
-    m_node->setWindowWidget(m_ww);
-    m_ww->setHidden(true);
-
     m_workspaceView->setWindowTitle("Workspace");
     setCentralWidget(m_workspaceView);
-}
-
-void MainWindow::onActiveWindowChanged(QQuickWindow *activeWindow)
-{
-    m_ww->setCenteringEnabled(true);
-    m_ww->setHostedWindow(activeWindow);
 }
 
 void MainWindow::onLogWidgetAdded(QDockWidget *logDock)
@@ -396,7 +380,6 @@ void MainWindow::init()
 
     m_workspaceView->restoreFromSettings(&s);
     m_runtimeManager->setWorkspace(m_workspacePath);
-    m_runtimeManager->startPrimeRuntime();
 
     m_initialized = true;
 }
@@ -462,7 +445,6 @@ void MainWindow::setupToolBar()
 void MainWindow::activateDocument(const LiveDocument &path)
 {
     m_workspaceView->activateDocument(path);
-    m_runtimeManager->setPrimeCurrentFile(path);
 }
 
 void MainWindow::takeSnapshot()
@@ -536,6 +518,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     m_closeEvent = true;
     writeSettings();
     m_runtimeManager->finishProcesses();
+    emit quitEvent();
     QMainWindow::closeEvent(event);
 }
 

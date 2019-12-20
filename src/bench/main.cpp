@@ -413,6 +413,7 @@ MasterApplication::MasterApplication(int &argc, char **argv)
         if (!options()->noRemote())
             listenForArguments();
     }
+    connect(m_window, &MainWindow::quitEvent, this, &MasterApplication::quit);
 }
 
 MasterApplication::~MasterApplication()

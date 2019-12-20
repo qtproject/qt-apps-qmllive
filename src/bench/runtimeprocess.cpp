@@ -32,9 +32,8 @@
 #include "runtimeprocess.h"
 #include "livehubengine.h"
 
-RuntimeProcess::RuntimeProcess(QObject *parent, int port, bool ismaster) :
+RuntimeProcess::RuntimeProcess(QObject *parent, int port) :
    QProcess(parent)
-  ,m_ismaster(ismaster)
   ,m_doNotConnect(false)
   ,m_port(port)
   ,m_engine(nullptr)
@@ -85,10 +84,6 @@ void RuntimeProcess::setLiveHubEngine(LiveHubEngine *engine)
     m_publisher.setWorkspace(m_engine->workspace());
 
     connect(m_engine.data(), &LiveHubEngine::workspaceChanged, &m_publisher, &RemotePublisher::setWorkspace);
-    if (m_ismaster) {
-        connect(m_engine.data(), &LiveHubEngine::fileChanged, &m_publisher, &RemotePublisher::activateDocument);
-    }
-
     connect(m_engine.data(), &LiveHubEngine::activateDocument, &m_publisher, &RemotePublisher::activateDocument);
     connect(m_engine.data(), &LiveHubEngine::beginPublishWorkspace, &m_publisher, &RemotePublisher::beginBulkSend);
     connect(m_engine.data(), &LiveHubEngine::endPublishWorkspace, &m_publisher, &RemotePublisher::endBulkSend);
@@ -130,11 +125,9 @@ void RuntimeProcess::onConnected()
 
 void RuntimeProcess::onDisconnected()
 {
-    qInfo()<<"RuntimeProcess::onDisconnected ismaster="<<m_ismaster;
-    if (m_ismaster && !m_doNotConnect){
-        connectToServer();
-    }
+    qInfo()<<"RuntimeProcess::onDisconnected ";
 }
+
 void RuntimeProcess::onConnectionError(QAbstractSocket::SocketError error)
 {
     qWarning()<<"RuntimeProcess::onConnectionError: Host connection error: "<<error;

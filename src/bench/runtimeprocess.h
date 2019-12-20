@@ -40,7 +40,7 @@ class RuntimeProcess : public QProcess
 {
     Q_OBJECT
 public:
-    explicit RuntimeProcess(QObject *parent = nullptr, int port = Constants::DEFAULT_BENCH_PORT(), bool ismaster = false);
+    explicit RuntimeProcess(QObject *parent = nullptr, int port = Constants::DEFAULT_BENCH_PORT());
     ~RuntimeProcess();
 
     void setCurrentFile(const LiveDocument &currentFile);
@@ -64,7 +64,6 @@ private Q_SLOTS:
     void updateErrors();
     void onStateChanged();
 private:
-    bool m_ismaster;
     bool m_doNotConnect;
     int m_port;
     RemotePublisher m_publisher;

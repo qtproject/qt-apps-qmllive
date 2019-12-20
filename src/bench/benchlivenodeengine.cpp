@@ -34,7 +34,6 @@
 #include "directorypreviewadapter.h"
 #include "previewimageprovider.h"
 #include "qmlpreviewadapter.h"
-#include "widgets/windowwidget.h"
 #include "liveruntime.h"
 #include "widgets/workspaceview.h"
 
@@ -43,7 +42,6 @@
 
 BenchLiveNodeEngine::BenchLiveNodeEngine(QObject *parent)
     : LiveNodeEngine(parent),
-      m_ww(0),
       m_imageProvider(new PreviewImageProvider(this)),
       m_workspaceView(0),
       m_clipToRootObject(false)
@@ -57,11 +55,6 @@ BenchLiveNodeEngine::BenchLiveNodeEngine(QObject *parent)
 BenchLiveNodeEngine::~BenchLiveNodeEngine()
 {
     delete fallbackView();
-}
-
-void BenchLiveNodeEngine::setWindowWidget(WindowWidget *widget)
-{
-    m_ww = widget;
 }
 
 void BenchLiveNodeEngine::setWorkspaceView(WorkspaceView *view)
@@ -129,22 +122,5 @@ void BenchLiveNodeEngine::initPlugins()
 
 void BenchLiveNodeEngine::reloadHelper()
 {
-    // avoid flickering
-    fallbackView()->resize(m_ww->size());
-
     LiveNodeEngine::reloadDocument();
-
-    QAbstractScrollArea *scroller = m_ww;
-
-    ContentAdapterInterface *adapter = activePlugin();
-    if (adapter && adapter->isFullScreen()) {
-        m_ww->setCenteringEnabled(false);
-        scroller->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        scroller->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    } else {
-        m_ww->setCenteringEnabled(true);
-        scroller->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-        scroller->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    }
-    m_ww->forceInitialResize();
 }

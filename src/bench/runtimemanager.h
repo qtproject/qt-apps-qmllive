@@ -46,7 +46,6 @@ public:
     explicit RuntimeManager(QObject *parent = nullptr);
     ~RuntimeManager();
 
-    void startPrimeRuntime();
     void setRuntimeBinaryPath(const QString &path);
     void setLiveHubEngine(LiveHubEngine *engine);
     void setWorkspace(const QString &workspace);
@@ -57,18 +56,12 @@ public:
 
 private:
     QStringList argumentsList(const int& port, const QString& titles, const bool hideButtons = false);
-    void restartPrimeRuntime();
-    void stopPrimeRuntime();
 
 signals:
     void logWidgetAdded(QDockWidget* log);
     void logWidgetRemoved(QDockWidget* log);
 
 public slots:
-    void onPrimeRuntimeError(QProcess::ProcessError error);
-    void onPrimeRuntimeChanged();
-    void onPrimeRuntimeConnected();
-    void setPrimeCurrentFile(const LiveDocument &currentFile);
     void newRuntimeWindow(const QString &document);
     void initConnectToServer();
     void onConnected();
@@ -80,7 +73,6 @@ private:
     int m_port;
     QString m_runtimeBinaryPath;
     QString m_workspace;
-    RuntimeProcess *m_primeRuntime; //this prime runtime supposed to be QML Live runtime which follows the activeDocumetChanged Slot
     LiveHubEngine *m_engine;
     LiveDocument* m_currentFile;
     RuntimeProcess* m_curproc;
@@ -88,8 +80,6 @@ private:
     QString* m_pluginPath;
     QList<QDockWidget*> m_logDocks;
     QList<RuntimeProcess*> m_runtimes;
-    bool m_primeRuntimeConnected;
-    LiveDocument* m_primeCurrentFile;
 };
 
 #endif // RUNTIMEMANAGER_H

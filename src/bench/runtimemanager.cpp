@@ -41,10 +41,7 @@ RuntimeManager::RuntimeManager(QObject *parent) : QObject(parent)
   ,m_currentFile(nullptr)
   ,m_imports(nullptr)
   ,m_pluginPath(nullptr)
-  ,m_primeRuntimeConnected(false)
-  ,m_primeCurrentFile(nullptr)
 {
-    m_primeRuntime = new RuntimeProcess(this, Constants::PRIMERUNTIME_PORT(), true);
     QSettings s;
     QString path = s.value(Constants::RUNTIME_SETTINGS_KEY()).toString();
     if (!path.isEmpty()) {
@@ -53,34 +50,10 @@ RuntimeManager::RuntimeManager(QObject *parent) : QObject(parent)
         // Assuming the qmlliveruntime binary located at the same folder with qmllivebench
         m_runtimeBinaryPath = Constants::DEFAULT_RUNTIME_LOCATION();
     }
-    connect(m_primeRuntime, &RuntimeProcess::errorOccurred, this, &RuntimeManager::onPrimeRuntimeError);
-    connect(m_primeRuntime, &RuntimeProcess::stateChanged, this, &RuntimeManager::onPrimeRuntimeChanged);
 }
 RuntimeManager::~RuntimeManager()
 {
     finishProcesses();
-}
-
-void RuntimeManager::startPrimeRuntime()
-{
-    QDockWidget *dock =new QDockWidget("PrimeRuntime");
-    dock->setObjectName("PrimeRuntimeLogDock");
-    LogView *view = new LogView(false, dock);
-    connect(m_primeRuntime, &RuntimeProcess::remoteLog, view, &LogView::appendToLog);
-    connect(m_primeRuntime, &RuntimeProcess::clearLog, view, &LogView::clear);
-    connect(m_primeRuntime, &RuntimeProcess::connected, view, &LogView::clear);
-    connect(m_primeRuntime, &RuntimeProcess::connected, this, &RuntimeManager::onPrimeRuntimeConnected);
-    dock->setWidget(view);
-    emit logWidgetAdded(dock);
-
-    QStringList arguments = argumentsList(Constants::PRIMERUNTIME_PORT(), "Prime QML Live Runtime", true);
-
-    if (m_engine == nullptr) {
-        qWarning() << "Failed to start Prime QML Live Runtime: nullptr QML engine object";
-        return;
-    }
-    m_primeRuntime->setLiveHubEngine(m_engine);
-    m_primeRuntime->start(m_runtimeBinaryPath, arguments);
 }
 
 void RuntimeManager::setRuntimeBinaryPath(const QString &path)
@@ -93,64 +66,9 @@ void RuntimeManager::setLiveHubEngine(LiveHubEngine *engine)
     m_engine = engine;
 }
 
-void RuntimeManager::onPrimeRuntimeError(QProcess::ProcessError error)
-{
-    if (error == QProcess::ProcessError::Crashed) {
-        qWarning() << "QML Live Prime Runtime crashed with QProcess::ExitStatus = " << m_primeRuntime->exitStatus();
-    } else {
-        qWarning() << "RuntimeManager::onPrimeRuntimeError: " << error;
-    }
-}
-
 void RuntimeManager::setWorkspace(const QString &workspace)
 {
     m_workspace = workspace;
-    m_primeRuntime->setWorkspace(workspace);
-}
-
-void RuntimeManager::onPrimeRuntimeChanged()
-{
-    switch (m_primeRuntime->state()) {
-    case QProcess::Running:
-        qInfo() << "Prime QML Live Runtime RUNNING";
-        m_primeRuntime->connectToServer();
-        break;
-    case QProcess::Starting:
-        qInfo() << "Prime QML Live Runtime STARTING";
-        break;
-    case QProcess::NotRunning:
-        if (QFileInfo(m_runtimeBinaryPath).exists()) {
-            qWarning() << "Prime QML Live Runtime NOT RUNNING: failed to start qmlliveruntime at: "<<m_runtimeBinaryPath<<" - you may have insufficient permissions to invoke it.";
-        }
-        else {
-            qWarning() << "Prime QML Live Runtime NOT RUNNING: qmlliveruntime is missing at: "<<m_runtimeBinaryPath;
-            qWarning() << "Please specify qmlliveruntime binary location at 'Preferences->QML Live Runtime'";
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void RuntimeManager::setPrimeCurrentFile(const LiveDocument &currentFile)
-{
-    if (!currentFile.isFileIn(m_engine->workspace())) {
-        qCritical() << "The selected file for preview is not located in the workspace. File: " << currentFile.relativeFilePath();
-        return;
-    }
-
-    if (m_primeRuntime->state() != QProcess::Running) {
-        QStringList arguments = argumentsList(Constants::PRIMERUNTIME_PORT(), "Prime QML Live Runtime", true);
-
-        if (m_engine == nullptr) {
-            qCritical() << "Failed to start Prime QML Live Runtime: nullptr QML engine object";
-            return;
-        }
-
-        m_primeRuntime->setLiveHubEngine(m_engine);
-        m_primeRuntime->start(m_runtimeBinaryPath, arguments);
-    }
-    m_primeRuntime->setCurrentFile(currentFile);
 }
 
 void RuntimeManager::initConnectToServer()
@@ -225,15 +143,6 @@ void RuntimeManager::finishProcesses()
             }
         }
     }
-
-    if (m_primeRuntime->state() == QProcess::Running || m_primeRuntime->state() == QProcess::Starting){
-        m_primeRuntime->terminate();
-        if (!m_primeRuntime->waitForFinished(1000)) {
-            qInfo() << "QML Live Prime Runtime with port " + QString::number(m_primeRuntime->port()) + " was not finished within 500 msec, KILLING...";
-            m_primeRuntime->kill();
-        }
-    }
-    delete m_primeRuntime;
 }
 
 QStringList RuntimeManager::argumentsList(const int& port, const QString& title, const bool hideButtons)
@@ -263,28 +172,6 @@ QStringList RuntimeManager::argumentsList(const int& port, const QString& title,
 void RuntimeManager::updateRuntimePath(const QString& path)
 {
     m_runtimeBinaryPath = path;
-    if (m_primeRuntime->state() == QProcess::NotRunning){
-        restartPrimeRuntime();
-    }
-}
-
-void RuntimeManager::restartPrimeRuntime()
-{
-    QStringList arguments = argumentsList(Constants::PRIMERUNTIME_PORT(), "Prime QML Live Runtime", true);
-
-    if (m_engine == nullptr) {
-        qWarning()<<"Failed to start Prime QML Live Runtime: nullptr QML engine object";
-        return;
-    }
-    if (m_primeRuntime->state() == QProcess::Running) {
-        m_primeRuntime->terminate();
-    }
-    if (!m_primeRuntime->waitForFinished(1000)) {
-        m_primeRuntime->kill();
-    }
-
-    m_primeRuntime->setLiveHubEngine(m_engine);
-    m_primeRuntime->start(m_runtimeBinaryPath, arguments);
 }
 
 void RuntimeManager::onError(QProcess::ProcessError error)
@@ -321,26 +208,4 @@ void RuntimeManager::restartAll()
     for (int i = 0; i < m_logDocks.count(); i++) {
         emit logWidgetRemoved(m_logDocks.at(i));
     }
-
-    stopPrimeRuntime();
-}
-
-void RuntimeManager::stopPrimeRuntime()
-{
-    if (m_primeRuntime->state() == QProcess::Running) {
-        m_primeRuntime->terminate();
-    }
-    if (!m_primeRuntime->waitForFinished(1000)) {
-        m_primeRuntime->kill();
-    }
-    m_primeRuntime->clearLog();
-    m_primeRuntime->remoteLog(LogView::InternalMsgType::InternalInfo, "Please select file for preview.");
-}
-
-void RuntimeManager::onPrimeRuntimeConnected()
-{
-    qInfo() << "PrimeRuntime connected ";
-    m_primeRuntimeConnected = true;
-    if (m_primeCurrentFile != nullptr)
-        m_primeRuntime->setCurrentFile(*m_primeCurrentFile);
 }

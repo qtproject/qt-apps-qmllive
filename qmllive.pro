@@ -1,5 +1,5 @@
 !skip-bench: requires(qtHaveModule(widgets))
-requires(linux|macos|win32:!winrt:!integrity:!wasm:!ios)
+requires(linux|macos|win32:!winrt:!integrity:!wasm:!ios:!android)
 
 load(configure)
 load(config-output)

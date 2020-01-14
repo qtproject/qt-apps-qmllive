@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_allHosts(new AllHostsWidget(this))
     , m_hub(new LiveHubEngine(this))
     , m_node(new BenchLiveNodeEngine(this))
-    , m_newProjectWizard(new NewProjectWizard(this))
+    , m_newWorkspaceConfigWizard(new NewProjectWizard(this))
     , m_projectManager(new ProjectManager(this))
     , m_imports (nullptr)
     , m_runtimeManager(new RuntimeManager(this))
@@ -139,7 +139,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_allHosts, &AllHostsWidget::refreshAll, m_hostManager, &HostManager::refreshAll);
     connect(m_hostManager, &HostManager::logWidgetAdded, this, &MainWindow::onLogWidgetAdded);
     connect(m_hostManager, &HostManager::openHostConfig, this, &MainWindow::openPreferences);
-    connect(m_newProjectWizard, &NewProjectWizard::accepted, this, &MainWindow::newProject);
+    connect(m_newWorkspaceConfigWizard, &NewProjectWizard::accepted, this, &MainWindow::newWorkspaceConfig);
     connect(m_workspaceView, &WorkspaceView::pathActivated, m_runtimeManager, &RuntimeManager::setPrimeCurrentFile);
     connect(m_workspaceView, &WorkspaceView::newRuntimeWindow, m_runtimeManager, &RuntimeManager::newRuntimeWindow);
     connect(m_workspaceView, &WorkspaceView::initConnectToServer, m_runtimeManager, &RuntimeManager::initConnectToServer);
@@ -264,24 +264,24 @@ void MainWindow::setupMenuBar()
 {
     QMenu *file = menuBar()->addMenu(tr("&File"));
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    m_createProject = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Project"), this, SLOT(newProject()), QKeySequence::New);
+    m_createWorkspaceConfig = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Workspace"), this, SLOT(newWorkspaceConfig()), QKeySequence::New);
 #else
-    m_createProject = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Project"),
-                                      this, &MainWindow::newProjectWizard, QKeySequence::New);
+    m_createWorkspaceConfig = file->addAction(QIcon::fromTheme("folder-new"), tr("&New Workspace"),
+                                      this, &MainWindow::newWorkspaceConfigWizard, QKeySequence::New);
 #endif
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    m_openProject = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Project..."), this, SLOT(openProject()), QKeySequence::Open);
+    m_openWorkspaceConfig = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."), this, SLOT(openWorkspaceConfig()), QKeySequence::Open);
 #else
-    m_openProject = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Project..."),
-                                      this, &MainWindow::openProject, QKeySequence::Open);
+    m_openWorkspaceConfig = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."),
+                                      this, &MainWindow::openWorkspaceConfig, QKeySequence::Open);
 #endif
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."), this, SLOT(openWorkspace()), QKeySequence("Ctrl+W"));
+    m_openFolder = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Folder..."), this, SLOT(openFolder()), QKeySequence("Ctrl+F"));
 #else
-    m_openWorkspace = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Workspace..."),
-                                      this, &MainWindow::openWorkspace, QKeySequence("Ctrl+W"));
+    m_openFolder = file->addAction(QIcon::fromTheme("folder-open"), tr("&Open Folder..."),
+                                      this, &MainWindow::openFolder, QKeySequence("Ctrl+F"));
 #endif
     m_recentMenu = file->addMenu(QIcon::fromTheme("document-open-recent"), "&Recent");
     m_recentMenu->setEnabled(false);
@@ -452,9 +452,9 @@ void MainWindow::setupToolBar()
     m_toolBar = addToolBar("ToolBar");
     m_toolBar->setObjectName("toolbar");
     m_toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_toolBar->addAction(m_createProject);
-    m_toolBar->addAction(m_openProject);
-    m_toolBar->addAction(m_openWorkspace);
+    m_toolBar->addAction(m_createWorkspaceConfig);
+    m_toolBar->addAction(m_openWorkspaceConfig);
+    m_toolBar->addAction(m_openFolder);
     m_toolBar->addSeparator();
     m_toolBar->addAction(m_refresh);
 }
@@ -526,9 +526,9 @@ void MainWindow::setStaysOnTop(bool enabled)
     stayOnTop();
 }
 
-void MainWindow::setProject(const QString &projectFile)
+void MainWindow::setWorkspaceConfig(const QString &projectFile)
 {
-    openProjectFile(projectFile);
+    openWorkspaceConfigFile(projectFile);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -545,9 +545,9 @@ void MainWindow::showEvent(QShowEvent *event)
     raise();
 }
 
-void MainWindow::openWorkspace()
+void MainWindow::openFolder()
 {
-    QString path = QFileDialog::getExistingDirectory(this, "Open Workspace");
+    QString path = QFileDialog::getExistingDirectory(this, "Open Folder");
     if (path.isEmpty()) {
         return;
     }
@@ -642,17 +642,17 @@ void MainWindow::stayOnTop()
     show();
 }
 
-void MainWindow::openProject()
+void MainWindow::openWorkspaceConfig()
 {
     QString filter = tr("QML Live (*.qmllive);; All files (*.*)");
     QString path = QFileDialog::getOpenFileName(this, "Open Project", filter, filter);
     if (path.isEmpty()) {
         return;
     }
-    openProjectFile(path);
+    openWorkspaceConfigFile(path);
 }
 
-void MainWindow::openProjectFile(const QString &path)
+void MainWindow::openWorkspaceConfigFile(const QString &path)
 {
     if (m_projectManager->read(path))
     {
@@ -687,27 +687,27 @@ void MainWindow::openProjectFile(const QString &path)
     }
 }
 
-void MainWindow::newProjectWizard()
+void MainWindow::newWorkspaceConfigWizard()
 {
-    if (!m_newProjectWizard) {
-        m_newProjectWizard = new NewProjectWizard(this);
+    if (!m_newWorkspaceConfigWizard) {
+        m_newWorkspaceConfigWizard = new NewProjectWizard(this);
     } else {
-        m_newProjectWizard->restart();
+        m_newWorkspaceConfigWizard->restart();
     }
-    m_newProjectWizard->show();
+    m_newWorkspaceConfigWizard->show();
 }
 
-void MainWindow::newProject()
+void MainWindow::newWorkspaceConfig()
 {
-    m_projectManager->setImports(m_newProjectWizard->imports());
-    m_projectManager->setMainDocument(m_newProjectWizard->mainDocument());
-    m_projectManager->setWorkspace(m_newProjectWizard->workspace());
-    m_projectManager->create(m_newProjectWizard->projectName());
+    m_projectManager->setImports(m_newWorkspaceConfigWizard->imports());
+    m_projectManager->setMainDocument(m_newWorkspaceConfigWizard->mainDocument());
+    m_projectManager->setWorkspace(m_newWorkspaceConfigWizard->workspace());
+    m_projectManager->create(m_newWorkspaceConfigWizard->projectName());
 
-    setImportPaths(m_newProjectWizard->imports());
-    QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_newProjectWizard->workspace());
+    setImportPaths(m_newWorkspaceConfigWizard->imports());
+    QString path = QDir(m_projectManager->projectLocation()).absoluteFilePath(m_newWorkspaceConfigWizard->workspace());
     setWorkspace(path);
-    activateDocument(LiveDocument(m_newProjectWizard->mainDocument()));
+    activateDocument(LiveDocument(m_newWorkspaceConfigWizard->mainDocument()));
     m_runtimeManager->restartAll();
 }
 

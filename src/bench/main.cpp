@@ -479,7 +479,7 @@ void MasterApplication::applyOptions(const Options &options)
 
     if (!options.project().isEmpty()) {
         if (!m_window->isInitialized())
-            m_window->setProject(options.project());
+            m_window->setWorkspaceConfig(options.project());
         else
             qDebug() << "Ignoring attempt to set project file after initialization.";
     }

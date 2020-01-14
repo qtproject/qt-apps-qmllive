@@ -67,7 +67,7 @@ public:
     void setWorkspace(const QString& path, bool activateRootPath = true);
     void setPluginPath(const QString& path);
     void setStaysOnTop(bool enabled);
-    void setProject(const QString& projectFile);
+    void setWorkspaceConfig(const QString& projectFile);
     void init();
     bool isInitialized() const { return m_initialized; }
 
@@ -90,22 +90,22 @@ private:
     void setupMenuBar();
     void writeSettings();
     void restoreImportPathsFromSettings();
-    void openProjectFile(const QString& path);
+    void openWorkspaceConfigFile(const QString& path);
     void saveImportPathToSettings(const QString& path);
 
 private slots:
     void takeSnapshot();
     void slowDownAnimations(bool enable);
-    void openWorkspace();
+    void openFolder();
     void logQuitEvent();
     void updateWindowTitle();
     void openPreferences(Host *host = nullptr);
     void openRecentFolder();
     void clearRecentFolder();
     void stayOnTop();
-    void openProject();
-    void newProjectWizard();
-    void newProject();
+    void openWorkspaceConfig();
+    void newWorkspaceConfigWizard();
+    void newWorkspaceConfig();
     void onActiveWindowChanged(QQuickWindow *activeWindow);
     void onLogWidgetAdded(QDockWidget* logDock);
     void onLogWidgetRemoved(QDockWidget* logDock);
@@ -132,14 +132,14 @@ private:
     QMenu* m_recentMenu;
     QMenu* m_logDockMenu;
     QAction *m_stayOnTop;
-    QAction *m_openWorkspace;
+    QAction *m_openFolder;
     QAction *m_refresh;
     QAction *m_clipRootObject;
     QToolBar* m_toolBar;
     QStringList m_qmlDefaultimportList;
-    QAction *m_openProject;
-    QAction *m_createProject;
-    NewProjectWizard *m_newProjectWizard;
+    QAction *m_openWorkspaceConfig;
+    QAction *m_createWorkspaceConfig;
+    NewProjectWizard *m_newWorkspaceConfigWizard;
     ProjectManager *m_projectManager;
     QSet<QString> *m_imports;
     RuntimeManager *m_runtimeManager;

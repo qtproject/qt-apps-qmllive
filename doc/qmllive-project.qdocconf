@@ -3,7 +3,7 @@ description = QML Live Reference Documentation
 url = https://doc.qt.io/QMLLive
 version = $QT_VERSION
 
-moduleheader = QMLLiveDoc
+moduleheader = QmlLiveDoc
 includepaths += -I ../src
 
 sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"

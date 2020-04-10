@@ -74,10 +74,14 @@ private slots:
     void updateYOffset(int offset);
     void updateRotation(int rotation);
 
+    void addHostPressed();
     void addHost(Host* host = 0);
     void removeHost();
 
+#if 0
+//  commenting out this functionality since Autodiscovery implementation was removed by licensing issue
     void showAutoDiscoveryDialog();
+#endif
 
 private:
     Ui::HostsOptionPage *ui;

@@ -58,6 +58,8 @@ HostsOptionsPage::HostsOptionsPage(QWidget *parent) :
     connect(ui->yField, QSpinBox__valueChanged, this, &HostsOptionsPage::updateYOffset);
     connect(ui->rotationField, QSpinBox__valueChanged, this, &HostsOptionsPage::updateRotation);
 
+#if 0
+//  commenting out this functionality since Autodiscovery implementation was removed by licensing issue
     QMenu *menu = new QMenu(ui->addHostButton);
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
     menu->addAction("Auto Discovery...", this, SLOT(showAutoDiscoveryDialog()));
@@ -66,8 +68,8 @@ HostsOptionsPage::HostsOptionsPage(QWidget *parent) :
     menu->addAction("Auto Discovery...", this, &HostsOptionsPage::showAutoDiscoveryDialog);
     menu->addAction("Manual", this, [this] { addHost(); });
 #endif
-    ui->addHostButton->setMenu(menu);
-
+#endif
+    connect(ui->addHostButton, &QAbstractButton::clicked, this, &HostsOptionsPage::addHostPressed);
     connect(ui->removeHostButton, &QAbstractButton::clicked, this, &HostsOptionsPage::removeHost);
 }
 
@@ -266,6 +268,8 @@ void HostsOptionsPage::removeHost()
     m_currentIndex = -1;
 }
 
+#if 0
+//  commenting out this functionality since Autodiscovery implementation was removed by licensing issue
 void HostsOptionsPage::showAutoDiscoveryDialog()
 {
     m_autoDiscoveryDialog->clearSelection();
@@ -278,4 +282,10 @@ void HostsOptionsPage::showAutoDiscoveryDialog()
             addHost(new Host(*host, m_model));
         }
     }
+}
+#endif
+
+void HostsOptionsPage::addHostPressed()
+{
+    addHost(nullptr);
 }

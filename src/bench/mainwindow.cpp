@@ -427,7 +427,7 @@ void MainWindow::restoreImportPathsFromSettings()
     }
     s.endArray();
 
-    m_node->qmlEngine()->setImportPathList(m_imports->toList() + m_qmlDefaultimportList);
+    m_node->qmlEngine()->setImportPathList(m_imports->values() + m_qmlDefaultimportList);
 }
 
 void MainWindow::setupToolBar()
@@ -496,7 +496,7 @@ void MainWindow::setImportPaths(const QStringList &pathList)
 {
     if (m_imports == nullptr)
         m_imports = new QSet<QString>();
-    *m_imports = QSet<QString>::fromList(pathList);
+    *m_imports = QSet<QString>(pathList.begin(),pathList.end());
 
     m_node->qmlEngine()->setImportPathList(pathList + m_qmlDefaultimportList);
     m_runtimeManager->setImportPathList(pathList + m_qmlDefaultimportList);
@@ -562,7 +562,7 @@ void MainWindow::openPreferences(Host *host)
     connect(&dialog, &OptionsDialog::updateRuntimePath, m_runtimeManager, &RuntimeManager::updateRuntimePath);
     dialog.setHostModel(m_hostModel);
     dialog.setDiscoveredHostsModel(m_discoveryManager->discoveredHostsModel());
-    dialog.setImports(m_imports->toList());
+    dialog.setImports(m_imports->values());
 
     if (host)
         dialog.openHostConfig(host);

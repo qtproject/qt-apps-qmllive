@@ -443,8 +443,7 @@ void MasterApplication::listenForArguments()
     }
 
     auto handleConnection = [this](QLocalSocket *connection) {
-        auto QLocalSocket_error = static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error);
-        connect(connection, QLocalSocket_error, this, [connection]() {
+        connect(connection, &QLocalSocket::errorOccurred, this, [connection]() {
             qWarning() << "Error receiving arguments:" << connection->errorString();
             connection->close();
         });
@@ -603,8 +602,7 @@ void SlaveApplication::forwardArguments()
 {
     QLocalSocket *socket = new QLocalSocket(this);
 
-    auto QLocalSocket_error = static_cast<void(QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error);
-    connect(socket, QLocalSocket_error, this, [socket]() {
+    connect(socket, &QLocalSocket::errorOccurred, this, [socket]() {
         qCritical() << "Error forwarding arguments:" << socket->errorString();
         exit(1);
     });

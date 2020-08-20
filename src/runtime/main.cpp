@@ -46,12 +46,12 @@ struct Options
     Options()
         : updatesAsOverlay(false)
         , updateOnConnect(false)
-        , allowCreateMissing(false)
         , fullscreen(false)
         , transparent(false)
         , frameless(false)
         , stayontop(false)
         , hideButtons(false)
+        , allowCreateMissing(false)
         , windowTitle("QML Live Runtime")
     {
         ipcPort = Constants::DEFAULT_PORT();

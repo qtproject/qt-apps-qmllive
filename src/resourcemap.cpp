@@ -245,7 +245,7 @@ bool ResourceMap::updateMapping(const LiveDocument &qrcDocument, QIODevice *qrcF
         }
         qCDebug(rmLog) << "Mapping" << prefixedResourceName << "to" << filePath;
 
-        m_resourcesByDocument.insertMulti(localePrefix + filePath, resource);
+        m_resourcesByDocument.insert(localePrefix + filePath, resource);
         m_documentByResource.insert(prefixedResourceName, filePath);
         m_resourcesByQrc.insert(qrcDocument.relativeFilePath(), prefixedResourceName);
     };

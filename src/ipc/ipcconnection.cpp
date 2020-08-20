@@ -56,8 +56,7 @@ IpcConnection::IpcConnection(QTcpSocket *socket, QObject *parent)
     DEBUG << "IpcConnection()";
 
     connect(m_socket, &QAbstractSocket::disconnected, this, &IpcConnection::close);
-    void (QAbstractSocket::*QAbstractSocket__error)(QAbstractSocket::SocketError) = &QAbstractSocket::error;
-    connect(m_socket, QAbstractSocket__error, this, &IpcConnection::closeWithError);
+    connect(m_socket, &QAbstractSocket::errorOccurred, this, &IpcConnection::closeWithError);
     connect(m_socket, &QAbstractSocket::readyRead, this, &IpcConnection::readData);
 }
 

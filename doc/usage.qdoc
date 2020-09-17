@@ -218,6 +218,16 @@ The following options are supported:
   \row
     \li \c -stayontop
     \li Keep the viewer window on top.
+  \row
+    \li \c -allow-create-missing
+    \li Allow creating new documents in the workspace. Without this option updates
+    are only accepted for existing workspace documents.
+  \row
+    \li \c -title
+    \li Set window title.
+  \row
+    \li \c -hidebuttons
+    \li Hide window control buttons (close, minimize, maximize).
 \endtable
 
 Not all projects are designed in a way to allow the designer working on isolated panels or screens.
